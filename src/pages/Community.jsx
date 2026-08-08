@@ -180,9 +180,7 @@ function CommunityPost({
     const cleanComment =
       commentText.trim();
 
-    if (!cleanComment) {
-      return;
-    }
+    if (!cleanComment) return;
 
     if (
       cleanComment.length > 200
@@ -274,33 +272,41 @@ function CommunityPost({
   return (
     <article className="community-post">
 
-      {/* USER */}
+      {/* CLICKABLE USER */}
 
-      <div className="community-user">
+      <Link
+        to={`/player/${post.userId}`}
+        className="community-user-link"
+      >
+        <div className="community-user">
 
-        {post.userPhoto ? (
-          <img
-            src={post.userPhoto}
-            alt=""
-          />
-        ) : (
-          <div className="community-avatar-fallback">
-            B
+          {post.userPhoto ? (
+            <img
+              src={post.userPhoto}
+              alt={
+                post.userName ||
+                "BOLOX Player"
+              }
+            />
+          ) : (
+            <div className="community-avatar-fallback">
+              B
+            </div>
+          )}
+
+          <div>
+            <strong>
+              {post.userName ||
+                "BOLOX Player"}
+            </strong>
+
+            <small>
+              VIEW BOLOX PROFILE →
+            </small>
           </div>
-        )}
 
-        <div>
-          <strong>
-            {post.userName ||
-              "BOLOX Player"}
-          </strong>
-
-          <small>
-            BOLOX PLAYER
-          </small>
         </div>
-
-      </div>
+      </Link>
 
       {/* DEVICE */}
 
@@ -395,9 +401,7 @@ function CommunityPost({
               type="button"
               className="community-delete"
               onClick={() =>
-                handleDelete(
-                  post
-                )
+                handleDelete(post)
               }
             >
               Delete
@@ -412,6 +416,7 @@ function CommunityPost({
 
         <div className="comments-title">
           Comments
+
           <span>
             {comments.length}
           </span>
@@ -432,25 +437,35 @@ function CommunityPost({
                   key={comment.id}
                 >
 
-                  {comment.userPhoto ? (
-                    <img
-                      src={
-                        comment.userPhoto
-                      }
-                      alt=""
-                    />
-                  ) : (
-                    <div className="comment-avatar">
-                      B
-                    </div>
-                  )}
+                  <Link
+                    to={`/player/${comment.userId}`}
+                    className="comment-profile-link"
+                  >
+                    {comment.userPhoto ? (
+                      <img
+                        src={
+                          comment.userPhoto
+                        }
+                        alt=""
+                      />
+                    ) : (
+                      <div className="comment-avatar">
+                        B
+                      </div>
+                    )}
+                  </Link>
 
                   <div>
 
-                    <strong>
-                      {comment.userName ||
-                        "BOLOX Player"}
-                    </strong>
+                    <Link
+                      to={`/player/${comment.userId}`}
+                      className="comment-name-link"
+                    >
+                      <strong>
+                        {comment.userName ||
+                          "BOLOX Player"}
+                      </strong>
+                    </Link>
 
                     <p>
                       {comment.text}
@@ -673,6 +688,11 @@ function Community() {
       setPosting(true);
 
       try {
+        const customPhoto =
+          localStorage.getItem(
+            `bolox_profile_photo_${user.uid}`
+          );
+
         await addDoc(
           collection(
             db,
@@ -687,7 +707,9 @@ function Community() {
               "BOLOX Player",
 
             userPhoto:
-              user.photoURL || "",
+              customPhoto ||
+              user.photoURL ||
+              "",
 
             device:
               sensitivity.device,
@@ -858,8 +880,7 @@ function Community() {
             <div className="community-share-form">
 
               <label htmlFor="community-sensitivity">
-                Select a saved
-                sensitivity
+                Select a saved sensitivity
               </label>
 
               <select
@@ -955,8 +976,7 @@ function Community() {
           <div className="saved-empty">
 
             <h3>
-              No community
-              posts yet.
+              No community posts yet.
             </h3>
 
             <p>

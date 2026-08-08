@@ -20,16 +20,13 @@ import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
+import PublicProfile from "./pages/PublicProfile";
 
 import {
   auth,
   loginWithGoogle,
   logoutUser,
 } from "./firebase";
-
-/* =========================================
-   NAVBAR
-========================================= */
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -228,10 +225,6 @@ function Navbar() {
   );
 }
 
-/* =========================================
-   FOOTER
-========================================= */
-
 function Footer() {
   return (
     <footer className="bolox-footer">
@@ -299,10 +292,6 @@ function Footer() {
   );
 }
 
-/* =========================================
-   PAGE LAYOUT
-========================================= */
-
 function PageLayout({ children }) {
   return (
     <div className="bolox">
@@ -316,10 +305,6 @@ function PageLayout({ children }) {
     </div>
   );
 }
-
-/* =========================================
-   HOME
-========================================= */
 
 function Home() {
   return (
@@ -413,10 +398,6 @@ function Home() {
   );
 }
 
-/* =========================================
-   PREMIUM
-========================================= */
-
 function Premium() {
   return (
     <PageLayout>
@@ -440,10 +421,6 @@ function Premium() {
     </PageLayout>
   );
 }
-
-/* =========================================
-   ROUTES
-========================================= */
 
 function App() {
   return (
@@ -488,6 +465,15 @@ function App() {
           element={
             <PageLayout>
               <Community />
+            </PageLayout>
+          }
+        />
+
+        <Route
+          path="/player/:userId"
+          element={
+            <PageLayout>
+              <PublicProfile />
             </PageLayout>
           }
         />

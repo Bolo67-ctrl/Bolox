@@ -1,3 +1,29 @@
+/* CLICKABLE COMMUNITY PROFILES */
+
+.community-user-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.community-user-link:hover .community-user strong {
+  color: #ed1528;
+}
+
+.community-user-link:hover .community-user img,
+.community-user-link:hover .community-avatar-fallback {
+  border: 1px solid #ed1528;
+}
+
+.comment-profile-link,
+.comment-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.comment-name-link:hover strong {
+  color: #ed1528;
+}
 * {
   box-sizing: border-box;
 }
@@ -2384,5 +2410,253 @@ button {
 
   .community-actions {
     flex-wrap: wrap;
+  }
+}
+/* =========================================
+   PUBLIC BOLOX PLAYER PROFILE
+========================================= */
+
+.public-profile-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 75% 10%,
+      rgba(237, 21, 40, 0.1),
+      transparent 30%
+    ),
+    #050505;
+
+  color: white;
+}
+
+.public-profile-hero {
+  padding: 70px 7% 80px;
+
+  border-bottom: 1px solid #1c1c1c;
+}
+
+.public-profile-main {
+  margin-top: 45px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 35px;
+}
+
+.public-profile-avatar,
+.public-profile-avatar-fallback {
+  width: 130px;
+  height: 130px;
+
+  border-radius: 50%;
+}
+
+.public-profile-avatar {
+  object-fit: cover;
+
+  border: 3px solid #ed1528;
+}
+
+.public-profile-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #111;
+
+  border: 3px solid #ed1528;
+
+  color: #ed1528;
+
+  font-size: 60px;
+  font-weight: 900;
+}
+
+.public-profile-info h1 {
+  margin: 10px 0;
+
+  font-size: clamp(
+    45px,
+    6vw,
+    80px
+  );
+
+  line-height: 0.95;
+  letter-spacing: -3px;
+}
+
+.public-profile-info p {
+  max-width: 500px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+.public-profile-stats {
+  padding: 45px 7%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 15px;
+}
+
+.public-profile-posts {
+  padding: 20px 7% 100px;
+}
+
+.public-profile-section-title {
+  margin-bottom: 30px;
+}
+
+.public-profile-section-title h2 {
+  margin: 8px 0 0;
+
+  font-size: 38px;
+}
+
+.public-profile-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.public-profile-post {
+  padding: 28px;
+
+  border: 1px solid #202020;
+  border-radius: 14px;
+
+  background: #090909;
+}
+
+.public-post-header {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #202020;
+}
+
+.public-post-header span {
+  color: #666;
+
+  font-size: 10px;
+}
+
+.public-post-header h3 {
+  margin: 5px 0 0;
+
+  font-size: 20px;
+}
+
+.public-post-header > strong {
+  color: #ed1528;
+
+  font-size: 11px;
+}
+
+.public-post-settings {
+  padding-top: 10px;
+}
+
+.public-post-settings > div {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 9px 0;
+
+  border-bottom: 1px solid #151515;
+}
+
+.public-post-settings span {
+  color: #777;
+
+  font-size: 11px;
+}
+
+.public-post-settings strong {
+  font-size: 12px;
+}
+
+.public-post-footer {
+  padding-top: 18px;
+
+  color: #888;
+
+  font-size: 11px;
+}
+
+.public-profile-empty {
+  padding: 120px 7%;
+}
+
+.public-profile-empty h1 {
+  margin: 20px 0;
+
+  font-size: clamp(
+    55px,
+    8vw,
+    100px
+  );
+
+  line-height: 0.9;
+
+  letter-spacing: -5px;
+}
+
+.public-profile-empty h1 span {
+  color: #ed1528;
+}
+
+.public-profile-empty p {
+  color: #777;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .public-profile-hero {
+    padding: 55px 25px 65px;
+  }
+
+  .public-profile-main {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .public-profile-avatar,
+  .public-profile-avatar-fallback {
+    width: 100px;
+    height: 100px;
+  }
+
+  .public-profile-stats {
+    padding: 35px 25px;
+
+    grid-template-columns: 1fr;
+  }
+
+  .public-profile-posts {
+    padding: 20px 25px 80px;
+  }
+
+  .public-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .public-profile-empty {
+    padding: 90px 25px;
   }
 }
