@@ -7,6 +7,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
@@ -37,6 +38,118 @@ function getSavedSensitivities(uid) {
   }
 }
 
+async function getPublicProfile(userId) {
+  if (!userId) {
+    return null;
+  }
+
+  try {
+    const profileRef = doc(
+      db,
+      "users",
+      userId
+    );
+
+    const profileSnap =
+      await getDoc(profileRef);
+
+    if (!profileSnap.exists()) {
+      return null;
+    }
+
+    return {
+      id: profileSnap.id,
+      ...profileSnap.data(),
+    };
+  } catch (error) {
+    console.error(
+      "Could not load profile:",
+      error
+    );
+
+    return null;
+  }
+}
+
+/* =========================================
+   COMMENT ITEM
+========================================= */
+
+function CommentItem({ comment }) {
+  const [profile, setProfile] =
+    useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProfile = async () => {
+      const data =
+        await getPublicProfile(
+          comment.userId
+        );
+
+      if (active) {
+        setProfile(data);
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      active = false;
+    };
+  }, [comment.userId]);
+
+  const username =
+    profile?.username ||
+    comment.userName ||
+    "BOLOX Player";
+
+  const photo =
+    profile?.googlePhoto ||
+    comment.userPhoto ||
+    "";
+
+  return (
+    <div className="community-comment">
+
+      <Link
+        to={`/player/${comment.userId}`}
+        className="comment-profile-link"
+      >
+        {photo ? (
+          <img
+            src={photo}
+            alt={username}
+          />
+        ) : (
+          <div className="comment-avatar">
+            B
+          </div>
+        )}
+      </Link>
+
+      <div>
+
+        <Link
+          to={`/player/${comment.userId}`}
+          className="comment-name-link"
+        >
+          <strong>
+            {username}
+          </strong>
+        </Link>
+
+        <p>
+          {comment.text}
+        </p>
+
+      </div>
+
+    </div>
+  );
+}
+
 /* =========================================
    COMMUNITY POST
 ========================================= */
@@ -54,11 +167,16 @@ function CommunityPost({
   const [commentText, setCommentText] =
     useState("");
 
-  const [sendingComment, setSendingComment] =
-    useState(false);
+  const [
+    sendingComment,
+    setSendingComment,
+  ] = useState(false);
 
   const [liking, setLiking] =
     useState(false);
+
+  const [profile, setProfile] =
+    useState(null);
 
   const likedBy =
     post.likedBy || [];
@@ -67,6 +185,38 @@ function CommunityPost({
     user
       ? likedBy.includes(user.uid)
       : false;
+
+  /* LOAD CURRENT PUBLIC PROFILE */
+
+  useEffect(() => {
+    const profileRef = doc(
+      db,
+      "users",
+      post.userId
+    );
+
+    const unsubscribe =
+      onSnapshot(
+        profileRef,
+        (snapshot) => {
+          if (
+            snapshot.exists()
+          ) {
+            setProfile({
+              id: snapshot.id,
+              ...snapshot.data(),
+            });
+          } else {
+            setProfile(null);
+          }
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+
+    return unsubscribe;
+  }, [post.userId]);
 
   /* REALTIME COMMENTS */
 
@@ -107,6 +257,16 @@ function CommunityPost({
 
     return unsubscribe;
   }, [post.id]);
+
+  const username =
+    profile?.username ||
+    post.userName ||
+    "BOLOX Player";
+
+  const photo =
+    profile?.googlePhoto ||
+    post.userPhoto ||
+    "";
 
   /* LIKE */
 
@@ -180,7 +340,9 @@ function CommunityPost({
     const cleanComment =
       commentText.trim();
 
-    if (!cleanComment) return;
+    if (!cleanComment) {
+      return;
+    }
 
     if (
       cleanComment.length > 200
@@ -196,6 +358,11 @@ function CommunityPost({
     setError("");
 
     try {
+      const currentProfile =
+        await getPublicProfile(
+          user.uid
+        );
+
       await addDoc(
         collection(
           db,
@@ -208,6 +375,7 @@ function CommunityPost({
             user.uid,
 
           userName:
+            currentProfile?.username ||
             user.displayName ||
             "BOLOX Player",
 
@@ -239,7 +407,7 @@ function CommunityPost({
   const handleCopy = async () => {
     const text = [
       "BOLOX Community Sensitivity",
-      `Player: ${post.userName}`,
+      `Player: ${username}`,
       `Device: ${post.device}`,
       `Model: ${post.model}`,
       `Play Style: ${post.style}`,
@@ -272,7 +440,7 @@ function CommunityPost({
   return (
     <article className="community-post">
 
-      {/* CLICKABLE USER */}
+      {/* USER */}
 
       <Link
         to={`/player/${post.userId}`}
@@ -280,13 +448,10 @@ function CommunityPost({
       >
         <div className="community-user">
 
-          {post.userPhoto ? (
+          {photo ? (
             <img
-              src={post.userPhoto}
-              alt={
-                post.userName ||
-                "BOLOX Player"
-              }
+              src={photo}
+              alt={username}
             />
           ) : (
             <div className="community-avatar-fallback">
@@ -295,14 +460,15 @@ function CommunityPost({
           )}
 
           <div>
+
             <strong>
-              {post.userName ||
-                "BOLOX Player"}
+              {username}
             </strong>
 
             <small>
               VIEW BOLOX PROFILE →
             </small>
+
           </div>
 
         </div>
@@ -313,6 +479,7 @@ function CommunityPost({
       <div className="community-post-title">
 
         <div>
+
           <span>
             {post.device}
           </span>
@@ -320,6 +487,7 @@ function CommunityPost({
           <h3>
             {post.model}
           </h3>
+
         </div>
 
         <strong>
@@ -354,7 +522,7 @@ function CommunityPost({
 
       </div>
 
-      {/* SOCIAL STATS */}
+      {/* STATS */}
 
       <div className="community-social-stats">
 
@@ -415,70 +583,39 @@ function CommunityPost({
       <div className="community-comments">
 
         <div className="comments-title">
+
           Comments
 
           <span>
             {comments.length}
           </span>
+
         </div>
 
-        {comments.length === 0 ? (
+        {comments.length ===
+        0 ? (
+
           <p className="no-comments">
             No comments yet.
           </p>
+
         ) : (
+
           <div className="comments-list">
 
             {comments.map(
               (comment) => (
 
-                <div
-                  className="community-comment"
+                <CommentItem
                   key={comment.id}
-                >
-
-                  <Link
-                    to={`/player/${comment.userId}`}
-                    className="comment-profile-link"
-                  >
-                    {comment.userPhoto ? (
-                      <img
-                        src={
-                          comment.userPhoto
-                        }
-                        alt=""
-                      />
-                    ) : (
-                      <div className="comment-avatar">
-                        B
-                      </div>
-                    )}
-                  </Link>
-
-                  <div>
-
-                    <Link
-                      to={`/player/${comment.userId}`}
-                      className="comment-name-link"
-                    >
-                      <strong>
-                        {comment.userName ||
-                          "BOLOX Player"}
-                      </strong>
-                    </Link>
-
-                    <p>
-                      {comment.text}
-                    </p>
-
-                  </div>
-
-                </div>
+                  comment={comment}
+                />
 
               )
             )}
 
           </div>
+
         )}
 
         {/* COMMENT FORM */}
@@ -540,8 +677,10 @@ function Community() {
   const [user, setUser] =
     useState(null);
 
-  const [authReady, setAuthReady] =
-    useState(false);
+  const [
+    authReady,
+    setAuthReady,
+  ] = useState(false);
 
   const [
     savedSensitivities,
@@ -688,6 +827,11 @@ function Community() {
       setPosting(true);
 
       try {
+        const publicProfile =
+          await getPublicProfile(
+            user.uid
+          );
+
         const customPhoto =
           localStorage.getItem(
             `bolox_profile_photo_${user.uid}`
@@ -703,6 +847,7 @@ function Community() {
               user.uid,
 
             userName:
+              publicProfile?.username ||
               user.displayName ||
               "BOLOX Player",
 
@@ -793,8 +938,6 @@ function Community() {
   return (
     <main className="community-page">
 
-      {/* HERO */}
-
       <section className="community-hero">
 
         <span className="red-label">
@@ -804,6 +947,7 @@ function Community() {
         <h1>
           COMMUNITY
           <br />
+
           <span>
             SETUPS.
           </span>
@@ -820,8 +964,6 @@ function Community() {
       </section>
 
       <section className="community-content">
-
-        {/* SHARE CARD */}
 
         <div className="community-share-card">
 
@@ -947,8 +1089,6 @@ function Community() {
 
         </div>
 
-        {/* FEED HEADER */}
-
         <div className="community-feed-header">
 
           <div>
@@ -968,8 +1108,6 @@ function Community() {
           </span>
 
         </div>
-
-        {/* POSTS */}
 
         {posts.length === 0 ? (
 
