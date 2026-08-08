@@ -3007,3 +3007,262 @@ button {
     align-items: flex-start;
   }
 }
+/* =========================================
+   PROFILE SOCIAL DASHBOARD
+========================================= */
+
+.profile-social-section {
+  padding: 10px 7% 100px;
+}
+
+/* TABS */
+
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+
+  margin-bottom: 35px;
+
+  padding: 6px;
+
+  border: 1px solid #202020;
+  border-radius: 12px;
+
+  background: #090909;
+}
+
+.profile-tab {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 13px 15px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #777;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.profile-tab span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  height: 20px;
+
+  padding: 0 5px;
+
+  border-radius: 20px;
+
+  background: #171717;
+
+  font-size: 9px;
+}
+
+.profile-tab:hover {
+  color: white;
+}
+
+.profile-tab.active {
+  background: #ed1528;
+  color: white;
+}
+
+.profile-tab.active span {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* TAB CONTENT */
+
+.profile-tab-content {
+  width: 100%;
+}
+
+.profile-section-heading {
+  margin-bottom: 30px;
+}
+
+.profile-section-heading h2 {
+  margin: 8px 0 10px;
+
+  font-size: 38px;
+}
+
+.profile-section-heading p {
+  margin: 0;
+
+  color: #666;
+
+  font-size: 12px;
+}
+
+/* COMMUNITY CARDS */
+
+.profile-post-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.profile-community-card {
+  padding: 28px;
+
+  border: 1px solid #202020;
+  border-radius: 14px;
+
+  background: #090909;
+}
+
+.profile-community-header {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #202020;
+}
+
+.profile-community-header span {
+  color: #666;
+
+  font-size: 10px;
+}
+
+.profile-community-header h3 {
+  margin: 5px 0 0;
+
+  font-size: 20px;
+}
+
+.profile-community-header > strong {
+  color: #ed1528;
+
+  font-size: 11px;
+}
+
+.profile-community-values {
+  margin-top: 10px;
+}
+
+.profile-community-values > div {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 9px 0;
+
+  border-bottom: 1px solid #151515;
+}
+
+.profile-community-values span {
+  color: #777;
+
+  font-size: 11px;
+}
+
+.profile-community-values strong {
+  font-size: 12px;
+}
+
+.profile-community-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 18px;
+}
+
+.profile-community-bottom span {
+  color: #888;
+
+  font-size: 11px;
+}
+
+.profile-community-bottom a {
+  color: #888;
+
+  text-decoration: none;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.profile-community-bottom a:hover {
+  color: #ed1528;
+}
+
+/* LIKED USER */
+
+.profile-liked-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+.profile-liked-user a {
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.profile-liked-user a:hover {
+  color: #ed1528;
+}
+
+.profile-liked-user span {
+  color: #777;
+
+  font-size: 10px;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .profile-social-section {
+    padding: 10px 25px 80px;
+  }
+
+  .profile-tabs {
+    flex-direction: column;
+  }
+
+  .profile-tab {
+    justify-content: space-between;
+  }
+
+  .profile-post-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-section-heading h2 {
+    font-size: 32px;
+  }
+}

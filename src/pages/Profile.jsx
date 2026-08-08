@@ -7,16 +7,24 @@ import {
 } from "firebase/auth";
 
 import {
+  collection,
   doc,
   getDoc,
+  onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 
 import {
   auth,
   db,
 } from "../firebase";
+
+/* =========================================
+   IMAGE COMPRESSION
+========================================= */
 
 function compressImage(file) {
   return new Promise((resolve, reject) => {
@@ -94,6 +102,10 @@ function compressImage(file) {
   });
 }
 
+/* =========================================
+   LOCAL STORAGE
+========================================= */
+
 function savedKey(uid) {
   return `bolox_saved_sensitivities_${uid}`;
 }
@@ -139,6 +151,10 @@ function getDailyUsage(uid) {
   }
 }
 
+/* =========================================
+   PROFILE
+========================================= */
+
 function Profile() {
   const [user, setUser] =
     useState(null);
@@ -171,11 +187,24 @@ function Profile() {
     setGenerationsUsed,
   ] = useState(0);
 
+  const [myPosts, setMyPosts] =
+    useState([]);
+
+  const [likedPosts, setLikedPosts] =
+    useState([]);
+
+  const [activeTab, setActiveTab] =
+    useState("saved");
+
   const [message, setMessage] =
     useState("");
 
   const [error, setError] =
     useState("");
+
+  /* =========================================
+     LOAD LOCAL ACCOUNT DATA
+  ========================================= */
 
   const loadAccountData = (
     currentUser
@@ -194,6 +223,10 @@ function Profile() {
       )
     );
   };
+
+  /* =========================================
+     LOAD FIRESTORE PROFILE
+  ========================================= */
 
   const loadPublicProfile =
     async (currentUser) => {
@@ -237,6 +270,10 @@ function Profile() {
         );
       }
     };
+
+  /* =========================================
+     AUTH
+  ========================================= */
 
   useEffect(() => {
     const unsubscribe =
@@ -284,6 +321,10 @@ function Profile() {
     return unsubscribe;
   }, []);
 
+  /* =========================================
+     LOCAL UPDATE EVENTS
+  ========================================= */
+
   useEffect(() => {
     const refreshSaved = () => {
       if (auth.currentUser) {
@@ -315,6 +356,118 @@ function Profile() {
       );
     };
   }, []);
+
+  /* =========================================
+     MY COMMUNITY POSTS
+  ========================================= */
+
+  useEffect(() => {
+    if (!user) {
+      setMyPosts([]);
+      return;
+    }
+
+    const myPostsQuery = query(
+      collection(
+        db,
+        "communityPosts"
+      ),
+      where(
+        "userId",
+        "==",
+        user.uid
+      )
+    );
+
+    const unsubscribe =
+      onSnapshot(
+        myPostsQuery,
+        (snapshot) => {
+          const loadedPosts =
+            snapshot.docs
+              .map((item) => ({
+                id: item.id,
+                ...item.data(),
+              }))
+              .sort((a, b) => {
+                const aTime =
+                  a.createdAt?.seconds || 0;
+
+                const bTime =
+                  b.createdAt?.seconds || 0;
+
+                return bTime - aTime;
+              });
+
+          setMyPosts(
+            loadedPosts
+          );
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+
+    return unsubscribe;
+  }, [user]);
+
+  /* =========================================
+     LIKED POSTS
+  ========================================= */
+
+  useEffect(() => {
+    if (!user) {
+      setLikedPosts([]);
+      return;
+    }
+
+    const likedQuery = query(
+      collection(
+        db,
+        "communityPosts"
+      ),
+      where(
+        "likedBy",
+        "array-contains",
+        user.uid
+      )
+    );
+
+    const unsubscribe =
+      onSnapshot(
+        likedQuery,
+        (snapshot) => {
+          const loadedPosts =
+            snapshot.docs
+              .map((item) => ({
+                id: item.id,
+                ...item.data(),
+              }))
+              .sort((a, b) => {
+                const aTime =
+                  a.createdAt?.seconds || 0;
+
+                const bTime =
+                  b.createdAt?.seconds || 0;
+
+                return bTime - aTime;
+              });
+
+          setLikedPosts(
+            loadedPosts
+          );
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+
+    return unsubscribe;
+  }, [user]);
+
+  /* =========================================
+     PHOTO SELECT
+  ========================================= */
 
   const handlePhotoSelect =
     async (event) => {
@@ -362,6 +515,10 @@ function Profile() {
         );
       }
     };
+
+  /* =========================================
+     SAVE PROFILE
+  ========================================= */
 
   const handleSaveProfile =
     async () => {
@@ -487,6 +644,10 @@ function Profile() {
       }
     };
 
+  /* =========================================
+     REMOVE PHOTO
+  ========================================= */
+
   const handleRemovePhoto = () => {
     if (!user) return;
 
@@ -512,6 +673,10 @@ function Profile() {
 
     setError("");
   };
+
+  /* =========================================
+     DELETE SAVED SENSITIVITY
+  ========================================= */
 
   const handleDeleteSensitivity =
     (id) => {
@@ -539,15 +704,25 @@ function Profile() {
       );
     };
 
+  /* =========================================
+     LOADING
+  ========================================= */
+
   if (loading) {
     return (
       <main className="profile-page">
+
         <div className="profile-loading">
           Loading profile...
         </div>
+
       </main>
     );
   }
+
+  /* =========================================
+     SIGNED OUT
+  ========================================= */
 
   if (!user) {
     return (
@@ -562,7 +737,10 @@ function Profile() {
           <h1>
             SIGN IN
             <br />
-            <span>REQUIRED.</span>
+
+            <span>
+              REQUIRED.
+            </span>
           </h1>
 
           <p>
@@ -599,6 +777,10 @@ function Profile() {
   return (
     <main className="profile-page">
 
+      {/* =====================================
+          PROFILE HEADER
+      ===================================== */}
+
       <section className="profile-header">
 
         <div>
@@ -610,7 +792,10 @@ function Profile() {
           <h1>
             YOUR
             <br />
-            <span>ACCOUNT.</span>
+
+            <span>
+              ACCOUNT.
+            </span>
           </h1>
 
           <p>
@@ -641,7 +826,7 @@ function Profile() {
               <h2>
                 {username ||
                   user.displayName ||
-                  "BOLOX Player"}
+                  "Player"}
               </h2>
 
               {bio && (
@@ -722,7 +907,7 @@ function Profile() {
                     e.target.value
                   )
                 }
-                placeholder="Tell the BOLOX community about yourself..."
+                placeholder="Tell the community about yourself..."
               />
 
               <small className="profile-editor-note">
@@ -819,16 +1004,30 @@ function Profile() {
 
       </section>
 
+      {/* =====================================
+          STATS
+      ===================================== */}
+
       <section className="profile-dashboard">
 
         <div className="profile-stat-card">
-          <span>ACCOUNT</span>
-          <strong>FREE</strong>
-          <small>Current Plan</small>
+          <span>
+            ACCOUNT
+          </span>
+
+          <strong>
+            FREE
+          </strong>
+
+          <small>
+            Current Plan
+          </small>
         </div>
 
         <div className="profile-stat-card">
-          <span>GENERATIONS</span>
+          <span>
+            GENERATIONS
+          </span>
 
           <strong>
             {remaining}
@@ -840,150 +1039,508 @@ function Profile() {
         </div>
 
         <div className="profile-stat-card">
-          <span>SAVED</span>
+          <span>
+            POSTS
+          </span>
 
           <strong>
-            {savedSensitivities.length}
+            {myPosts.length}
           </strong>
 
           <small>
-            Saved Sensitivities
+            Community Posts
           </small>
         </div>
 
         <div className="profile-stat-card">
-          <span>PURCHASES</span>
-          <strong>0</strong>
-          <small>Owned Products</small>
+          <span>
+            LIKED
+          </span>
+
+          <strong>
+            {likedPosts.length}
+          </strong>
+
+          <small>
+            Liked Setups
+          </small>
         </div>
 
       </section>
 
-      <section className="saved-sensitivity-section">
+      {/* =====================================
+          PROFILE CONTENT TABS
+      ===================================== */}
 
-        <div className="saved-section-header">
+      <section className="profile-social-section">
 
-          <div>
+        <div className="profile-tabs">
 
-            <span className="red-label">
-              SAVED SETTINGS
-            </span>
-
-            <h2>
-              My Sensitivities
-            </h2>
-
-          </div>
-
-          <Link
-            to="/store/sensitivity"
-            className="profile-action"
+          <button
+            type="button"
+            className={
+              activeTab === "saved"
+                ? "profile-tab active"
+                : "profile-tab"
+            }
+            onClick={() =>
+              setActiveTab("saved")
+            }
           >
-            Generate New →
-          </Link>
+            Saved Sensitivities
+
+            <span>
+              {savedSensitivities.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={
+              activeTab === "posts"
+                ? "profile-tab active"
+                : "profile-tab"
+            }
+            onClick={() =>
+              setActiveTab("posts")
+            }
+          >
+            My Posts
+
+            <span>
+              {myPosts.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={
+              activeTab === "liked"
+                ? "profile-tab active"
+                : "profile-tab"
+            }
+            onClick={() =>
+              setActiveTab("liked")
+            }
+          >
+            Liked Posts
+
+            <span>
+              {likedPosts.length}
+            </span>
+          </button>
 
         </div>
 
-        {savedSensitivities.length ===
-        0 ? (
+        {/* =================================
+            SAVED SENSITIVITIES
+        ================================= */}
 
-          <div className="saved-empty">
+        {activeTab === "saved" && (
+          <div className="profile-tab-content">
 
-            <h3>
-              No saved sensitivities yet.
-            </h3>
+            <div className="saved-section-header">
 
-            <p>
-              Generate a setup and press
-              Save to Profile.
-            </p>
+              <div>
 
-          </div>
+                <span className="red-label">
+                  SAVED SETTINGS
+                </span>
 
-        ) : (
+                <h2>
+                  My Sensitivities
+                </h2>
 
-          <div className="saved-sensitivity-grid">
+              </div>
 
-            {savedSensitivities.map(
-              (item) => (
+              <Link
+                to="/store/sensitivity"
+                className="profile-action"
+              >
+                Generate New →
+              </Link>
 
-                <div
-                  className="saved-sensitivity-card"
-                  key={item.id}
-                >
+            </div>
 
-                  <div className="saved-card-header">
+            {savedSensitivities.length ===
+            0 ? (
 
-                    <div>
+              <div className="saved-empty">
 
-                      <span>
-                        {item.device}
-                      </span>
+                <h3>
+                  No saved sensitivities yet.
+                </h3>
 
-                      <h3>
-                        {item.model}
-                      </h3>
+                <p>
+                  Generate a setup and press
+                  Save to Profile.
+                </p>
 
-                    </div>
+              </div>
 
-                    <span className="saved-style">
-                      {item.style}
-                    </span>
+            ) : (
 
-                  </div>
+              <div className="saved-sensitivity-grid">
 
-                  <div className="saved-values">
+                {savedSensitivities.map(
+                  (item) => (
 
-                    {Object.entries(
-                      item.settings
-                    ).map(
-                      ([name, value]) => (
+                    <div
+                      className="saved-sensitivity-card"
+                      key={item.id}
+                    >
 
-                        <div key={name}>
+                      <div className="saved-card-header">
+
+                        <div>
 
                           <span>
-                            {name}
+                            {item.device}
                           </span>
 
-                          <strong>
-                            {value}
-                          </strong>
+                          <h3>
+                            {item.model}
+                          </h3>
 
                         </div>
 
-                      )
-                    )}
+                        <span className="saved-style">
+                          {item.style}
+                        </span>
 
-                  </div>
+                      </div>
 
-                  <div className="saved-card-bottom">
+                      <div className="saved-values">
 
-                    <small>
-                      {new Date(
-                        item.createdAt
-                      ).toLocaleDateString()}
-                    </small>
+                        {Object.entries(
+                          item.settings
+                        ).map(
+                          ([name, value]) => (
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDeleteSensitivity(
-                          item.id
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
+                            <div key={name}>
 
-                  </div>
+                              <span>
+                                {name}
+                              </span>
 
-                </div>
+                              <strong>
+                                {value}
+                              </strong>
 
-              )
+                            </div>
+
+                          )
+                        )}
+
+                      </div>
+
+                      <div className="saved-card-bottom">
+
+                        <small>
+                          {new Date(
+                            item.createdAt
+                          ).toLocaleDateString()}
+                        </small>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDeleteSensitivity(
+                              item.id
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
             )}
 
           </div>
+        )}
 
+        {/* =================================
+            MY POSTS
+        ================================= */}
+
+        {activeTab === "posts" && (
+          <div className="profile-tab-content">
+
+            <div className="profile-section-heading">
+
+              <span className="red-label">
+                COMMUNITY
+              </span>
+
+              <h2>
+                My Posts
+              </h2>
+
+              <p>
+                Sensitivity setups you have
+                shared with the community.
+              </p>
+
+            </div>
+
+            {myPosts.length === 0 ? (
+
+              <div className="saved-empty">
+
+                <h3>
+                  No community posts yet.
+                </h3>
+
+                <p>
+                  Share one of your saved
+                  sensitivities with the community.
+                </p>
+
+                <Link
+                  to="/community"
+                  className="profile-action"
+                >
+                  Go to Community →
+                </Link>
+
+              </div>
+
+            ) : (
+
+              <div className="profile-post-grid">
+
+                {myPosts.map(
+                  (post) => (
+
+                    <article
+                      className="profile-community-card"
+                      key={post.id}
+                    >
+
+                      <div className="profile-community-header">
+
+                        <div>
+
+                          <span>
+                            {post.device}
+                          </span>
+
+                          <h3>
+                            {post.model}
+                          </h3>
+
+                        </div>
+
+                        <strong>
+                          {post.style}
+                        </strong>
+
+                      </div>
+
+                      <div className="profile-community-values">
+
+                        {Object.entries(
+                          post.settings || {}
+                        ).map(
+                          ([name, value]) => (
+
+                            <div key={name}>
+
+                              <span>
+                                {name}
+                              </span>
+
+                              <strong>
+                                {value}
+                              </strong>
+
+                            </div>
+
+                          )
+                        )}
+
+                      </div>
+
+                      <div className="profile-community-bottom">
+
+                        <span>
+                          ❤️{" "}
+                          {post.likedBy?.length ||
+                            0}
+                        </span>
+
+                        <Link
+                          to="/community"
+                        >
+                          View in Community →
+                        </Link>
+
+                      </div>
+
+                    </article>
+
+                  )
+                )}
+
+              </div>
+
+            )}
+
+          </div>
+        )}
+
+        {/* =================================
+            LIKED POSTS
+        ================================= */}
+
+        {activeTab === "liked" && (
+          <div className="profile-tab-content">
+
+            <div className="profile-section-heading">
+
+              <span className="red-label">
+                FAVORITES
+              </span>
+
+              <h2>
+                Liked Posts
+              </h2>
+
+              <p>
+                Community setups you liked.
+              </p>
+
+            </div>
+
+            {likedPosts.length === 0 ? (
+
+              <div className="saved-empty">
+
+                <h3>
+                  No liked posts yet.
+                </h3>
+
+                <p>
+                  Like a sensitivity in the
+                  community and it will appear here.
+                </p>
+
+                <Link
+                  to="/community"
+                  className="profile-action"
+                >
+                  Explore Community →
+                </Link>
+
+              </div>
+
+            ) : (
+
+              <div className="profile-post-grid">
+
+                {likedPosts.map(
+                  (post) => (
+
+                    <article
+                      className="profile-community-card"
+                      key={post.id}
+                    >
+
+                      <div className="profile-liked-user">
+
+                        <Link
+                          to={`/player/${post.userId}`}
+                        >
+                          {post.userName ||
+                            "Player"}
+                        </Link>
+
+                        <span>
+                          ❤️{" "}
+                          {post.likedBy?.length ||
+                            0}
+                        </span>
+
+                      </div>
+
+                      <div className="profile-community-header">
+
+                        <div>
+
+                          <span>
+                            {post.device}
+                          </span>
+
+                          <h3>
+                            {post.model}
+                          </h3>
+
+                        </div>
+
+                        <strong>
+                          {post.style}
+                        </strong>
+
+                      </div>
+
+                      <div className="profile-community-values">
+
+                        {Object.entries(
+                          post.settings || {}
+                        ).map(
+                          ([name, value]) => (
+
+                            <div key={name}>
+
+                              <span>
+                                {name}
+                              </span>
+
+                              <strong>
+                                {value}
+                              </strong>
+
+                            </div>
+
+                          )
+                        )}
+
+                      </div>
+
+                      <div className="profile-community-bottom">
+
+                        <Link
+                          to={`/player/${post.userId}`}
+                        >
+                          View Player →
+                        </Link>
+
+                        <Link
+                          to="/community"
+                        >
+                          Community →
+                        </Link>
+
+                      </div>
+
+                    </article>
+
+                  )
+                )}
+
+              </div>
+
+            )}
+
+          </div>
         )}
 
       </section>
