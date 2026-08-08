@@ -1,4 +1,268 @@
- .store-hero {
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #050505;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bolox {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(230, 0, 18, 0.12),
+      transparent 30%
+    ),
+    #050505;
+}
+
+/* NAVBAR */
+
+.navbar {
+  height: 78px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1b1b1b;
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(15px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.logo span {
+  color: #ff1a2e;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 34px;
+}
+
+.navbar nav a {
+  color: #999;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.navbar nav a:hover {
+  color: white;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.login-btn,
+.signup-btn {
+  padding: 11px 18px;
+  border-radius: 7px;
+  border: 1px solid #292929;
+  background: #111;
+  color: white;
+}
+
+.signup-btn {
+  background: #e50919;
+  border-color: #e50919;
+}
+
+/* HERO */
+
+.hero {
+  min-height: 720px;
+  padding: 100px 7%;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 60px;
+  overflow: hidden;
+}
+
+.hero-badge {
+  color: #ff2638;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.hero h1 {
+  font-size: clamp(60px, 8vw, 115px);
+  line-height: 0.88;
+  letter-spacing: -6px;
+  margin: 25px 0;
+  font-weight: 900;
+}
+
+.hero h1 span {
+  color: #ed1528;
+}
+
+.hero-content > p {
+  max-width: 570px;
+  color: #999;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 35px;
+}
+
+.primary-btn,
+.secondary-btn {
+  display: inline-block;
+  padding: 15px 24px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  background: #ed1528;
+  color: white;
+}
+
+.secondary-btn {
+  border: 1px solid #333;
+  background: #111;
+  color: white;
+}
+
+/* HERO VISUAL */
+
+.hero-visual {
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.glow {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: #e50919;
+  filter: blur(130px);
+  opacity: 0.18;
+}
+
+.bolox-card {
+  position: relative;
+  width: 330px;
+  height: 430px;
+  border: 1px solid #292929;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #191919, #080808);
+  padding: 25px;
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.7),
+    inset 0 0 60px rgba(255, 0, 20, 0.05);
+  transform: rotate(4deg);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  color: #888;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.live-dot {
+  color: #ed1528;
+}
+
+.card-logo {
+  margin-top: 75px;
+  width: 120px;
+  height: 120px;
+  border: 3px solid #ed1528;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 70px;
+  font-weight: 900;
+  color: #ed1528;
+  box-shadow: 0 0 50px rgba(237, 21, 40, 0.2);
+}
+
+.card-text {
+  position: absolute;
+  bottom: 35px;
+}
+
+.card-text small {
+  color: #777;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.card-text h3 {
+  font-size: 45px;
+  line-height: 0.85;
+  margin: 10px 0;
+}
+
+/* MOBILE HOME */
+
+@media (max-width: 850px) {
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .navbar nav {
+    display: none;
+  }
+
+  .nav-actions .signup-btn {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 80px 25px;
+  }
+
+  .hero h1 {
+    font-size: 65px;
+  }
+
+  .hero-visual {
+    min-height: 400px;
+  }
+} .store-hero {
     padding: 80px 25px;
     display: block;
   }
@@ -850,4 +1114,38 @@
 
     grid-template-columns: 1fr;
   }
+}
+/* Sensitivity generator finishing touches */
+
+.generate-main-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.generate-main-button:disabled:hover {
+  background: #ed1528;
+}
+
+.device-option,
+.style-option,
+.generate-main-button,
+.generate-again,
+.copy-button {
+  font-family: inherit;
+}
+
+.copy-button:hover {
+  border-color: #555;
+}
+
+.generate-again:hover {
+  background: #ff2035;
+}
+
+.back-link {
+  text-decoration: none;
+}
+
+.results-container {
+  width: 100%;
 }
