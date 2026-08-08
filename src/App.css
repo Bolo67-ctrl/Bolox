@@ -1643,3 +1643,27 @@ button {
     flex-direction: column;
   }
 }
+/* =========================================
+   BOLOX OFFICIAL LOGO
+========================================= */
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.bolox-logo-image {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.logo span {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 1px;
+}

@@ -110,8 +110,13 @@ function Navbar() {
       <header className="navbar">
 
         <Link to="/" className="logo">
-          <span>B</span> BOLOX
-        </Link>
+  <img
+    src="/bolox-logo.jpeg"
+    alt="BOLOX"
+    className="bolox-logo-image"
+  />
+  <span>BOLOX</span>
+</Link>
 
         <nav>
           <Link to="/">Home</Link>
