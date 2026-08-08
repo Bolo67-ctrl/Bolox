@@ -1,34 +1,49 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  HashRouter,
+  Routes,
+  Route,
+  Link,
+} from "react-router-dom";
+
 import "./App.css";
 
 import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
 
+function Navbar() {
+  return (
+    <header className="navbar">
+      <Link to="/" className="logo">
+        <span>B</span> BOLOX
+      </Link>
+
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/store">Store</Link>
+        <Link to="/community">Community</Link>
+        <Link to="/premium">Premium</Link>
+      </nav>
+
+      <div className="nav-actions">
+        <button className="login-btn">
+          Login
+        </button>
+
+        <button className="signup-btn">
+          Get Started
+        </button>
+      </div>
+    </header>
+  );
+}
+
 function Home() {
   return (
     <div className="bolox">
-      <header className="navbar">
-        <a href="/" className="logo">
-          <span>B</span> BOLOX
-        </a>
-
-        <nav>
-          <a href="/">Home</a>
-          <a href="/store">Store</a>
-          <a href="/community">Community</a>
-          <a href="/premium">Premium</a>
-        </nav>
-
-        <div className="nav-actions">
-          <button className="login-btn">Login</button>
-          <button className="signup-btn">Get Started</button>
-        </div>
-      </header>
+      <Navbar />
 
       <section className="hero">
-
         <div className="hero-content">
-
           <div className="hero-badge">
             FREE FIRE GAMING PLATFORM
           </div>
@@ -45,25 +60,31 @@ function Home() {
           </p>
 
           <div className="hero-buttons">
-            <a href="/store" className="primary-btn">
+            <Link
+              to="/store"
+              className="primary-btn"
+            >
               Explore Store →
-            </a>
+            </Link>
 
-            <a href="/premium" className="secondary-btn">
+            <Link
+              to="/premium"
+              className="secondary-btn"
+            >
               Join Premium
-            </a>
+            </Link>
           </div>
-
         </div>
 
         <div className="hero-visual">
           <div className="glow"></div>
 
           <div className="bolox-card">
-
             <div className="card-top">
               <span>BOLOX</span>
-              <span className="live-dot">● LIVE</span>
+              <span className="live-dot">
+                ● LIVE
+              </span>
             </div>
 
             <div className="card-logo">
@@ -71,7 +92,9 @@ function Home() {
             </div>
 
             <div className="card-text">
-              <small>COMPETITIVE GAMING</small>
+              <small>
+                COMPETITIVE GAMING
+              </small>
 
               <h3>
                 PLAY
@@ -79,69 +102,72 @@ function Home() {
                 BETTER.
               </h3>
             </div>
-
           </div>
         </div>
-
       </section>
+    </div>
+  );
+}
 
+function Community() {
+  return (
+    <div className="simple-page">
+      <Navbar />
+
+      <h1>BOLOX COMMUNITY</h1>
+      <p>Community coming soon.</p>
+    </div>
+  );
+}
+
+function Premium() {
+  return (
+    <div className="simple-page">
+      <Navbar />
+
+      <h1>BOLOX PREMIUM</h1>
+      <p>Premium coming soon.</p>
     </div>
   );
 }
 
 function App() {
   return (
-    <BrowserRouter>
-
+    <HashRouter>
       <Routes>
-
-        {/* HOME */}
         <Route
           path="/"
           element={<Home />}
         />
 
-        {/* STORE */}
         <Route
-  path="/store"
-  element={
-    <div className="bolox">
-      <Store />
-    </div>
-  }
-/>
+          path="/store"
+          element={
+            <div className="bolox">
+              <Navbar />
+              <Store />
+            </div>
+          }
+        />
 
-        {/* SENSITIVITY GENERATOR */}
         <Route
           path="/store/sensitivity"
-          element={<SensitivityGenerator />}
+          element={
+            <SensitivityGenerator />
+          }
         />
 
-        {/* COMMUNITY */}
         <Route
           path="/community"
-          element={
-            <div className="simple-page">
-              <h1>BOLOX COMMUNITY</h1>
-              <p>Community coming soon.</p>
-            </div>
-          }
+          element={<Community />}
         />
 
-        {/* PREMIUM */}
         <Route
           path="/premium"
-          element={
-            <div className="simple-page">
-              <h1>BOLOX PREMIUM</h1>
-              <p>Premium coming soon.</p>
-            </div>
-          }
+          element={<Premium />}
         />
-
       </Routes>
-
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
