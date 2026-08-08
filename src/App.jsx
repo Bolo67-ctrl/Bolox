@@ -26,6 +26,10 @@ import {
   logoutUser,
 } from "./firebase";
 
+/* =========================================
+   NAVBAR
+========================================= */
+
 function Navbar() {
   const [user, setUser] = useState(null);
   const [authError, setAuthError] = useState("");
@@ -43,7 +47,9 @@ function Navbar() {
           );
 
           setProfilePhoto(
-            savedPhoto || currentUser.photoURL || ""
+            savedPhoto ||
+              currentUser.photoURL ||
+              ""
           );
         } else {
           setProfilePhoto("");
@@ -55,7 +61,7 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    const handleStorage = () => {
+    const handleProfileUpdate = () => {
       if (!auth.currentUser) return;
 
       const savedPhoto = localStorage.getItem(
@@ -64,20 +70,20 @@ function Navbar() {
 
       setProfilePhoto(
         savedPhoto ||
-        auth.currentUser.photoURL ||
-        ""
+          auth.currentUser.photoURL ||
+          ""
       );
     };
 
     window.addEventListener(
       "bolox-profile-updated",
-      handleStorage
+      handleProfileUpdate
     );
 
     return () => {
       window.removeEventListener(
         "bolox-profile-updated",
-        handleStorage
+        handleProfileUpdate
       );
     };
   }, []);
@@ -85,6 +91,7 @@ function Navbar() {
   const handleLogin = async () => {
     try {
       setAuthError("");
+
       await loginWithGoogle();
     } catch (error) {
       console.error(error);
@@ -98,10 +105,14 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       setAuthError("");
+
       await logoutUser();
     } catch (error) {
       console.error(error);
-      setAuthError("Could not log out.");
+
+      setAuthError(
+        "Could not log out."
+      );
     }
   };
 
@@ -109,21 +120,33 @@ function Navbar() {
     <>
       <header className="navbar">
 
-        <Link to="/" className="logo">
-  <img
-    src="/bolox-logo.jpeg"
-    alt="BOLOX"
-    className="bolox-logo-image"
-  />
-  <span>BOLOX</span>
-</Link>
+        <Link
+          to="/"
+          className="logo"
+        >
+          <img
+            src="/bolox-logo.jpeg?v=2"
+            alt="BOLOX"
+            className="bolox-logo-image"
+          />
+
+          <span>BOLOX</span>
+        </Link>
 
         <nav>
-          <Link to="/">Home</Link>
-          <Link to="/store">Store</Link>
+
+          <Link to="/">
+            Home
+          </Link>
+
+          <Link to="/store">
+            Store
+          </Link>
+
           <Link to="/community">
             Community
           </Link>
+
           <Link to="/premium">
             Premium
           </Link>
@@ -133,6 +156,7 @@ function Navbar() {
               Profile
             </Link>
           )}
+
         </nav>
 
         <div className="nav-actions">
@@ -160,6 +184,7 @@ function Navbar() {
                 to="/profile"
                 className="user-profile-link"
               >
+
                 {profilePhoto ? (
                   <img
                     src={profilePhoto}
@@ -173,6 +198,7 @@ function Navbar() {
                 )}
 
                 <div className="user-info">
+
                   <strong>
                     {user.displayName ||
                       "BOLOX Player"}
@@ -181,7 +207,9 @@ function Navbar() {
                   <small>
                     {user.email}
                   </small>
+
                 </div>
+
               </Link>
 
               <button
@@ -207,11 +235,98 @@ function Navbar() {
   );
 }
 
-function Home() {
+/* =========================================
+   FOOTER
+========================================= */
+
+function Footer() {
+  return (
+    <footer className="bolox-footer">
+
+      <div className="footer-top">
+
+        <div className="footer-brand">
+
+          <img
+            src="/bolox-logo.jpeg?v=2"
+            alt="BOLOX"
+          />
+
+          <div>
+            <strong>BOLOX</strong>
+
+            <span>
+              LEVEL UP YOUR GAME
+            </span>
+          </div>
+
+        </div>
+
+        <div className="footer-links">
+
+          <Link to="/">
+            Home
+          </Link>
+
+          <Link to="/store">
+            Store
+          </Link>
+
+          <Link to="/community">
+            Community
+          </Link>
+
+          <Link to="/premium">
+            Premium
+          </Link>
+
+        </div>
+
+      </div>
+
+      <div className="footer-line" />
+
+      <div className="footer-bottom">
+
+        <p>
+          © 2026 BOLOX. All Rights Reserved.
+        </p>
+
+        <p className="footer-disclaimer">
+          BOLOX is an independent gaming platform
+          and is not affiliated with or endorsed by
+          Garena or Free Fire.
+        </p>
+
+      </div>
+
+    </footer>
+  );
+}
+
+/* =========================================
+   PAGE LAYOUT
+========================================= */
+
+function PageLayout({ children }) {
   return (
     <div className="bolox">
-
       <Navbar />
+
+      {children}
+
+      <Footer />
+    </div>
+  );
+}
+
+/* =========================================
+   HOME
+========================================= */
+
+function Home() {
+  return (
+    <PageLayout>
 
       <section className="hero">
 
@@ -224,7 +339,9 @@ function Home() {
           <h1>
             LEVEL UP
             <br />
-            <span>WITH BOLOX</span>
+            <span>
+              WITH BOLOX
+            </span>
           </h1>
 
           <p>
@@ -255,16 +372,20 @@ function Home() {
 
         <div className="hero-visual">
 
-          <div className="glow"></div>
+          <div className="glow" />
 
           <div className="bolox-card">
 
             <div className="card-top">
-              <span>BOLOX</span>
+
+              <span>
+                BOLOX
+              </span>
 
               <span className="live-dot">
                 ● LIVE
               </span>
+
             </div>
 
             <div className="card-logo">
@@ -272,6 +393,7 @@ function Home() {
             </div>
 
             <div className="card-text">
+
               <small>
                 COMPETITIVE GAMING
               </small>
@@ -281,6 +403,7 @@ function Home() {
                 <br />
                 BETTER.
               </h3>
+
             </div>
 
           </div>
@@ -289,37 +412,69 @@ function Home() {
 
       </section>
 
-    </div>
+    </PageLayout>
   );
 }
+
+/* =========================================
+   COMMUNITY
+========================================= */
 
 function Community() {
   return (
-    <div className="simple-page">
-      <Navbar />
+    <PageLayout>
 
-      <h1>BOLOX COMMUNITY</h1>
+      <main className="simple-page">
 
-      <p>
-        Community features are coming soon.
-      </p>
-    </div>
+        <span className="red-label">
+          BOLOX PLAYERS
+        </span>
+
+        <h1>
+          BOLOX COMMUNITY
+        </h1>
+
+        <p>
+          Community features are coming soon.
+        </p>
+
+      </main>
+
+    </PageLayout>
   );
 }
+
+/* =========================================
+   PREMIUM
+========================================= */
 
 function Premium() {
   return (
-    <div className="simple-page">
-      <Navbar />
+    <PageLayout>
 
-      <h1>BOLOX PREMIUM</h1>
+      <main className="simple-page">
 
-      <p>
-        Premium features are coming soon.
-      </p>
-    </div>
+        <span className="red-label">
+          BOLOX PREMIUM
+        </span>
+
+        <h1>
+          LEVEL UP.
+        </h1>
+
+        <p>
+          Premium features are coming soon.
+        </p>
+
+      </main>
+
+    </PageLayout>
   );
 }
+
+/* =========================================
+   APP ROUTES
+========================================= */
 
 function App() {
   return (
@@ -335,30 +490,27 @@ function App() {
         <Route
           path="/store"
           element={
-            <div className="bolox">
-              <Navbar />
+            <PageLayout>
               <Store />
-            </div>
+            </PageLayout>
           }
         />
 
         <Route
           path="/store/sensitivity"
           element={
-            <>
-              <Navbar />
+            <PageLayout>
               <SensitivityGenerator />
-            </>
+            </PageLayout>
           }
         />
 
         <Route
           path="/profile"
           element={
-            <>
-              <Navbar />
+            <PageLayout>
               <Profile />
-            </>
+            </PageLayout>
           }
         />
 
