@@ -3,19 +3,69 @@ import { Link, useParams } from "react-router-dom";
 
 import {
   collection,
+  doc,
   onSnapshot,
   query,
   where,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import {
+  onAuthStateChanged,
+} from "firebase/auth";
+
+import {
+  auth,
+  db,
+} from "../firebase";
 
 function PublicProfile() {
   const { userId } = useParams();
 
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [currentUser, setCurrentUser] =
+    useState(null);
+
+  const [profile, setProfile] =
+    useState(null);
+
+  const [posts, setPosts] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [localPhoto, setLocalPhoto] =
+    useState("");
+
+  useEffect(() => {
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (user) => {
+          setCurrentUser(user);
+
+          if (
+            user &&
+            user.uid === userId
+          ) {
+            const savedPhoto =
+              localStorage.getItem(
+                `bolox_profile_photo_${user.uid}`
+              );
+
+            setLocalPhoto(
+              savedPhoto || ""
+            );
+          } else {
+            setLocalPhoto("");
+          }
+        }
+      );
+
+    return unsubscribe;
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) {
@@ -23,44 +73,84 @@ function PublicProfile() {
       return;
     }
 
+    const profileRef = doc(
+      db,
+      "users",
+      userId
+    );
+
+    const unsubscribeProfile =
+      onSnapshot(
+        profileRef,
+        (snapshot) => {
+          if (snapshot.exists()) {
+            setProfile({
+              id: snapshot.id,
+              ...snapshot.data(),
+            });
+          } else {
+            setProfile(null);
+          }
+        },
+        (err) => {
+          console.error(err);
+
+          setError(
+            "Could not load this BOLOX profile."
+          );
+        }
+      );
+
     const postsQuery = query(
-      collection(db, "communityPosts"),
-      where("userId", "==", userId)
+      collection(
+        db,
+        "communityPosts"
+      ),
+      where(
+        "userId",
+        "==",
+        userId
+      )
     );
 
-    const unsubscribe = onSnapshot(
-      postsQuery,
-      (snapshot) => {
-        const playerPosts = snapshot.docs
-          .map((item) => ({
-            id: item.id,
-            ...item.data(),
-          }))
-          .sort((a, b) => {
-            const aTime =
-              a.createdAt?.seconds || 0;
+    const unsubscribePosts =
+      onSnapshot(
+        postsQuery,
+        (snapshot) => {
+          const playerPosts =
+            snapshot.docs
+              .map((item) => ({
+                id: item.id,
+                ...item.data(),
+              }))
+              .sort((a, b) => {
+                const aTime =
+                  a.createdAt?.seconds || 0;
 
-            const bTime =
-              b.createdAt?.seconds || 0;
+                const bTime =
+                  b.createdAt?.seconds || 0;
 
-            return bTime - aTime;
-          });
+                return bTime - aTime;
+              });
 
-        setPosts(playerPosts);
-        setLoading(false);
-      },
-      (err) => {
-        console.error(err);
+          setPosts(playerPosts);
+          setLoading(false);
+        },
+        (err) => {
+          console.error(err);
 
-        setError(
-          "Could not load this BOLOX player."
-        );
+          setError(
+            "Could not load this player's posts."
+          );
 
-        setLoading(false);
-      }
-    );
+          setLoading(false);
+        }
+      );
 
-    return unsubscribe;
+    return () => {
+      unsubscribeProfile();
+      unsubscribePosts();
+    };
   }, [userId]);
 
   if (loading) {
@@ -73,75 +163,38 @@ function PublicProfile() {
     );
   }
 
-  if (error) {
-    return (
-      <main className="public-profile-page">
+  const fallbackPost =
+    posts[0] || {};
 
-        <div className="public-profile-empty">
+  const username =
+    profile?.username ||
+    fallbackPost.userName ||
+    "BOLOX Player";
 
-          <h1>
-            PLAYER
-            <br />
-            <span>UNAVAILABLE.</span>
-          </h1>
+  const bio =
+    profile?.bio ||
+    "BOLOX community player.";
 
-          <p>{error}</p>
+  const isOwnProfile =
+    currentUser?.uid === userId;
 
-          <Link
-            to="/community"
-            className="profile-action"
-          >
-            ← Back to Community
-          </Link>
+  const photo =
+    isOwnProfile && localPhoto
+      ? localPhoto
+      : profile?.googlePhoto ||
+        fallbackPost.userPhoto ||
+        "";
 
-        </div>
-
-      </main>
+  const totalLikes =
+    posts.reduce(
+      (total, post) =>
+        total +
+        (
+          post.likedBy?.length ||
+          0
+        ),
+      0
     );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <main className="public-profile-page">
-
-        <div className="public-profile-empty">
-
-          <span className="red-label">
-            BOLOX PLAYER
-          </span>
-
-          <h1>
-            NO PUBLIC
-            <br />
-            <span>POSTS.</span>
-          </h1>
-
-          <p>
-            This player has not shared any
-            community setups yet.
-          </p>
-
-          <Link
-            to="/community"
-            className="profile-action"
-          >
-            ← Back to Community
-          </Link>
-
-        </div>
-
-      </main>
-    );
-  }
-
-  const player = posts[0];
-
-  const totalLikes = posts.reduce(
-    (total, post) =>
-      total +
-      (post.likedBy?.length || 0),
-    0
-  );
 
   return (
     <main className="public-profile-page">
@@ -159,10 +212,10 @@ function PublicProfile() {
 
           <div className="public-profile-avatar-wrap">
 
-            {player.userPhoto ? (
+            {photo ? (
               <img
-                src={player.userPhoto}
-                alt={player.userName || ""}
+                src={photo}
+                alt={username}
                 className="public-profile-avatar"
               />
             ) : (
@@ -180,20 +233,35 @@ function PublicProfile() {
             </span>
 
             <h1>
-              {player.userName ||
-                "BOLOX Player"}
+              {username}
             </h1>
 
             <p>
-              Community profile and shared
-              Free Fire sensitivity setups.
+              {bio}
             </p>
+
+            {isOwnProfile && (
+              <Link
+                to="/profile"
+                className="edit-public-profile-link"
+              >
+                Edit My Profile
+              </Link>
+            )}
 
           </div>
 
         </div>
 
       </section>
+
+      {error && (
+        <section className="public-profile-message">
+          <div className="generator-error">
+            {error}
+          </div>
+        </section>
+      )}
 
       <section className="public-profile-stats">
 
@@ -249,72 +317,86 @@ function PublicProfile() {
 
         </div>
 
-        <div className="public-profile-grid">
+        {posts.length === 0 ? (
+          <div className="saved-empty">
 
-          {posts.map((post) => (
+            <h3>
+              No public setups yet.
+            </h3>
 
-            <article
-              className="public-profile-post"
-              key={post.id}
-            >
+            <p>
+              This BOLOX player has not
+              shared a sensitivity setup.
+            </p>
 
-              <div className="public-post-header">
+          </div>
+        ) : (
+          <div className="public-profile-grid">
 
-                <div>
-                  <span>
-                    {post.device}
-                  </span>
+            {posts.map(
+              (post) => (
 
-                  <h3>
-                    {post.model}
-                  </h3>
-                </div>
+                <article
+                  className="public-profile-post"
+                  key={post.id}
+                >
 
-                <strong>
-                  {post.style}
-                </strong>
+                  <div className="public-post-header">
 
-              </div>
-
-              <div className="public-post-settings">
-
-                {Object.entries(
-                  post.settings || {}
-                ).map(
-                  ([name, value]) => (
-
-                    <div key={name}>
-
+                    <div>
                       <span>
-                        {name}
+                        {post.device}
                       </span>
 
-                      <strong>
-                        {value}
-                      </strong>
-
+                      <h3>
+                        {post.model}
+                      </h3>
                     </div>
 
-                  )
-                )}
+                    <strong>
+                      {post.style}
+                    </strong>
 
-              </div>
+                  </div>
 
-              <div className="public-post-footer">
+                  <div className="public-post-settings">
 
-                <span>
-                  ❤️{" "}
-                  {post.likedBy?.length ||
-                    0}
-                </span>
+                    {Object.entries(
+                      post.settings || {}
+                    ).map(
+                      ([name, value]) => (
 
-              </div>
+                        <div key={name}>
 
-            </article>
+                          <span>
+                            {name}
+                          </span>
 
-          ))}
+                          <strong>
+                            {value}
+                          </strong>
 
-        </div>
+                        </div>
+
+                      )
+                    )}
+
+                  </div>
+
+                  <div className="public-post-footer">
+                    <span>
+                      ❤️{" "}
+                      {post.likedBy?.length || 0}
+                    </span>
+                  </div>
+
+                </article>
+
+              )
+            )}
+
+          </div>
+        )}
 
       </section>
 
