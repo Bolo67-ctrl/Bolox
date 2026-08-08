@@ -3,9 +3,12 @@ import { Link, useParams } from "react-router-dom";
 
 import {
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   query,
+  serverTimestamp,
+  setDoc,
   where,
 } from "firebase/firestore";
 
@@ -30,14 +33,28 @@ function PublicProfile() {
   const [posts, setPosts] =
     useState([]);
 
+  const [followers, setFollowers] =
+    useState([]);
+
+  const [following, setFollowing] =
+    useState([]);
+
+  const [isFollowing, setIsFollowing] =
+    useState(false);
+
+  const [localPhoto, setLocalPhoto] =
+    useState("");
+
+  const [followLoading, setFollowLoading] =
+    useState(false);
+
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
 
-  const [localPhoto, setLocalPhoto] =
-    useState("");
+  /* AUTH */
 
   useEffect(() => {
     const unsubscribe =
@@ -67,6 +84,8 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
+  /* PROFILE */
+
   useEffect(() => {
     if (!userId) {
       setLoading(false);
@@ -79,7 +98,7 @@ function PublicProfile() {
       userId
     );
 
-    const unsubscribeProfile =
+    const unsubscribe =
       onSnapshot(
         profileRef,
         (snapshot) => {
@@ -101,6 +120,14 @@ function PublicProfile() {
         }
       );
 
+    return unsubscribe;
+  }, [userId]);
+
+  /* POSTS */
+
+  useEffect(() => {
+    if (!userId) return;
+
     const postsQuery = query(
       collection(
         db,
@@ -113,7 +140,7 @@ function PublicProfile() {
       )
     );
 
-    const unsubscribePosts =
+    const unsubscribe =
       onSnapshot(
         postsQuery,
         (snapshot) => {
@@ -147,11 +174,172 @@ function PublicProfile() {
         }
       );
 
-    return () => {
-      unsubscribeProfile();
-      unsubscribePosts();
-    };
+    return unsubscribe;
   }, [userId]);
+
+  /* FOLLOWERS */
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const followersRef =
+      collection(
+        db,
+        "users",
+        userId,
+        "followers"
+      );
+
+    const unsubscribe =
+      onSnapshot(
+        followersRef,
+        (snapshot) => {
+          const loaded =
+            snapshot.docs.map(
+              (item) => ({
+                id: item.id,
+                ...item.data(),
+              })
+            );
+
+          setFollowers(loaded);
+
+          if (currentUser) {
+            setIsFollowing(
+              loaded.some(
+                (item) =>
+                  item.id ===
+                  currentUser.uid
+              )
+            );
+          } else {
+            setIsFollowing(false);
+          }
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+
+    return unsubscribe;
+  }, [userId, currentUser]);
+
+  /* FOLLOWING */
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const followingRef =
+      collection(
+        db,
+        "users",
+        userId,
+        "following"
+      );
+
+    const unsubscribe =
+      onSnapshot(
+        followingRef,
+        (snapshot) => {
+          const loaded =
+            snapshot.docs.map(
+              (item) => ({
+                id: item.id,
+                ...item.data(),
+              })
+            );
+
+          setFollowing(loaded);
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+
+    return unsubscribe;
+  }, [userId]);
+
+  /* FOLLOW / UNFOLLOW */
+
+  const handleFollow = async () => {
+    if (!currentUser) {
+      setError(
+        "Sign in with Google to follow BOLOX players."
+      );
+
+      return;
+    }
+
+    if (
+      currentUser.uid ===
+      userId
+    ) {
+      return;
+    }
+
+    if (followLoading) {
+      return;
+    }
+
+    setFollowLoading(true);
+    setError("");
+
+    try {
+      const followerRef = doc(
+        db,
+        "users",
+        userId,
+        "followers",
+        currentUser.uid
+      );
+
+      const followingRef = doc(
+        db,
+        "users",
+        currentUser.uid,
+        "following",
+        userId
+      );
+
+      if (isFollowing) {
+        await deleteDoc(
+          followerRef
+        );
+
+        await deleteDoc(
+          followingRef
+        );
+      } else {
+        await setDoc(
+          followerRef,
+          {
+            userId:
+              currentUser.uid,
+
+            followedAt:
+              serverTimestamp(),
+          }
+        );
+
+        await setDoc(
+          followingRef,
+          {
+            userId,
+            followedAt:
+              serverTimestamp(),
+          }
+        );
+      }
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Could not update follow status."
+      );
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -240,13 +428,30 @@ function PublicProfile() {
               {bio}
             </p>
 
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <Link
                 to="/profile"
                 className="edit-public-profile-link"
               >
                 Edit My Profile
               </Link>
+            ) : (
+              <button
+                type="button"
+                className={
+                  isFollowing
+                    ? "follow-btn following"
+                    : "follow-btn"
+                }
+                onClick={handleFollow}
+                disabled={followLoading}
+              >
+                {followLoading
+                  ? "..."
+                  : isFollowing
+                    ? "Following ✓"
+                    : "Follow +"}
+              </button>
             )}
 
           </div>
@@ -278,6 +483,30 @@ function PublicProfile() {
         </div>
 
         <div className="profile-stat-card">
+          <span>FOLLOWERS</span>
+
+          <strong>
+            {followers.length}
+          </strong>
+
+          <small>
+            BOLOX Followers
+          </small>
+        </div>
+
+        <div className="profile-stat-card">
+          <span>FOLLOWING</span>
+
+          <strong>
+            {following.length}
+          </strong>
+
+          <small>
+            Players Followed
+          </small>
+        </div>
+
+        <div className="profile-stat-card">
           <span>LIKES</span>
 
           <strong>
@@ -285,19 +514,7 @@ function PublicProfile() {
           </strong>
 
           <small>
-            Total Likes
-          </small>
-        </div>
-
-        <div className="profile-stat-card">
-          <span>STATUS</span>
-
-          <strong>
-            PLAYER
-          </strong>
-
-          <small>
-            BOLOX Community
+            Total Post Likes
           </small>
         </div>
 
