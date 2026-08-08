@@ -22,6 +22,10 @@ import {
   db,
 } from "../firebase";
 
+/* =========================================
+   SAVED SENSITIVITIES
+========================================= */
+
 function savedKey(uid) {
   return `bolox_saved_sensitivities_${uid}`;
 }
@@ -37,6 +41,10 @@ function getSavedSensitivities(uid) {
     return [];
   }
 }
+
+/* =========================================
+   PUBLIC PROFILE HELPER
+========================================= */
 
 async function getPublicProfile(userId) {
   if (!userId) {
@@ -68,6 +76,62 @@ async function getPublicProfile(userId) {
     );
 
     return null;
+  }
+}
+
+/* =========================================
+   CREATE NOTIFICATION
+========================================= */
+
+async function createNotification({
+  recipientId,
+  actorId,
+  actorName,
+  type,
+  message,
+  postId,
+}) {
+  if (
+    !recipientId ||
+    !actorId ||
+    recipientId === actorId
+  ) {
+    return;
+  }
+
+  try {
+    await addDoc(
+      collection(
+        db,
+        "users",
+        recipientId,
+        "notifications"
+      ),
+      {
+        type,
+        actorId,
+        actorName:
+          actorName ||
+          "BOLOX Player",
+
+        recipientId,
+
+        message,
+
+        postId:
+          postId || "",
+
+        read: false,
+
+        createdAt:
+          serverTimestamp(),
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Could not create notification:",
+      error
+    );
   }
 }
 
@@ -117,6 +181,7 @@ function CommentItem({ comment }) {
         to={`/player/${comment.userId}`}
         className="comment-profile-link"
       >
+
         {photo ? (
           <img
             src={photo}
@@ -127,6 +192,7 @@ function CommentItem({ comment }) {
             B
           </div>
         )}
+
       </Link>
 
       <div>
@@ -186,9 +252,15 @@ function CommunityPost({
       ? likedBy.includes(user.uid)
       : false;
 
-  /* LOAD CURRENT PUBLIC PROFILE */
+  /* =========================================
+     LOAD POST OWNER PROFILE
+  ========================================= */
 
   useEffect(() => {
+    if (!post.userId) {
+      return;
+    }
+
     const profileRef = doc(
       db,
       "users",
@@ -199,9 +271,7 @@ function CommunityPost({
       onSnapshot(
         profileRef,
         (snapshot) => {
-          if (
-            snapshot.exists()
-          ) {
+          if (snapshot.exists()) {
             setProfile({
               id: snapshot.id,
               ...snapshot.data(),
@@ -218,7 +288,9 @@ function CommunityPost({
     return unsubscribe;
   }, [post.userId]);
 
-  /* REALTIME COMMENTS */
+  /* =========================================
+     REALTIME COMMENTS
+  ========================================= */
 
   useEffect(() => {
     const commentsQuery = query(
@@ -268,7 +340,9 @@ function CommunityPost({
     post.userPhoto ||
     "";
 
-  /* LIKE */
+  /* =========================================
+     LIKE
+  ========================================= */
 
   const handleLike = async () => {
     if (!user) {
@@ -282,6 +356,7 @@ function CommunityPost({
     if (liking) return;
 
     setLiking(true);
+    setError("");
 
     try {
       const postRef = doc(
@@ -310,6 +385,40 @@ function CommunityPost({
               ),
           }
         );
+
+        /* LIKE NOTIFICATION */
+
+        if (
+          post.userId !==
+          user.uid
+        ) {
+          const currentProfile =
+            await getPublicProfile(
+              user.uid
+            );
+
+          await createNotification({
+            recipientId:
+              post.userId,
+
+            actorId:
+              user.uid,
+
+            actorName:
+              currentProfile?.username ||
+              user.displayName ||
+              "BOLOX Player",
+
+            type:
+              "like",
+
+            message:
+              "liked your sensitivity setup.",
+
+            postId:
+              post.id,
+          });
+        }
       }
     } catch (err) {
       console.error(err);
@@ -322,7 +431,9 @@ function CommunityPost({
     }
   };
 
-  /* COMMENT */
+  /* =========================================
+     COMMENT
+  ========================================= */
 
   const handleComment = async (
     event
@@ -363,6 +474,11 @@ function CommunityPost({
           user.uid
         );
 
+      const actorName =
+        currentProfile?.username ||
+        user.displayName ||
+        "BOLOX Player";
+
       await addDoc(
         collection(
           db,
@@ -375,9 +491,7 @@ function CommunityPost({
             user.uid,
 
           userName:
-            currentProfile?.username ||
-            user.displayName ||
-            "BOLOX Player",
+            actorName,
 
           userPhoto:
             user.photoURL || "",
@@ -389,6 +503,32 @@ function CommunityPost({
             serverTimestamp(),
         }
       );
+
+      /* COMMENT NOTIFICATION */
+
+      if (
+        post.userId !==
+        user.uid
+      ) {
+        await createNotification({
+          recipientId:
+            post.userId,
+
+          actorId:
+            user.uid,
+
+          actorName,
+
+          type:
+            "comment",
+
+          message:
+            "commented on your sensitivity setup.",
+
+          postId:
+            post.id,
+        });
+      }
 
       setCommentText("");
     } catch (err) {
@@ -402,7 +542,9 @@ function CommunityPost({
     }
   };
 
-  /* COPY */
+  /* =========================================
+     COPY SETTINGS
+  ========================================= */
 
   const handleCopy = async () => {
     const text = [
@@ -466,7 +608,7 @@ function CommunityPost({
             </strong>
 
             <small>
-              VIEW BOLOX PROFILE →
+              VIEW PROFILE →
             </small>
 
           </div>
@@ -474,7 +616,7 @@ function CommunityPost({
         </div>
       </Link>
 
-      {/* DEVICE */}
+      {/* POST TITLE */}
 
       <div className="community-post-title">
 
@@ -592,8 +734,7 @@ function CommunityPost({
 
         </div>
 
-        {comments.length ===
-        0 ? (
+        {comments.length === 0 ? (
 
           <p className="no-comments">
             No comments yet.
@@ -617,8 +758,6 @@ function CommunityPost({
           </div>
 
         )}
-
-        {/* COMMENT FORM */}
 
         {user ? (
 
@@ -876,7 +1015,7 @@ function Community() {
         );
 
         setMessage(
-          "Sensitivity shared with the BOLOX community."
+          "Sensitivity shared with the community."
         );
       } catch (err) {
         console.error(err);
@@ -938,6 +1077,8 @@ function Community() {
   return (
     <main className="community-page">
 
+      {/* HERO */}
+
       <section className="community-hero">
 
         <span className="red-label">
@@ -956,7 +1097,7 @@ function Community() {
         <p>
           Share your saved Free Fire
           sensitivity setups, discover
-          settings from other BOLOX players,
+          settings from other players,
           like their setups and join the
           conversation.
         </p>
@@ -964,6 +1105,8 @@ function Community() {
       </section>
 
       <section className="community-content">
+
+        {/* SHARE */}
 
         <div className="community-share-card">
 
@@ -985,8 +1128,7 @@ function Community() {
 
               <p>
                 Sign in with Google
-                to share your BOLOX
-                sensitivity.
+                to share your sensitivity.
               </p>
 
               <Link
@@ -1089,6 +1231,8 @@ function Community() {
 
         </div>
 
+        {/* FEED HEADER */}
+
         <div className="community-feed-header">
 
           <div>
@@ -1109,6 +1253,8 @@ function Community() {
 
         </div>
 
+        {/* POSTS */}
+
         {posts.length === 0 ? (
 
           <div className="saved-empty">
@@ -1118,8 +1264,8 @@ function Community() {
             </h3>
 
             <p>
-              Be the first BOLOX
-              player to share a setup.
+              Be the first player
+              to share a setup.
             </p>
 
           </div>
