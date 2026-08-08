@@ -150,7 +150,7 @@ function getDailyUsage() {
   }
 }
 
-function generateSettings(style) {
+function generateSettings(style, device, model) {
   const presets = {
     Rusher: {
       General: 195,
@@ -198,7 +198,64 @@ function generateSettings(style) {
     },
   };
 
-  return presets[style];
+  const settings = { ...presets[style] };
+
+  const deviceAdjustments = {
+    iPhone: -3,
+    Samsung: 0,
+    "Google Pixel": -2,
+    Xiaomi: 2,
+    Redmi: 4,
+    OnePlus: -1,
+    Motorola: 3,
+    Huawei: 1,
+    Oppo: 2,
+    Vivo: 2,
+    Realme: 3,
+    Mobilador: 5,
+  };
+
+  const deviceAdjustment =
+    deviceAdjustments[device] || 0;
+
+  let modelAdjustment = 0;
+
+  const performanceModels = [
+    "Pro",
+    "S23",
+    "S24",
+    "S25",
+    "Pixel 8",
+    "Pixel 9",
+    "Xiaomi 13",
+    "Xiaomi 14",
+    "OnePlus 12",
+    "OnePlus 13",
+    "GT",
+    "High Performance",
+  ];
+
+  if (
+    performanceModels.some((name) =>
+      model.includes(name)
+    )
+  ) {
+    modelAdjustment = -2;
+  }
+
+  Object.keys(settings).forEach((key) => {
+    settings[key] = Math.max(
+      0,
+      Math.min(
+        200,
+        settings[key] +
+          deviceAdjustment +
+          modelAdjustment
+      )
+    );
+  });
+
+  return settings;
 }
 
 function SensitivityGenerator() {
@@ -230,7 +287,11 @@ function SensitivityGenerator() {
       return;
     }
 
-    const settings = generateSettings(style);
+    const settings = generateSettings(
+      style,
+      device,
+      model
+    );
 
     setResult({
       device,
@@ -283,11 +344,14 @@ function SensitivityGenerator() {
   return (
     <main className="generator-page">
       <section className="generator-page-header">
+
         <Link to="/store" className="back-link">
           ← Back to Store
         </Link>
 
-        <span className="red-label">FREE FIRE ONLY</span>
+        <span className="red-label">
+          FREE FIRE ONLY
+        </span>
 
         <h1>
           SENSITIVITY
@@ -296,31 +360,42 @@ function SensitivityGenerator() {
         </h1>
 
         <p>
-          Choose your device, phone model and play style to generate
-          a BOLOX Free Fire sensitivity setup.
+          Choose your device, phone model and play style
+          to generate a BOLOX Free Fire sensitivity setup.
         </p>
 
         <div className="generation-counter">
           <strong>{remaining}</strong>
-          <span>FREE GENERATIONS LEFT TODAY</span>
+          <span>
+            FREE GENERATIONS LEFT TODAY
+          </span>
         </div>
+
       </section>
 
       <section className="generator-container">
+
         {!result ? (
+
           <div className="generator-form">
 
             <div className="form-header">
+
               <span>01</span>
 
               <div>
                 <h2>Select your device</h2>
-                <p>Choose the brand you use to play Free Fire.</p>
+                <p>
+                  Choose the brand you use to play Free Fire.
+                </p>
               </div>
+
             </div>
 
             <div className="device-grid">
+
               {devices.map((item) => (
+
                 <button
                   key={item}
                   type="button"
@@ -336,11 +411,15 @@ function SensitivityGenerator() {
                 >
                   {item}
                 </button>
+
               ))}
+
             </div>
 
             {device && (
+
               <div className="model-selector">
+
                 <label htmlFor="device-model">
                   Select your {device} model
                 </label>
@@ -348,32 +427,50 @@ function SensitivityGenerator() {
                 <select
                   id="device-model"
                   value={model}
-                  onChange={(e) => setModel(e.target.value)}
+                  onChange={(e) =>
+                    setModel(e.target.value)
+                  }
                 >
-                  <option value="">Choose your model</option>
 
-                  {deviceModels[device]?.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
+                  <option value="">
+                    Choose your model
+                  </option>
+
+                  {deviceModels[device]?.map(
+                    (item) => (
+                      <option
+                        key={item}
+                        value={item}
+                      >
+                        {item}
+                      </option>
+                    )
+                  )}
+
                 </select>
+
               </div>
+
             )}
 
             <div className="form-header second">
+
               <span>02</span>
 
               <div>
                 <h2>Select your play style</h2>
                 <p>
-                  Choose the option that best matches how you play.
+                  Choose the option that best matches
+                  how you play.
                 </p>
               </div>
+
             </div>
 
             <div className="style-grid">
+
               {playStyles.map((item) => (
+
                 <button
                   key={item}
                   type="button"
@@ -382,8 +479,11 @@ function SensitivityGenerator() {
                       ? "style-option selected"
                       : "style-option"
                   }
-                  onClick={() => setStyle(item)}
+                  onClick={() =>
+                    setStyle(item)
+                  }
                 >
+
                   <strong>{item}</strong>
 
                   <small>
@@ -402,8 +502,11 @@ function SensitivityGenerator() {
                     {item === "One-Tap" &&
                       "Fast drag and headshot-focused setup"}
                   </small>
+
                 </button>
+
               ))}
+
             </div>
 
             {error && (
@@ -418,21 +521,28 @@ function SensitivityGenerator() {
               onClick={handleGenerate}
               disabled={remaining === 0}
             >
+
               {remaining === 0
                 ? "Daily Limit Reached"
                 : "Generate My Sensitivity →"}
+
             </button>
 
             <p className="generator-note">
-              Free users can generate up to 5 setups per day.
+              Free users can generate up to
+              5 setups per day.
             </p>
 
           </div>
+
         ) : (
+
           <div className="results-container">
 
             <div className="results-header">
+
               <div>
+
                 <span className="red-label">
                   GENERATED SETUP
                 </span>
@@ -442,39 +552,55 @@ function SensitivityGenerator() {
                   <br />
                   <span>Sensitivity.</span>
                 </h2>
+
               </div>
 
               <div className="result-details">
+
                 <span>{result.device}</span>
                 <span>{result.model}</span>
                 <span>{result.style}</span>
                 <span>FREE FIRE</span>
+
               </div>
+
             </div>
 
             <div className="sensitivity-results">
-              {Object.entries(result.settings).map(
-                ([name, value]) => (
-                  <div
-                    className="sensitivity-row"
-                    key={name}
-                  >
-                    <div>
-                      <span>{name}</span>
 
-                      <div className="sensitivity-bar">
-                        <div
-                          style={{
-                            width: `${(value / 200) * 100}%`,
-                          }}
-                        />
-                      </div>
+              {Object.entries(
+                result.settings
+              ).map(([name, value]) => (
+
+                <div
+                  className="sensitivity-row"
+                  key={name}
+                >
+
+                  <div>
+
+                    <span>{name}</span>
+
+                    <div className="sensitivity-bar">
+
+                      <div
+                        style={{
+                          width: `${
+                            (value / 200) * 100
+                          }%`,
+                        }}
+                      />
+
                     </div>
 
-                    <strong>{value}</strong>
                   </div>
-                )
-              )}
+
+                  <strong>{value}</strong>
+
+                </div>
+
+              ))}
+
             </div>
 
             {error && (
@@ -484,6 +610,7 @@ function SensitivityGenerator() {
             )}
 
             <div className="results-actions">
+
               <button
                 type="button"
                 className="generate-again"
@@ -497,16 +624,22 @@ function SensitivityGenerator() {
                 className="copy-button"
                 onClick={handleCopy}
               >
-                {copied ? "Copied ✓" : "Copy Settings"}
+                {copied
+                  ? "Copied ✓"
+                  : "Copy Settings"}
               </button>
+
             </div>
 
             <p className="remaining-text">
-              {remaining} free generations remaining today.
+              {remaining} free generations
+              remaining today.
             </p>
 
           </div>
+
         )}
+
       </section>
     </main>
   );
