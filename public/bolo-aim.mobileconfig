@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+"https://www.apple.com/DTDs/PropertyList-1.0.dtd">
 
 <plist version="1.0">
 <dict>
@@ -8,20 +8,26 @@
     <key>PayloadContent</key>
     <array>
         <dict>
+
             <key>DNSSettings</key>
             <dict>
+
                 <key>DNSProtocol</key>
-                <string>Cleartext</string>
+                <string>HTTPS</string>
+
+                <key>ServerURL</key>
+                <string>https://cloudflare-dns.com/dns-query</string>
 
                 <key>ServerAddresses</key>
                 <array>
                     <string>1.1.1.1</string>
                     <string>1.0.0.1</string>
                 </array>
+
             </dict>
 
             <key>PayloadDescription</key>
-            <string>BOLO AIM DNS configuration</string>
+            <string>BOLO AIM encrypted DNS</string>
 
             <key>PayloadDisplayName</key>
             <string>BOLO AIM DNS</string>
@@ -37,6 +43,7 @@
 
             <key>PayloadVersion</key>
             <integer>1</integer>
+
         </dict>
     </array>
 
