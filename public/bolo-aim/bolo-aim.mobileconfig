@@ -27,13 +27,13 @@
             </dict>
 
             <key>PayloadDescription</key>
-            <string>BOLO AIM encrypted DNS</string>
+            <string>Bolo sensi 👾</string>
 
             <key>PayloadDisplayName</key>
-            <string>BOLO AIM DNS</string>
+            <string>BOLO AIM TRACK 🩸</string>
 
             <key>PayloadIdentifier</key>
-            <string>com.bolox.boloaim.dns</string>
+            <string>com.bolox.boloaimtrack.dns</string>
 
             <key>PayloadType</key>
             <string>com.apple.dnsSettings.managed</string>
@@ -48,13 +48,13 @@
     </array>
 
     <key>PayloadDescription</key>
-    <string>BOLO AIM - Gaming DNS profile by BOLOX</string>
+    <string>Bolo sensi 👾 - Gaming DNS profile by BOLOX</string>
 
     <key>PayloadDisplayName</key>
-    <string>BOLO AIM</string>
+    <string>BOLO AIM TRACK 🩸</string>
 
     <key>PayloadIdentifier</key>
-    <string>com.bolox.boloaim</string>
+    <string>com.bolox.boloaimtrack</string>
 
     <key>PayloadOrganization</key>
     <string>BOLOX</string>
