@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+<dict>
+
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+
+            <key>DNSSettings</key>
+            <dict>
+
+                <key>DNSProtocol</key>
+                <string>HTTPS</string>
+
+                <key>ServerURL</key>
+                <string>https://cloudflare-dns.com/dns-query</string>
+
+                <key>ServerAddresses</key>
+                <array>
+                    <string>1.1.1.1</string>
+                    <string>1.0.0.1</string>
+                </array>
+
+            </dict>
+
+            <key>PayloadDescription</key>
+            <string>BOLO AIM encrypted DNS</string>
+
+            <key>PayloadDisplayName</key>
+            <string>BOLO AIM DNS</string>
+
+            <key>PayloadIdentifier</key>
+            <string>com.bolox.boloaim.dns</string>
+
+            <key>PayloadType</key>
+            <string>com.apple.dnsSettings.managed</string>
+
+            <key>PayloadUUID</key>
+            <string>8C45B237-72A5-4B28-A326-3B22B0F35101</string>
+
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+
+        </dict>
+    </array>
+
+    <key>PayloadDescription</key>
+    <string>BOLO AIM - Gaming DNS profile by BOLOX</string>
+
+    <key>PayloadDisplayName</key>
+    <string>BOLO AIM</string>
+
+    <key>PayloadIdentifier</key>
+    <string>com.bolox.boloaim</string>
+
+    <key>PayloadOrganization</key>
+    <string>BOLOX</string>
+
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+
+    <key>PayloadType</key>
+    <string>Configuration</string>
+
+    <key>PayloadUUID</key>
+    <string>BF21E72A-7831-4D93-AAD4-63C740F27602</string>
+
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+
+</dict>
+</plist>

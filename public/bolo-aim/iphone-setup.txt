@@ -1,0 +1,48 @@
+BOLO AIM v1 — iPHONE SETUP
+by BOLO
+
+================================
+RECOMMENDED FREE FIRE SETUP
+================================
+
+1. DISPLAY & PERFORMANCE
+
+• Use the highest stable FPS option available in Free Fire.
+• Choose graphics settings that keep gameplay smooth.
+• Avoid settings that cause frequent frame drops.
+• Keep enough free storage space on your iPhone.
+
+2. NETWORK
+
+• Install the BOLO AIM DNS profile.
+• Use a stable Wi-Fi or cellular connection.
+• Avoid large downloads while playing.
+• If your connection becomes unstable, test with and without
+  the DNS profile to see which works better on your network.
+
+3. FREE FIRE
+
+• Select your preferred sensitivity preset.
+• Enter the values manually inside Free Fire.
+• Test your settings in Training Mode.
+• Make small adjustments based on your play style.
+
+4. BEFORE PLAYING
+
+• Make sure your connection is stable.
+• Close unnecessary high-usage apps.
+• Make sure Free Fire is updated.
+• Restart the game if you experience unusual performance issues.
+
+================================
+IMPORTANT
+================================
+
+BOLO AIM does not modify Free Fire.
+BOLO AIM does not provide automatic aiming or headshots.
+
+The DNS profile changes DNS resolution and does not directly
+change sensitivity, recoil, damage, or hit registration.
+
+BOLOX
+LEVEL UP YOUR GAME.

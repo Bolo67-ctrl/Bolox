@@ -1,0 +1,68 @@
+BOLO AIM v1 — FREE FIRE SENSITIVITY
+by BOLO
+
+================================
+PRESET 01 — BALANCED
+================================
+
+General:       180
+Red Dot:       170
+2X Scope:      155
+4X Scope:      145
+Sniper Scope:   90
+Free Look:     175
+
+Recommended for:
+General gameplay and players who use multiple weapon types.
+
+
+================================
+PRESET 02 — SMG
+================================
+
+General:       195
+Red Dot:       185
+2X Scope:      165
+4X Scope:      140
+Sniper Scope:   85
+Free Look:     180
+
+Recommended for:
+Close-range SMG gameplay and fast camera movement.
+
+
+================================
+PRESET 03 — ONE TAP
+================================
+
+General:       190
+Red Dot:       180
+2X Scope:      160
+4X Scope:      150
+Sniper Scope:   95
+Free Look:     170
+
+Recommended for:
+Players who prefer quick single-shot aiming.
+
+
+================================
+HOW TO USE
+================================
+
+1. Open Free Fire.
+2. Go to Settings → Sensitivity.
+3. Enter your chosen preset manually.
+4. Test it in Training Mode.
+5. Adjust the values slightly until they feel comfortable
+   on your specific iPhone.
+
+These are starting-point sensitivity presets.
+They do not provide automatic aim or headshots.
+
+BOLO AIM DNS does not change these sensitivity values.
+The DNS and sensitivity presets are separate parts of the
+BOLO AIM setup.
+
+BOLOX
+LEVEL UP YOUR GAME.
