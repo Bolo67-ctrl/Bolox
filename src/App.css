@@ -1810,3 +1810,36 @@ button {
     text-align: left;
   }
 }
+.bolo-aim-card {
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 25px;
+  text-align: center;
+  border-radius: 18px;
+  background: #111;
+  border: 1px solid #ff2a2a;
+}
+
+.bolo-aim-card h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.bolo-aim-card p {
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+.bolo-aim-button {
+  display: inline-block;
+  padding: 14px 24px;
+  border-radius: 12px;
+  background: #ff2a2a;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.bolo-aim-button:hover {
+  transform: scale(1.04);
+}

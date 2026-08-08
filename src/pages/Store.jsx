@@ -392,3 +392,17 @@ function Store() {
 }
 
 export default Store;
+<div className="bolo-aim-card">
+  <h2>BOLO AIM</h2>
+
+  <p>
+    Gaming DNS profile designed to help improve network reliability on iPhone.
+  </p>
+
+  <a
+    href="/bolo-aim.mobileconfig"
+    className="bolo-aim-button"
+  >
+    Install BOLO AIM
+  </a>
+</div>
