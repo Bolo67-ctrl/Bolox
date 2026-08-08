@@ -5,45 +5,159 @@ import {
   Link,
 } from "react-router-dom";
 
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  onAuthStateChanged,
+} from "firebase/auth";
+
 import "./App.css";
 
 import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
 
+import {
+  auth,
+  loginWithGoogle,
+  logoutUser,
+} from "./firebase";
+
 function Navbar() {
+  const [user, setUser] = useState(null);
+  const [authError, setAuthError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+      }
+    );
+
+    return unsubscribe;
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      setAuthError("");
+      await loginWithGoogle();
+    } catch (error) {
+      console.error(error);
+
+setAuthError(
+  `${error.code}: ${error.message}`
+);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setAuthError("");
+      await logoutUser();
+    } catch (error) {
+      console.error(error);
+
+      setAuthError(
+        "Could not log out."
+      );
+    }
+  };
+
   return (
-    <header className="navbar">
-      <Link to="/" className="logo">
-        <span>B</span> BOLOX
-      </Link>
+    <>
+      <header className="navbar">
 
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/store">Store</Link>
-        <Link to="/community">Community</Link>
-        <Link to="/premium">Premium</Link>
-      </nav>
+        <Link to="/" className="logo">
+          <span>B</span> BOLOX
+        </Link>
 
-      <div className="nav-actions">
-        <button className="login-btn">
-          Login
-        </button>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/store">Store</Link>
+          <Link to="/community">
+            Community
+          </Link>
+          <Link to="/premium">
+            Premium
+          </Link>
+        </nav>
 
-        <button className="signup-btn">
-          Get Started
-        </button>
-      </div>
-    </header>
+        <div className="nav-actions">
+
+          {!user ? (
+            <>
+              <button
+                className="login-btn"
+                onClick={handleLogin}
+              >
+                Login with Google
+              </button>
+
+              <button
+                className="signup-btn"
+                onClick={handleLogin}
+              >
+                Get Started
+              </button>
+            </>
+          ) : (
+            <div className="user-nav">
+
+              {user.photoURL && (
+                <img
+                  src={user.photoURL}
+                  alt=""
+                  className="user-avatar"
+                />
+              )}
+
+              <div className="user-info">
+                <strong>
+                  {user.displayName ||
+                    "BOLOX Player"}
+                </strong>
+
+                <small>
+                  {user.email}
+                </small>
+              </div>
+
+              <button
+                className="logout-btn"
+                onClick={handleLogout}
+              >
+                Log Out
+              </button>
+
+            </div>
+          )}
+
+        </div>
+
+      </header>
+
+      {authError && (
+        <div className="auth-error">
+          {authError}
+        </div>
+      )}
+    </>
   );
 }
 
 function Home() {
   return (
     <div className="bolox">
+
       <Navbar />
 
       <section className="hero">
+
         <div className="hero-content">
+
           <div className="hero-badge">
             FREE FIRE GAMING PLATFORM
           </div>
@@ -55,11 +169,13 @@ function Home() {
           </h1>
 
           <p>
-            Premium configs, sensitivity tools and gaming
-            resources built for competitive Free Fire players.
+            Premium configs, sensitivity tools
+            and gaming resources built for
+            competitive Free Fire players.
           </p>
 
           <div className="hero-buttons">
+
             <Link
               to="/store"
               className="primary-btn"
@@ -73,15 +189,20 @@ function Home() {
             >
               Join Premium
             </Link>
+
           </div>
+
         </div>
 
         <div className="hero-visual">
+
           <div className="glow"></div>
 
           <div className="bolox-card">
+
             <div className="card-top">
               <span>BOLOX</span>
+
               <span className="live-dot">
                 ● LIVE
               </span>
@@ -92,6 +213,7 @@ function Home() {
             </div>
 
             <div className="card-text">
+
               <small>
                 COMPETITIVE GAMING
               </small>
@@ -101,10 +223,15 @@ function Home() {
                 <br />
                 BETTER.
               </h3>
+
             </div>
+
           </div>
+
         </div>
+
       </section>
+
     </div>
   );
 }
@@ -112,10 +239,15 @@ function Home() {
 function Community() {
   return (
     <div className="simple-page">
+
       <Navbar />
 
       <h1>BOLOX COMMUNITY</h1>
-      <p>Community coming soon.</p>
+
+      <p>
+        Community features are coming soon.
+      </p>
+
     </div>
   );
 }
@@ -123,10 +255,15 @@ function Community() {
 function Premium() {
   return (
     <div className="simple-page">
+
       <Navbar />
 
       <h1>BOLOX PREMIUM</h1>
-      <p>Premium coming soon.</p>
+
+      <p>
+        Premium features are coming soon.
+      </p>
+
     </div>
   );
 }
@@ -134,7 +271,9 @@ function Premium() {
 function App() {
   return (
     <HashRouter>
+
       <Routes>
+
         <Route
           path="/"
           element={<Home />}
@@ -153,7 +292,10 @@ function App() {
         <Route
           path="/store/sensitivity"
           element={
-            <SensitivityGenerator />
+            <>
+              <Navbar />
+              <SensitivityGenerator />
+            </>
           }
         />
 
@@ -166,7 +308,9 @@ function App() {
           path="/premium"
           element={<Premium />}
         />
+
       </Routes>
+
     </HashRouter>
   );
 }
