@@ -19,6 +19,7 @@ import "./App.css";
 import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
 import Profile from "./pages/Profile";
+import Community from "./pages/Community";
 
 import {
   auth,
@@ -91,7 +92,6 @@ function Navbar() {
   const handleLogin = async () => {
     try {
       setAuthError("");
-
       await loginWithGoogle();
     } catch (error) {
       console.error(error);
@@ -105,7 +105,6 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       setAuthError("");
-
       await logoutUser();
     } catch (error) {
       console.error(error);
@@ -134,7 +133,6 @@ function Navbar() {
         </Link>
 
         <nav>
-
           <Link to="/">
             Home
           </Link>
@@ -156,7 +154,6 @@ function Navbar() {
               Profile
             </Link>
           )}
-
         </nav>
 
         <div className="nav-actions">
@@ -184,7 +181,6 @@ function Navbar() {
                 to="/profile"
                 className="user-profile-link"
               >
-
                 {profilePhoto ? (
                   <img
                     src={profilePhoto}
@@ -198,7 +194,6 @@ function Navbar() {
                 )}
 
                 <div className="user-info">
-
                   <strong>
                     {user.displayName ||
                       "BOLOX Player"}
@@ -207,9 +202,7 @@ function Navbar() {
                   <small>
                     {user.email}
                   </small>
-
                 </div>
-
               </Link>
 
               <button
@@ -253,7 +246,9 @@ function Footer() {
           />
 
           <div>
-            <strong>BOLOX</strong>
+            <strong>
+              BOLOX
+            </strong>
 
             <span>
               LEVEL UP YOUR GAME
@@ -311,11 +306,13 @@ function Footer() {
 function PageLayout({ children }) {
   return (
     <div className="bolox">
+
       <Navbar />
 
       {children}
 
       <Footer />
+
     </div>
   );
 }
@@ -417,34 +414,6 @@ function Home() {
 }
 
 /* =========================================
-   COMMUNITY
-========================================= */
-
-function Community() {
-  return (
-    <PageLayout>
-
-      <main className="simple-page">
-
-        <span className="red-label">
-          BOLOX PLAYERS
-        </span>
-
-        <h1>
-          BOLOX COMMUNITY
-        </h1>
-
-        <p>
-          Community features are coming soon.
-        </p>
-
-      </main>
-
-    </PageLayout>
-  );
-}
-
-/* =========================================
    PREMIUM
 ========================================= */
 
@@ -473,7 +442,7 @@ function Premium() {
 }
 
 /* =========================================
-   APP ROUTES
+   ROUTES
 ========================================= */
 
 function App() {
@@ -516,7 +485,11 @@ function App() {
 
         <Route
           path="/community"
-          element={<Community />}
+          element={
+            <PageLayout>
+              <Community />
+            </PageLayout>
+          }
         />
 
         <Route

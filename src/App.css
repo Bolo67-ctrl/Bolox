@@ -1918,3 +1918,471 @@ button {
   opacity: 0.45;
   font-size: 11px;
 }
+/* =========================================
+   BOLOX COMMUNITY
+========================================= */
+
+.community-page {
+  min-height: 100vh;
+  background: #050505;
+  color: white;
+}
+
+.community-hero {
+  padding: 90px 7% 70px;
+  border-bottom: 1px solid #1c1c1c;
+}
+
+.community-hero h1 {
+  margin: 20px 0;
+  font-size: clamp(60px, 8vw, 105px);
+  line-height: 0.88;
+  letter-spacing: -5px;
+}
+
+.community-hero h1 span {
+  color: #ed1528;
+}
+
+.community-hero p {
+  max-width: 600px;
+  color: #777;
+  line-height: 1.7;
+}
+
+.community-content {
+  padding: 60px 7% 100px;
+}
+
+.community-share-card {
+  padding: 35px;
+  border: 1px solid #222;
+  border-radius: 15px;
+  background: #090909;
+}
+
+.community-share-card h2 {
+  margin: 10px 0 25px;
+  font-size: 28px;
+}
+
+.community-share-form {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+
+.community-share-form label {
+  display: none;
+}
+
+.community-share-form select {
+  flex: 1;
+
+  padding: 14px 15px;
+
+  border: 1px solid #292929;
+  border-radius: 8px;
+
+  background: #101010;
+  color: white;
+}
+
+.community-share-btn {
+  padding: 14px 20px;
+
+  border: 1px solid #ed1528;
+  border-radius: 8px;
+
+  background: #ed1528;
+  color: white;
+
+  font-weight: 800;
+}
+
+.community-share-btn:disabled {
+  opacity: 0.5;
+}
+
+.community-login-message p {
+  color: #777;
+}
+
+.community-feed-header {
+  margin: 60px 0 25px;
+
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.community-feed-header h2 {
+  margin: 8px 0 0;
+  font-size: 35px;
+}
+
+.community-feed-header > span {
+  color: #555;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.community-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.community-post {
+  padding: 28px;
+
+  border: 1px solid #202020;
+  border-radius: 15px;
+
+  background: #090909;
+}
+
+.community-user {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding-bottom: 18px;
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.community-user img,
+.community-avatar-fallback {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.community-user img {
+  object-fit: cover;
+}
+
+.community-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #161616;
+  color: #ed1528;
+
+  font-weight: 900;
+}
+
+.community-user div {
+  display: flex;
+  flex-direction: column;
+}
+
+.community-user strong {
+  font-size: 12px;
+}
+
+.community-user small {
+  margin-top: 3px;
+  color: #555;
+  font-size: 8px;
+}
+
+.community-post-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 22px 0;
+}
+
+.community-post-title span {
+  color: #666;
+  font-size: 10px;
+}
+
+.community-post-title h3 {
+  margin: 5px 0 0;
+  font-size: 20px;
+}
+
+.community-post-title > strong {
+  color: #ed1528;
+  font-size: 11px;
+}
+
+.community-settings {
+  border-top: 1px solid #1d1d1d;
+}
+
+.community-settings div {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #151515;
+}
+
+.community-settings span {
+  color: #777;
+  font-size: 11px;
+}
+
+.community-settings strong {
+  font-size: 12px;
+}
+
+.community-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.community-actions button {
+  padding: 10px 14px;
+
+  border: 1px solid #292929;
+  border-radius: 7px;
+
+  background: #111;
+  color: white;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.community-actions button:hover {
+  border-color: #ed1528;
+}
+
+.community-actions .community-delete {
+  color: #ff6874;
+}
+
+@media (max-width: 850px) {
+  .community-hero {
+    padding: 70px 25px 55px;
+  }
+
+  .community-hero h1 {
+    font-size: 60px;
+  }
+
+  .community-content {
+    padding: 45px 25px 80px;
+  }
+
+  .community-share-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .community-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-feed-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+/* =========================================
+   COMMUNITY LIKES + COMMENTS
+========================================= */
+
+.community-social-stats {
+  display: flex;
+  gap: 18px;
+
+  padding: 15px 0;
+
+  color: #777;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.community-like.liked {
+  border-color: #ed1528;
+  background: rgba(237, 21, 40, 0.1);
+  color: #ff5360;
+}
+
+/* COMMENTS */
+
+.community-comments {
+  margin-top: 22px;
+  padding-top: 20px;
+
+  border-top: 1px solid #202020;
+}
+
+.comments-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #aaa;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.comments-title span {
+  color: #ed1528;
+}
+
+.no-comments {
+  color: #555;
+  font-size: 10px;
+
+  margin: 18px 0;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  margin-top: 18px;
+
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.community-comment {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.community-comment img,
+.comment-avatar {
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50%;
+
+  flex-shrink: 0;
+}
+
+.community-comment img {
+  object-fit: cover;
+}
+
+.comment-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #171717;
+  color: #ed1528;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.community-comment > div {
+  flex: 1;
+}
+
+.community-comment strong {
+  display: block;
+
+  color: #ddd;
+
+  font-size: 10px;
+}
+
+.community-comment p {
+  margin: 4px 0 0;
+
+  color: #888;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+  word-break: break-word;
+}
+
+/* COMMENT INPUT */
+
+.comment-form {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+.comment-form input {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 11px 13px;
+
+  border: 1px solid #292929;
+  border-radius: 7px;
+
+  background: #101010;
+  color: white;
+
+  outline: none;
+
+  font-family: inherit;
+
+  font-size: 11px;
+}
+
+.comment-form input:focus {
+  border-color: #ed1528;
+}
+
+.comment-form button {
+  padding: 11px 15px;
+
+  border: 1px solid #ed1528;
+  border-radius: 7px;
+
+  background: #ed1528;
+  color: white;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.comment-form button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.comment-login-note {
+  margin: 18px 0 0;
+
+  color: #555;
+
+  font-size: 10px;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .comment-form {
+    align-items: stretch;
+  }
+
+  .community-actions {
+    flex-wrap: wrap;
+  }
+}
