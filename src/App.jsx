@@ -18,6 +18,7 @@ import "./App.css";
 
 import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
+import Profile from "./pages/Profile";
 
 import {
   auth,
@@ -47,9 +48,9 @@ function Navbar() {
     } catch (error) {
       console.error(error);
 
-setAuthError(
-  `${error.code}: ${error.message}`
-);
+      setAuthError(
+        `${error.code}: ${error.message}`
+      );
     }
   };
 
@@ -60,9 +61,7 @@ setAuthError(
     } catch (error) {
       console.error(error);
 
-      setAuthError(
-        "Could not log out."
-      );
+      setAuthError("Could not log out.");
     }
   };
 
@@ -83,6 +82,12 @@ setAuthError(
           <Link to="/premium">
             Premium
           </Link>
+
+          {user && (
+            <Link to="/profile">
+              Profile
+            </Link>
+          )}
         </nav>
 
         <div className="nav-actions">
@@ -106,24 +111,29 @@ setAuthError(
           ) : (
             <div className="user-nav">
 
-              {user.photoURL && (
-                <img
-                  src={user.photoURL}
-                  alt=""
-                  className="user-avatar"
-                />
-              )}
+              <Link
+                to="/profile"
+                className="user-profile-link"
+              >
+                {user.photoURL && (
+                  <img
+                    src={user.photoURL}
+                    alt=""
+                    className="user-avatar"
+                  />
+                )}
 
-              <div className="user-info">
-                <strong>
-                  {user.displayName ||
-                    "BOLOX Player"}
-                </strong>
+                <div className="user-info">
+                  <strong>
+                    {user.displayName ||
+                      "BOLOX Player"}
+                  </strong>
 
-                <small>
-                  {user.email}
-                </small>
-              </div>
+                  <small>
+                    {user.email}
+                  </small>
+                </div>
+              </Link>
 
               <button
                 className="logout-btn"
@@ -213,7 +223,6 @@ function Home() {
             </div>
 
             <div className="card-text">
-
               <small>
                 COMPETITIVE GAMING
               </small>
@@ -223,7 +232,6 @@ function Home() {
                 <br />
                 BETTER.
               </h3>
-
             </div>
 
           </div>
@@ -239,7 +247,6 @@ function Home() {
 function Community() {
   return (
     <div className="simple-page">
-
       <Navbar />
 
       <h1>BOLOX COMMUNITY</h1>
@@ -247,7 +254,6 @@ function Community() {
       <p>
         Community features are coming soon.
       </p>
-
     </div>
   );
 }
@@ -255,7 +261,6 @@ function Community() {
 function Premium() {
   return (
     <div className="simple-page">
-
       <Navbar />
 
       <h1>BOLOX PREMIUM</h1>
@@ -263,7 +268,6 @@ function Premium() {
       <p>
         Premium features are coming soon.
       </p>
-
     </div>
   );
 }
@@ -295,6 +299,16 @@ function App() {
             <>
               <Navbar />
               <SensitivityGenerator />
+            </>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <>
+              <Navbar />
+              <Profile />
             </>
           }
         />
