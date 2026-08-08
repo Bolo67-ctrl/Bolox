@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../firebase";
 
 function Profile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [editing, setEditing] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newPhotoURL, setNewPhotoURL] = useState("");
+
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -13,11 +23,48 @@ function Profile() {
       (currentUser) => {
         setUser(currentUser);
         setLoading(false);
+
+        if (currentUser) {
+          setNewName(currentUser.displayName || "");
+          setNewPhotoURL(currentUser.photoURL || "");
+        }
       }
     );
 
     return unsubscribe;
   }, []);
+
+  const handleSaveProfile = async () => {
+    if (!auth.currentUser) return;
+
+    setMessage("");
+    setError("");
+
+    if (!newName.trim()) {
+      setError("Your BOLOX name cannot be empty.");
+      return;
+    }
+
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: newName.trim(),
+        photoURL: newPhotoURL.trim() || null,
+      });
+
+      await auth.currentUser.reload();
+
+      setUser({ ...auth.currentUser });
+
+      setEditing(false);
+      setMessage("Profile updated successfully.");
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.message || "Could not update your profile."
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -33,6 +80,7 @@ function Profile() {
     return (
       <main className="profile-page">
         <div className="profile-login-required">
+
           <span className="red-label">
             BOLOX ACCOUNT
           </span>
@@ -51,15 +99,22 @@ function Profile() {
           <Link to="/" className="profile-home-btn">
             ← Back Home
           </Link>
+
         </div>
       </main>
     );
   }
 
+  const currentPhoto =
+    newPhotoURL.trim() || user.photoURL;
+
   return (
     <main className="profile-page">
+
       <section className="profile-header">
+
         <div>
+
           <span className="red-label">
             BOLOX PROFILE
           </span>
@@ -71,17 +126,23 @@ function Profile() {
           </h1>
 
           <p>
-            Manage your BOLOX identity, sensitivities,
-            purchases and account status.
+            Manage your BOLOX identity,
+            sensitivities, purchases and
+            account status.
           </p>
+
         </div>
 
         <div className="profile-card">
-          {user.photoURL ? (
+
+          {currentPhoto ? (
             <img
-              src={user.photoURL}
+              src={currentPhoto}
               alt="Profile"
               className="profile-avatar"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           ) : (
             <div className="profile-avatar-fallback">
@@ -89,16 +150,113 @@ function Profile() {
             </div>
           )}
 
-          <h2>
-            {user.displayName || "BOLOX Player"}
-          </h2>
+          {!editing ? (
+            <>
+              <h2>
+                {user.displayName || "BOLOX Player"}
+              </h2>
 
-          <p>{user.email}</p>
+              <p>{user.email}</p>
 
-          <span className="profile-plan">
-            FREE MEMBER
-          </span>
+              <span className="profile-plan">
+                FREE MEMBER
+              </span>
+
+              <button
+                type="button"
+                className="edit-profile-btn"
+                onClick={() => {
+                  setEditing(true);
+                  setMessage("");
+                  setError("");
+                }}
+              >
+                Edit Profile
+              </button>
+            </>
+          ) : (
+            <div className="profile-editor">
+
+              <label htmlFor="profile-name">
+                BOLOX Name
+              </label>
+
+              <input
+                id="profile-name"
+                type="text"
+                value={newName}
+                maxLength={24}
+                onChange={(e) =>
+                  setNewName(e.target.value)
+                }
+                placeholder="Enter your BOLOX name"
+              />
+
+              <label htmlFor="profile-photo">
+                Profile Image URL
+              </label>
+
+              <input
+                id="profile-photo"
+                type="url"
+                value={newPhotoURL}
+                onChange={(e) =>
+                  setNewPhotoURL(e.target.value)
+                }
+                placeholder="https://..."
+              />
+
+              <small className="profile-editor-note">
+                Paste a direct image URL for your
+                profile picture.
+              </small>
+
+              <div className="profile-editor-actions">
+
+                <button
+                  type="button"
+                  className="save-profile-btn"
+                  onClick={handleSaveProfile}
+                >
+                  Save Changes
+                </button>
+
+                <button
+                  type="button"
+                  className="cancel-profile-btn"
+                  onClick={() => {
+                    setEditing(false);
+                    setNewName(
+                      user.displayName || ""
+                    );
+                    setNewPhotoURL(
+                      user.photoURL || ""
+                    );
+                    setError("");
+                  }}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </div>
+          )}
+
+          {message && (
+            <div className="profile-success">
+              {message}
+            </div>
+          )}
+
+          {error && (
+            <div className="profile-edit-error">
+              {error}
+            </div>
+          )}
+
         </div>
+
       </section>
 
       <section className="profile-dashboard">
@@ -132,7 +290,9 @@ function Profile() {
       <section className="profile-sections">
 
         <div className="profile-section-card">
+
           <div>
+
             <span className="red-label">
               SAVED SETTINGS
             </span>
@@ -140,9 +300,10 @@ function Profile() {
             <h2>My Sensitivities</h2>
 
             <p>
-              Your saved Free Fire sensitivity setups
-              will appear here.
+              Your saved Free Fire sensitivity
+              setups will appear here.
             </p>
+
           </div>
 
           <Link
@@ -151,10 +312,13 @@ function Profile() {
           >
             Generate Sensitivity →
           </Link>
+
         </div>
 
         <div className="profile-section-card">
+
           <div>
+
             <span className="red-label">
               PREMIUM
             </span>
@@ -162,9 +326,11 @@ function Profile() {
             <h2>Upgrade BOLOX</h2>
 
             <p>
-              Unlock unlimited generations, premium
-              configs and exclusive BOLOX features.
+              Unlock unlimited generations,
+              premium configs and exclusive
+              BOLOX features.
             </p>
+
           </div>
 
           <Link
@@ -173,9 +339,11 @@ function Profile() {
           >
             View Premium →
           </Link>
+
         </div>
 
       </section>
+
     </main>
   );
 }
