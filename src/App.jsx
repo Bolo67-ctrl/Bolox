@@ -14,6 +14,15 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
+import {
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore";
+
 import "./App.css";
 
 import Store from "./pages/Store";
@@ -24,47 +33,78 @@ import PublicProfile from "./pages/PublicProfile";
 
 import {
   auth,
+  db,
   loginWithGoogle,
   logoutUser,
 } from "./firebase";
 
+/* =========================================
+   NAVBAR
+========================================= */
+
 function Navbar() {
-  const [user, setUser] = useState(null);
-  const [authError, setAuthError] = useState("");
-  const [profilePhoto, setProfilePhoto] = useState("");
+  const [user, setUser] =
+    useState(null);
+
+  const [authError, setAuthError] =
+    useState("");
+
+  const [profilePhoto, setProfilePhoto] =
+    useState("");
+
+  const [
+    notifications,
+    setNotifications,
+  ] = useState([]);
+
+  const [
+    notificationsOpen,
+    setNotificationsOpen,
+  ] = useState(false);
+
+  /* AUTH */
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+          setUser(currentUser);
 
-        if (currentUser) {
-          const savedPhoto = localStorage.getItem(
-            `bolox_profile_photo_${currentUser.uid}`
-          );
+          if (currentUser) {
+            const savedPhoto =
+              localStorage.getItem(
+                `bolox_profile_photo_${currentUser.uid}`
+              );
 
-          setProfilePhoto(
-            savedPhoto ||
-              currentUser.photoURL ||
-              ""
-          );
-        } else {
-          setProfilePhoto("");
+            setProfilePhoto(
+              savedPhoto ||
+                currentUser.photoURL ||
+                ""
+            );
+          } else {
+            setProfilePhoto("");
+            setNotifications([]);
+            setNotificationsOpen(false);
+          }
         }
-      }
-    );
+      );
 
     return unsubscribe;
   }, []);
 
+  /* PROFILE PHOTO UPDATE */
+
   useEffect(() => {
     const handleProfileUpdate = () => {
-      if (!auth.currentUser) return;
+      if (!auth.currentUser) {
+        return;
+      }
 
-      const savedPhoto = localStorage.getItem(
-        `bolox_profile_photo_${auth.currentUser.uid}`
-      );
+      const savedPhoto =
+        localStorage.getItem(
+          `bolox_profile_photo_${auth.currentUser.uid}`
+        );
 
       setProfilePhoto(
         savedPhoto ||
@@ -86,9 +126,168 @@ function Navbar() {
     };
   }, []);
 
+  /* =========================================
+     LIVE NOTIFICATIONS
+  ========================================= */
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const notificationsQuery = query(
+      collection(
+        db,
+        "users",
+        user.uid,
+        "notifications"
+      ),
+      orderBy(
+        "createdAt",
+        "desc"
+      )
+    );
+
+    const unsubscribe =
+      onSnapshot(
+        notificationsQuery,
+        (snapshot) => {
+          const loadedNotifications =
+            snapshot.docs.map(
+              (item) => ({
+                id: item.id,
+                ...item.data(),
+              })
+            );
+
+          setNotifications(
+            loadedNotifications
+          );
+        },
+        (error) => {
+          console.error(
+            "Notification error:",
+            error
+          );
+        }
+      );
+
+    return unsubscribe;
+  }, [user]);
+
+  const unreadCount =
+    notifications.filter(
+      (notification) =>
+        !notification.read
+    ).length;
+
+  /* =========================================
+     MARK ONE READ
+  ========================================= */
+
+  const markNotificationRead =
+    async (notification) => {
+      if (
+        !user ||
+        notification.read
+      ) {
+        return;
+      }
+
+      try {
+        const notificationRef = doc(
+          db,
+          "users",
+          user.uid,
+          "notifications",
+          notification.id
+        );
+
+        await updateDoc(
+          notificationRef,
+          {
+            read: true,
+          }
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+  /* =========================================
+     MARK ALL READ
+  ========================================= */
+
+  const markAllNotificationsRead =
+    async () => {
+      if (!user) return;
+
+      const unread =
+        notifications.filter(
+          (notification) =>
+            !notification.read
+        );
+
+      if (unread.length === 0) {
+        return;
+      }
+
+      try {
+        await Promise.all(
+          unread.map(
+            (notification) =>
+              updateDoc(
+                doc(
+                  db,
+                  "users",
+                  user.uid,
+                  "notifications",
+                  notification.id
+                ),
+                {
+                  read: true,
+                }
+              )
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+  /* =========================================
+     NOTIFICATION LINK
+  ========================================= */
+
+  const getNotificationLink =
+    (notification) => {
+      if (
+        notification.type ===
+        "follow"
+      ) {
+        return `/player/${notification.actorId}`;
+      }
+
+      if (
+        notification.type ===
+        "like" ||
+        notification.type ===
+        "comment"
+      ) {
+        return "/community";
+      }
+
+      return "/profile";
+    };
+
+  /* =========================================
+     LOGIN / LOGOUT
+  ========================================= */
+
   const handleLogin = async () => {
     try {
       setAuthError("");
+
       await loginWithGoogle();
     } catch (error) {
       console.error(error);
@@ -102,6 +301,9 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       setAuthError("");
+
+      setNotificationsOpen(false);
+
       await logoutUser();
     } catch (error) {
       console.error(error);
@@ -116,6 +318,8 @@ function Navbar() {
     <>
       <header className="navbar">
 
+        {/* LOGO */}
+
         <Link
           to="/"
           className="logo"
@@ -126,10 +330,15 @@ function Navbar() {
             className="bolox-logo-image"
           />
 
-          <span>BOLOX</span>
+          <span>
+            BOLOX
+          </span>
         </Link>
 
+        {/* NAVIGATION */}
+
         <nav>
+
           <Link to="/">
             Home
           </Link>
@@ -151,12 +360,16 @@ function Navbar() {
               Profile
             </Link>
           )}
+
         </nav>
+
+        {/* RIGHT SIDE */}
 
         <div className="nav-actions">
 
           {!user ? (
             <>
+
               <button
                 className="login-btn"
                 onClick={handleLogin}
@@ -170,14 +383,191 @@ function Navbar() {
               >
                 Get Started
               </button>
+
             </>
           ) : (
+
             <div className="user-nav">
+
+              {/* =========================
+                  NOTIFICATION BELL
+              ========================= */}
+
+              <div className="notification-wrapper">
+
+                <button
+                  type="button"
+                  className="notification-bell"
+                  onClick={() =>
+                    setNotificationsOpen(
+                      (open) => !open
+                    )
+                  }
+                  aria-label="Notifications"
+                >
+                  <span className="notification-bell-icon">
+                    🔔
+                  </span>
+
+                  {unreadCount > 0 && (
+                    <span className="notification-badge">
+                      {unreadCount > 99
+                        ? "99+"
+                        : unreadCount}
+                    </span>
+                  )}
+
+                </button>
+
+                {/* DROPDOWN */}
+
+                {notificationsOpen && (
+                  <div className="notification-dropdown">
+
+                    <div className="notification-header">
+
+                      <div>
+                        <strong>
+                          Notifications
+                        </strong>
+
+                        <span>
+                          {unreadCount} unread
+                        </span>
+                      </div>
+
+                      {unreadCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={
+                            markAllNotificationsRead
+                          }
+                        >
+                          Mark all read
+                        </button>
+                      )}
+
+                    </div>
+
+                    <div className="notification-list">
+
+                      {notifications.length ===
+                      0 ? (
+
+                        <div className="notification-empty">
+
+                          <span>
+                            🔔
+                          </span>
+
+                          <strong>
+                            No notifications yet.
+                          </strong>
+
+                          <p>
+                            New followers, likes
+                            and comments will
+                            appear here.
+                          </p>
+
+                        </div>
+
+                      ) : (
+
+                        notifications
+                          .slice(0, 15)
+                          .map(
+                            (notification) => (
+
+                              <Link
+                                key={
+                                  notification.id
+                                }
+                                to={getNotificationLink(
+                                  notification
+                                )}
+                                className={
+                                  notification.read
+                                    ? "notification-item"
+                                    : "notification-item unread"
+                                }
+                                onClick={() => {
+                                  markNotificationRead(
+                                    notification
+                                  );
+
+                                  setNotificationsOpen(
+                                    false
+                                  );
+                                }}
+                              >
+
+                                <div className="notification-avatar">
+
+                                  {notification.type ===
+                                  "follow"
+                                    ? "👤"
+                                    : notification.type ===
+                                        "like"
+                                      ? "❤️"
+                                      : notification.type ===
+                                          "comment"
+                                        ? "💬"
+                                        : "🔔"}
+
+                                </div>
+
+                                <div className="notification-content">
+
+                                  <p>
+                                    <strong>
+                                      {notification.actorName ||
+                                        "BOLOX Player"}
+                                    </strong>{" "}
+                                    {notification.message ||
+                                      "sent you a notification."}
+                                  </p>
+
+                                  <small>
+                                    {notification.type ===
+                                    "follow"
+                                      ? "New follower"
+                                      : notification.type ===
+                                          "like"
+                                        ? "New like"
+                                        : notification.type ===
+                                            "comment"
+                                          ? "New comment"
+                                          : "BOLOX"}
+                                  </small>
+
+                                </div>
+
+                                {!notification.read && (
+                                  <span className="notification-unread-dot" />
+                                )}
+
+                              </Link>
+
+                            )
+                          )
+
+                      )}
+
+                    </div>
+
+                  </div>
+                )}
+
+              </div>
+
+              {/* PROFILE */}
 
               <Link
                 to="/profile"
                 className="user-profile-link"
               >
+
                 {profilePhoto ? (
                   <img
                     src={profilePhoto}
@@ -191,6 +581,7 @@ function Navbar() {
                 )}
 
                 <div className="user-info">
+
                   <strong>
                     {user.displayName ||
                       "BOLOX Player"}
@@ -199,8 +590,12 @@ function Navbar() {
                   <small>
                     {user.email}
                   </small>
+
                 </div>
+
               </Link>
+
+              {/* LOGOUT */}
 
               <button
                 className="logout-btn"
@@ -210,6 +605,7 @@ function Navbar() {
               </button>
 
             </div>
+
           )}
 
         </div>
@@ -221,9 +617,14 @@ function Navbar() {
           {authError}
         </div>
       )}
+
     </>
   );
 }
+
+/* =========================================
+   FOOTER
+========================================= */
 
 function Footer() {
   return (
@@ -239,6 +640,7 @@ function Footer() {
           />
 
           <div>
+
             <strong>
               BOLOX
             </strong>
@@ -246,6 +648,7 @@ function Footer() {
             <span>
               LEVEL UP YOUR GAME
             </span>
+
           </div>
 
         </div>
@@ -292,6 +695,10 @@ function Footer() {
   );
 }
 
+/* =========================================
+   PAGE LAYOUT
+========================================= */
+
 function PageLayout({ children }) {
   return (
     <div className="bolox">
@@ -305,6 +712,10 @@ function PageLayout({ children }) {
     </div>
   );
 }
+
+/* =========================================
+   HOME
+========================================= */
 
 function Home() {
   return (
@@ -321,6 +732,7 @@ function Home() {
           <h1>
             LEVEL UP
             <br />
+
             <span>
               WITH BOLOX
             </span>
@@ -398,6 +810,10 @@ function Home() {
   );
 }
 
+/* =========================================
+   PREMIUM
+========================================= */
+
 function Premium() {
   return (
     <PageLayout>
@@ -421,6 +837,10 @@ function Premium() {
     </PageLayout>
   );
 }
+
+/* =========================================
+   APP
+========================================= */
 
 function App() {
   return (
