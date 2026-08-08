@@ -39,11 +39,15 @@ function PublicProfile() {
   const [following, setFollowing] =
     useState([]);
 
-  const [followerProfiles, setFollowerProfiles] =
-    useState([]);
+  const [
+    followerProfiles,
+    setFollowerProfiles,
+  ] = useState([]);
 
-  const [followingProfiles, setFollowingProfiles] =
-    useState([]);
+  const [
+    followingProfiles,
+    setFollowingProfiles,
+  ] = useState([]);
 
   const [activeList, setActiveList] =
     useState("");
@@ -54,8 +58,10 @@ function PublicProfile() {
   const [localPhoto, setLocalPhoto] =
     useState("");
 
-  const [followLoading, setFollowLoading] =
-    useState(false);
+  const [
+    followLoading,
+    setFollowLoading,
+  ] = useState(false);
 
   const [loading, setLoading] =
     useState(true);
@@ -63,7 +69,9 @@ function PublicProfile() {
   const [error, setError] =
     useState("");
 
-  /* AUTH */
+  /* =========================================
+     AUTH
+  ========================================= */
 
   useEffect(() => {
     const unsubscribe =
@@ -93,7 +101,9 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* PROFILE */
+  /* =========================================
+     PROFILE
+  ========================================= */
 
   useEffect(() => {
     if (!userId) {
@@ -132,7 +142,9 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* POSTS */
+  /* =========================================
+     POSTS
+  ========================================= */
 
   useEffect(() => {
     if (!userId) return;
@@ -186,7 +198,9 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* FOLLOWERS */
+  /* =========================================
+     FOLLOWERS
+  ========================================= */
 
   useEffect(() => {
     if (!userId) return;
@@ -224,13 +238,18 @@ function PublicProfile() {
           } else {
             setIsFollowing(false);
           }
+        },
+        (err) => {
+          console.error(err);
         }
       );
 
     return unsubscribe;
   }, [userId, currentUser]);
 
-  /* FOLLOWING */
+  /* =========================================
+     FOLLOWING
+  ========================================= */
 
   useEffect(() => {
     if (!userId) return;
@@ -256,13 +275,18 @@ function PublicProfile() {
             );
 
           setFollowing(loaded);
+        },
+        (err) => {
+          console.error(err);
         }
       );
 
     return unsubscribe;
   }, [userId]);
 
-  /* LOAD FOLLOWER PROFILES */
+  /* =========================================
+     LOAD FOLLOWER PROFILES
+  ========================================= */
 
   useEffect(() => {
     if (followers.length === 0) {
@@ -271,7 +295,6 @@ function PublicProfile() {
     }
 
     const unsubscribers = [];
-
     const profiles = {};
 
     followers.forEach((item) => {
@@ -293,7 +316,8 @@ function PublicProfile() {
             } else {
               profiles[item.id] = {
                 id: item.id,
-                username: "BOLOX Player",
+                username:
+                  "BOLOX Player",
               };
             }
 
@@ -316,7 +340,9 @@ function PublicProfile() {
     };
   }, [followers]);
 
-  /* LOAD FOLLOWING PROFILES */
+  /* =========================================
+     LOAD FOLLOWING PROFILES
+  ========================================= */
 
   useEffect(() => {
     if (following.length === 0) {
@@ -325,7 +351,6 @@ function PublicProfile() {
     }
 
     const unsubscribers = [];
-
     const profiles = {};
 
     following.forEach((item) => {
@@ -347,7 +372,8 @@ function PublicProfile() {
             } else {
               profiles[item.id] = {
                 id: item.id,
-                username: "BOLOX Player",
+                username:
+                  "BOLOX Player",
               };
             }
 
@@ -370,7 +396,9 @@ function PublicProfile() {
     };
   }, [following]);
 
-  /* FOLLOW / UNFOLLOW */
+  /* =========================================
+     FOLLOW / UNFOLLOW
+  ========================================= */
 
   const handleFollow = async () => {
     if (!currentUser) {
@@ -382,8 +410,7 @@ function PublicProfile() {
     }
 
     if (
-      currentUser.uid ===
-      userId
+      currentUser.uid === userId
     ) {
       return;
     }
@@ -453,12 +480,18 @@ function PublicProfile() {
     }
   };
 
+  /* =========================================
+     LOADING
+  ========================================= */
+
   if (loading) {
     return (
       <main className="public-profile-page">
+
         <div className="profile-loading">
           Loading player...
         </div>
+
       </main>
     );
   }
@@ -504,6 +537,10 @@ function PublicProfile() {
   return (
     <main className="public-profile-page">
 
+      {/* =====================================
+          PROFILE HERO
+      ===================================== */}
+
       <section className="public-profile-hero">
 
         <Link
@@ -533,9 +570,7 @@ function PublicProfile() {
 
           <div className="public-profile-info">
 
-            <span className="red-label">
-              BOLOX PLAYER
-            </span>
+            {/* BOLOX PLAYER LABEL REMOVED */}
 
             <h1>
               {username}
@@ -560,8 +595,12 @@ function PublicProfile() {
                     ? "follow-btn following"
                     : "follow-btn"
                 }
-                onClick={handleFollow}
-                disabled={followLoading}
+                onClick={
+                  handleFollow
+                }
+                disabled={
+                  followLoading
+                }
               >
                 {followLoading
                   ? "..."
@@ -577,18 +616,29 @@ function PublicProfile() {
 
       </section>
 
+      {/* ERROR */}
+
       {error && (
         <section className="public-profile-message">
+
           <div className="generator-error">
             {error}
           </div>
+
         </section>
       )}
+
+      {/* =====================================
+          PROFILE STATS
+      ===================================== */}
 
       <section className="public-profile-stats">
 
         <div className="profile-stat-card">
-          <span>POSTS</span>
+
+          <span>
+            POSTS
+          </span>
 
           <strong>
             {posts.length}
@@ -597,6 +647,7 @@ function PublicProfile() {
           <small>
             Shared Setups
           </small>
+
         </div>
 
         <button
@@ -604,13 +655,17 @@ function PublicProfile() {
           className="profile-stat-card profile-stat-button"
           onClick={() =>
             setActiveList(
-              activeList === "followers"
+              activeList ===
+                "followers"
                 ? ""
                 : "followers"
             )
           }
         >
-          <span>FOLLOWERS</span>
+
+          <span>
+            FOLLOWERS
+          </span>
 
           <strong>
             {followers.length}
@@ -619,6 +674,7 @@ function PublicProfile() {
           <small>
             View Followers
           </small>
+
         </button>
 
         <button
@@ -626,13 +682,17 @@ function PublicProfile() {
           className="profile-stat-card profile-stat-button"
           onClick={() =>
             setActiveList(
-              activeList === "following"
+              activeList ===
+                "following"
                 ? ""
                 : "following"
             )
           }
         >
-          <span>FOLLOWING</span>
+
+          <span>
+            FOLLOWING
+          </span>
 
           <strong>
             {following.length}
@@ -641,10 +701,14 @@ function PublicProfile() {
           <small>
             View Following
           </small>
+
         </button>
 
         <div className="profile-stat-card">
-          <span>LIKES</span>
+
+          <span>
+            LIKES
+          </span>
 
           <strong>
             {totalLikes}
@@ -653,9 +717,14 @@ function PublicProfile() {
           <small>
             Total Post Likes
           </small>
+
         </div>
 
       </section>
+
+      {/* =====================================
+          FOLLOW LIST
+      ===================================== */}
 
       {activeList && (
         <section className="follow-list-section">
@@ -663,15 +732,18 @@ function PublicProfile() {
           <div className="follow-list-header">
 
             <div>
+
               <span className="red-label">
                 BOLOX NETWORK
               </span>
 
               <h2>
-                {activeList === "followers"
+                {activeList ===
+                "followers"
                   ? "Followers"
                   : "Following"}
               </h2>
+
             </div>
 
             <button
@@ -685,7 +757,9 @@ function PublicProfile() {
 
           </div>
 
-          {visibleProfiles.length === 0 ? (
+          {visibleProfiles.length ===
+          0 ? (
+
             <div className="saved-empty">
 
               <h3>
@@ -693,11 +767,14 @@ function PublicProfile() {
               </h3>
 
               <p>
-                This list is currently empty.
+                This list is currently
+                empty.
               </p>
 
             </div>
+
           ) : (
+
             <div className="follow-player-grid">
 
               {visibleProfiles.map(
@@ -711,7 +788,9 @@ function PublicProfile() {
 
                     {player.googlePhoto ? (
                       <img
-                        src={player.googlePhoto}
+                        src={
+                          player.googlePhoto
+                        }
                         alt={
                           player.username ||
                           "BOLOX Player"
@@ -724,6 +803,7 @@ function PublicProfile() {
                     )}
 
                     <div>
+
                       <strong>
                         {player.username ||
                           "BOLOX Player"}
@@ -732,6 +812,7 @@ function PublicProfile() {
                       <span>
                         View Profile →
                       </span>
+
                     </div>
 
                   </Link>
@@ -740,10 +821,15 @@ function PublicProfile() {
               )}
 
             </div>
+
           )}
 
         </section>
       )}
+
+      {/* =====================================
+          SHARED SETUPS
+      ===================================== */}
 
       <section className="public-profile-posts">
 
@@ -760,6 +846,7 @@ function PublicProfile() {
         </div>
 
         {posts.length === 0 ? (
+
           <div className="saved-empty">
 
             <h3>
@@ -772,7 +859,9 @@ function PublicProfile() {
             </p>
 
           </div>
+
         ) : (
+
           <div className="public-profile-grid">
 
             {posts.map(
@@ -786,6 +875,7 @@ function PublicProfile() {
                   <div className="public-post-header">
 
                     <div>
+
                       <span>
                         {post.device}
                       </span>
@@ -793,6 +883,7 @@ function PublicProfile() {
                       <h3>
                         {post.model}
                       </h3>
+
                     </div>
 
                     <strong>
@@ -809,6 +900,7 @@ function PublicProfile() {
                       ([name, value]) => (
 
                         <div key={name}>
+
                           <span>
                             {name}
                           </span>
@@ -816,6 +908,7 @@ function PublicProfile() {
                           <strong>
                             {value}
                           </strong>
+
                         </div>
 
                       )
@@ -824,10 +917,13 @@ function PublicProfile() {
                   </div>
 
                   <div className="public-post-footer">
+
                     <span>
                       ❤️{" "}
-                      {post.likedBy?.length || 0}
+                      {post.likedBy
+                        ?.length || 0}
                     </span>
+
                   </div>
 
                 </article>
@@ -836,6 +932,7 @@ function PublicProfile() {
             )}
 
           </div>
+
         )}
 
       </section>
