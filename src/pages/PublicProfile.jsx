@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -69,9 +70,7 @@ function PublicProfile() {
   const [error, setError] =
     useState("");
 
-  /* =========================================
-     AUTH
-  ========================================= */
+  /* AUTH */
 
   useEffect(() => {
     const unsubscribe =
@@ -101,9 +100,7 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* =========================================
-     PROFILE
-  ========================================= */
+  /* PROFILE */
 
   useEffect(() => {
     if (!userId) {
@@ -142,9 +139,7 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* =========================================
-     POSTS
-  ========================================= */
+  /* POSTS */
 
   useEffect(() => {
     if (!userId) return;
@@ -198,9 +193,7 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* =========================================
-     FOLLOWERS
-  ========================================= */
+  /* FOLLOWERS */
 
   useEffect(() => {
     if (!userId) return;
@@ -247,9 +240,7 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId, currentUser]);
 
-  /* =========================================
-     FOLLOWING
-  ========================================= */
+  /* FOLLOWING */
 
   useEffect(() => {
     if (!userId) return;
@@ -284,9 +275,7 @@ function PublicProfile() {
     return unsubscribe;
   }, [userId]);
 
-  /* =========================================
-     LOAD FOLLOWER PROFILES
-  ========================================= */
+  /* LOAD FOLLOWER PROFILES */
 
   useEffect(() => {
     if (followers.length === 0) {
@@ -340,9 +329,7 @@ function PublicProfile() {
     };
   }, [followers]);
 
-  /* =========================================
-     LOAD FOLLOWING PROFILES
-  ========================================= */
+  /* LOAD FOLLOWING PROFILES */
 
   useEffect(() => {
     if (following.length === 0) {
@@ -396,9 +383,7 @@ function PublicProfile() {
     };
   }, [following]);
 
-  /* =========================================
-     FOLLOW / UNFOLLOW
-  ========================================= */
+  /* FOLLOW / UNFOLLOW */
 
   const handleFollow = async () => {
     if (!currentUser) {
@@ -468,6 +453,38 @@ function PublicProfile() {
               serverTimestamp(),
           }
         );
+
+        /* CREATE FOLLOW NOTIFICATION */
+
+        await addDoc(
+          collection(
+            db,
+            "users",
+            userId,
+            "notifications"
+          ),
+          {
+            type: "follow",
+
+            actorId:
+              currentUser.uid,
+
+            recipientId:
+              userId,
+
+            actorName:
+              currentUser.displayName ||
+              "BOLOX Player",
+
+            message:
+              "started following you.",
+
+            read: false,
+
+            createdAt:
+              serverTimestamp(),
+          }
+        );
       }
     } catch (err) {
       console.error(err);
@@ -479,10 +496,6 @@ function PublicProfile() {
       setFollowLoading(false);
     }
   };
-
-  /* =========================================
-     LOADING
-  ========================================= */
 
   if (loading) {
     return (
@@ -537,10 +550,6 @@ function PublicProfile() {
   return (
     <main className="public-profile-page">
 
-      {/* =====================================
-          PROFILE HERO
-      ===================================== */}
-
       <section className="public-profile-hero">
 
         <Link
@@ -569,8 +578,6 @@ function PublicProfile() {
           </div>
 
           <div className="public-profile-info">
-
-            {/* BOLOX PLAYER LABEL REMOVED */}
 
             <h1>
               {username}
@@ -616,8 +623,6 @@ function PublicProfile() {
 
       </section>
 
-      {/* ERROR */}
-
       {error && (
         <section className="public-profile-message">
 
@@ -627,10 +632,6 @@ function PublicProfile() {
 
         </section>
       )}
-
-      {/* =====================================
-          PROFILE STATS
-      ===================================== */}
 
       <section className="public-profile-stats">
 
@@ -721,10 +722,6 @@ function PublicProfile() {
         </div>
 
       </section>
-
-      {/* =====================================
-          FOLLOW LIST
-      ===================================== */}
 
       {activeList && (
         <section className="follow-list-section">
@@ -826,10 +823,6 @@ function PublicProfile() {
 
         </section>
       )}
-
-      {/* =====================================
-          SHARED SETUPS
-      ===================================== */}
 
       <section className="public-profile-posts">
 
