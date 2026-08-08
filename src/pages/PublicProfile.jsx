@@ -39,6 +39,15 @@ function PublicProfile() {
   const [following, setFollowing] =
     useState([]);
 
+  const [followerProfiles, setFollowerProfiles] =
+    useState([]);
+
+  const [followingProfiles, setFollowingProfiles] =
+    useState([]);
+
+  const [activeList, setActiveList] =
+    useState("");
+
   const [isFollowing, setIsFollowing] =
     useState(false);
 
@@ -215,9 +224,6 @@ function PublicProfile() {
           } else {
             setIsFollowing(false);
           }
-        },
-        (err) => {
-          console.error(err);
         }
       );
 
@@ -250,14 +256,119 @@ function PublicProfile() {
             );
 
           setFollowing(loaded);
-        },
-        (err) => {
-          console.error(err);
         }
       );
 
     return unsubscribe;
   }, [userId]);
+
+  /* LOAD FOLLOWER PROFILES */
+
+  useEffect(() => {
+    if (followers.length === 0) {
+      setFollowerProfiles([]);
+      return;
+    }
+
+    const unsubscribers = [];
+
+    const profiles = {};
+
+    followers.forEach((item) => {
+      const profileRef = doc(
+        db,
+        "users",
+        item.id
+      );
+
+      const unsubscribe =
+        onSnapshot(
+          profileRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              profiles[item.id] = {
+                id: item.id,
+                ...snapshot.data(),
+              };
+            } else {
+              profiles[item.id] = {
+                id: item.id,
+                username: "BOLOX Player",
+              };
+            }
+
+            setFollowerProfiles(
+              Object.values(profiles)
+            );
+          }
+        );
+
+      unsubscribers.push(
+        unsubscribe
+      );
+    });
+
+    return () => {
+      unsubscribers.forEach(
+        (unsubscribe) =>
+          unsubscribe()
+      );
+    };
+  }, [followers]);
+
+  /* LOAD FOLLOWING PROFILES */
+
+  useEffect(() => {
+    if (following.length === 0) {
+      setFollowingProfiles([]);
+      return;
+    }
+
+    const unsubscribers = [];
+
+    const profiles = {};
+
+    following.forEach((item) => {
+      const profileRef = doc(
+        db,
+        "users",
+        item.id
+      );
+
+      const unsubscribe =
+        onSnapshot(
+          profileRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              profiles[item.id] = {
+                id: item.id,
+                ...snapshot.data(),
+              };
+            } else {
+              profiles[item.id] = {
+                id: item.id,
+                username: "BOLOX Player",
+              };
+            }
+
+            setFollowingProfiles(
+              Object.values(profiles)
+            );
+          }
+        );
+
+      unsubscribers.push(
+        unsubscribe
+      );
+    });
+
+    return () => {
+      unsubscribers.forEach(
+        (unsubscribe) =>
+          unsubscribe()
+      );
+    };
+  }, [following]);
 
   /* FOLLOW / UNFOLLOW */
 
@@ -325,6 +436,7 @@ function PublicProfile() {
           followingRef,
           {
             userId,
+
             followedAt:
               serverTimestamp(),
           }
@@ -383,6 +495,11 @@ function PublicProfile() {
         ),
       0
     );
+
+  const visibleProfiles =
+    activeList === "followers"
+      ? followerProfiles
+      : followingProfiles;
 
   return (
     <main className="public-profile-page">
@@ -482,7 +599,17 @@ function PublicProfile() {
           </small>
         </div>
 
-        <div className="profile-stat-card">
+        <button
+          type="button"
+          className="profile-stat-card profile-stat-button"
+          onClick={() =>
+            setActiveList(
+              activeList === "followers"
+                ? ""
+                : "followers"
+            )
+          }
+        >
           <span>FOLLOWERS</span>
 
           <strong>
@@ -490,11 +617,21 @@ function PublicProfile() {
           </strong>
 
           <small>
-            BOLOX Followers
+            View Followers
           </small>
-        </div>
+        </button>
 
-        <div className="profile-stat-card">
+        <button
+          type="button"
+          className="profile-stat-card profile-stat-button"
+          onClick={() =>
+            setActiveList(
+              activeList === "following"
+                ? ""
+                : "following"
+            )
+          }
+        >
           <span>FOLLOWING</span>
 
           <strong>
@@ -502,9 +639,9 @@ function PublicProfile() {
           </strong>
 
           <small>
-            Players Followed
+            View Following
           </small>
-        </div>
+        </button>
 
         <div className="profile-stat-card">
           <span>LIKES</span>
@@ -519,6 +656,94 @@ function PublicProfile() {
         </div>
 
       </section>
+
+      {activeList && (
+        <section className="follow-list-section">
+
+          <div className="follow-list-header">
+
+            <div>
+              <span className="red-label">
+                BOLOX NETWORK
+              </span>
+
+              <h2>
+                {activeList === "followers"
+                  ? "Followers"
+                  : "Following"}
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                setActiveList("")
+              }
+            >
+              Close ×
+            </button>
+
+          </div>
+
+          {visibleProfiles.length === 0 ? (
+            <div className="saved-empty">
+
+              <h3>
+                No players yet.
+              </h3>
+
+              <p>
+                This list is currently empty.
+              </p>
+
+            </div>
+          ) : (
+            <div className="follow-player-grid">
+
+              {visibleProfiles.map(
+                (player) => (
+
+                  <Link
+                    key={player.id}
+                    to={`/player/${player.id}`}
+                    className="follow-player-card"
+                  >
+
+                    {player.googlePhoto ? (
+                      <img
+                        src={player.googlePhoto}
+                        alt={
+                          player.username ||
+                          "BOLOX Player"
+                        }
+                      />
+                    ) : (
+                      <div className="follow-player-avatar">
+                        B
+                      </div>
+                    )}
+
+                    <div>
+                      <strong>
+                        {player.username ||
+                          "BOLOX Player"}
+                      </strong>
+
+                      <span>
+                        View Profile →
+                      </span>
+                    </div>
+
+                  </Link>
+
+                )
+              )}
+
+            </div>
+          )}
+
+        </section>
+      )}
 
       <section className="public-profile-posts">
 
@@ -584,7 +809,6 @@ function PublicProfile() {
                       ([name, value]) => (
 
                         <div key={name}>
-
                           <span>
                             {name}
                           </span>
@@ -592,7 +816,6 @@ function PublicProfile() {
                           <strong>
                             {value}
                           </strong>
-
                         </div>
 
                       )
