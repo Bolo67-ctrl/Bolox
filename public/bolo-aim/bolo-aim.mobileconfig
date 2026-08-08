@@ -15,8 +15,8 @@
                 <key>DNSProtocol</key>
                 <string>HTTPS</string>
 
-                <key>ServerURL</key>
-                <string>https://cloudflare-dns.com/dns-query</string>
+               <key>ServerURL</key>
+<string>https://eehz45z38x.cloudflare-gateway.com/dns-query</string>
 
                 <key>ServerAddresses</key>
                 <array>
