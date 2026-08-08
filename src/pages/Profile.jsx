@@ -6,7 +6,17 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-import { auth } from "../firebase";
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+
+import {
+  auth,
+  db,
+} from "../firebase";
 
 function compressImage(file) {
   return new Promise((resolve, reject) => {
@@ -75,7 +85,9 @@ function compressImage(file) {
 
     reader.onerror = () =>
       reject(
-        new Error("Could not read image.")
+        new Error(
+          "Could not read image."
+        )
       );
 
     reader.readAsDataURL(file);
@@ -111,7 +123,8 @@ function getDailyUsage(uid) {
 
     if (!saved) return 0;
 
-    const data = JSON.parse(saved);
+    const data =
+      JSON.parse(saved);
 
     if (
       data.date !==
@@ -136,7 +149,10 @@ function Profile() {
   const [editing, setEditing] =
     useState(false);
 
-  const [newName, setNewName] =
+  const [username, setUsername] =
+    useState("");
+
+  const [bio, setBio] =
     useState("");
 
   const [localPhoto, setLocalPhoto] =
@@ -145,11 +161,15 @@ function Profile() {
   const [previewPhoto, setPreviewPhoto] =
     useState("");
 
-  const [savedSensitivities, setSavedSensitivities] =
-    useState([]);
+  const [
+    savedSensitivities,
+    setSavedSensitivities,
+  ] = useState([]);
 
-  const [generationsUsed, setGenerationsUsed] =
-    useState(0);
+  const [
+    generationsUsed,
+    setGenerationsUsed,
+  ] = useState(0);
 
   const [message, setMessage] =
     useState("");
@@ -175,37 +195,89 @@ function Profile() {
     );
   };
 
+  const loadPublicProfile =
+    async (currentUser) => {
+      try {
+        const profileRef = doc(
+          db,
+          "users",
+          currentUser.uid
+        );
+
+        const profileSnap =
+          await getDoc(profileRef);
+
+        if (profileSnap.exists()) {
+          const data =
+            profileSnap.data();
+
+          setUsername(
+            data.username ||
+              currentUser.displayName ||
+              ""
+          );
+
+          setBio(
+            data.bio || ""
+          );
+        } else {
+          setUsername(
+            currentUser.displayName ||
+              ""
+          );
+
+          setBio("");
+        }
+      } catch (err) {
+        console.error(err);
+
+        setUsername(
+          currentUser.displayName ||
+            ""
+        );
+      }
+    };
+
   useEffect(() => {
     const unsubscribe =
       onAuthStateChanged(
         auth,
-        (currentUser) => {
-          setUser(currentUser);
-          setLoading(false);
+        async (currentUser) => {
+          setUser(
+            currentUser
+          );
 
           if (currentUser) {
-            setNewName(
-              currentUser.displayName || ""
-            );
-
             const savedPhoto =
               localStorage.getItem(
                 `bolox_profile_photo_${currentUser.uid}`
               );
 
             if (savedPhoto) {
-              setLocalPhoto(savedPhoto);
-              setPreviewPhoto(savedPhoto);
+              setLocalPhoto(
+                savedPhoto
+              );
+
+              setPreviewPhoto(
+                savedPhoto
+              );
             } else {
               setPreviewPhoto(
-                currentUser.photoURL || ""
+                currentUser.photoURL ||
+                  ""
               );
             }
 
             loadAccountData(
               currentUser
             );
+
+            await loadPublicProfile(
+              currentUser
+            );
           }
+
+          setLoading(false);
         }
       );
 
@@ -293,14 +365,42 @@ function Profile() {
 
   const handleSaveProfile =
     async () => {
-      if (!auth.currentUser) return;
+      if (!auth.currentUser) {
+        return;
+      }
 
       setMessage("");
       setError("");
 
-      if (!newName.trim()) {
+      const cleanUsername =
+        username.trim();
+
+      const cleanBio =
+        bio.trim();
+
+      if (!cleanUsername) {
         setError(
-          "Your BOLOX name cannot be empty."
+          "Your BOLOX username cannot be empty."
+        );
+
+        return;
+      }
+
+      if (
+        cleanUsername.length > 24
+      ) {
+        setError(
+          "Your username can be up to 24 characters."
+        );
+
+        return;
+      }
+
+      if (
+        cleanBio.length > 120
+      ) {
+        setError(
+          "Your bio can be up to 120 characters."
         );
 
         return;
@@ -311,7 +411,41 @@ function Profile() {
           auth.currentUser,
           {
             displayName:
-              newName.trim(),
+              cleanUsername,
+          }
+        );
+
+        const profileRef = doc(
+          db,
+          "users",
+          auth.currentUser.uid
+        );
+
+        await setDoc(
+          profileRef,
+          {
+            uid:
+              auth.currentUser.uid,
+
+            username:
+              cleanUsername,
+
+            bio:
+              cleanBio,
+
+            email:
+              auth.currentUser.email ||
+              "",
+
+            googlePhoto:
+              auth.currentUser.photoURL ||
+              "",
+
+            updatedAt:
+              serverTimestamp(),
+          },
+          {
+            merge: true,
           }
         );
 
@@ -341,9 +475,11 @@ function Profile() {
         setEditing(false);
 
         setMessage(
-          "Profile updated successfully."
+          "BOLOX profile updated successfully."
         );
       } catch (err) {
+        console.error(err);
+
         setError(
           err.message ||
             "Could not update your profile."
@@ -430,9 +566,9 @@ function Profile() {
           </h1>
 
           <p>
-            Sign in with Google to
-            access your BOLOX profile
-            and saved content.
+            Sign in with Google to access
+            your BOLOX profile and saved
+            content.
           </p>
 
           <Link
@@ -478,9 +614,9 @@ function Profile() {
           </h1>
 
           <p>
-            Manage your BOLOX identity,
-            sensitivities, purchases
-            and account status.
+            Customize your BOLOX identity,
+            manage sensitivities and control
+            your public community profile.
           </p>
 
         </div>
@@ -503,9 +639,16 @@ function Profile() {
             <>
 
               <h2>
-                {user.displayName ||
+                {username ||
+                  user.displayName ||
                   "BOLOX Player"}
               </h2>
+
+              {bio && (
+                <p className="profile-bio">
+                  {bio}
+                </p>
+              )}
 
               <p>
                 {user.email}
@@ -515,6 +658,13 @@ function Profile() {
                 FREE MEMBER
               </span>
 
+              <Link
+                to={`/player/${user.uid}`}
+                className="view-public-profile-btn"
+              >
+                View Public Profile
+              </Link>
+
               <button
                 type="button"
                 className="edit-profile-btn"
@@ -522,10 +672,6 @@ function Profile() {
                   setEditing(true);
                   setMessage("");
                   setError("");
-
-                  setNewName(
-                    user.displayName || ""
-                  );
 
                   setPreviewPhoto(
                     localPhoto ||
@@ -542,21 +688,46 @@ function Profile() {
 
             <div className="profile-editor">
 
-              <label htmlFor="profile-name">
-                BOLOX Name
+              <label htmlFor="profile-username">
+                BOLOX Username
               </label>
 
               <input
-                id="profile-name"
+                id="profile-username"
                 type="text"
-                value={newName}
+                value={username}
                 maxLength={24}
                 onChange={(e) =>
-                  setNewName(
+                  setUsername(
                     e.target.value
                   )
                 }
+                placeholder="Your BOLOX username"
               />
+
+              <small className="profile-editor-note">
+                {username.length}/24
+              </small>
+
+              <label htmlFor="profile-bio">
+                Bio
+              </label>
+
+              <textarea
+                id="profile-bio"
+                value={bio}
+                maxLength={120}
+                onChange={(e) =>
+                  setBio(
+                    e.target.value
+                  )
+                }
+                placeholder="Tell the BOLOX community about yourself..."
+              />
+
+              <small className="profile-editor-note">
+                {bio.length}/120
+              </small>
 
               <label>
                 Profile Picture
@@ -580,8 +751,8 @@ function Profile() {
               />
 
               <small className="profile-editor-note">
-                Choose a photo from your
-                phone or computer.
+                Your selected photo stays saved
+                on this device for now.
               </small>
 
               {localPhoto && (
@@ -619,6 +790,8 @@ function Profile() {
                         user.photoURL ||
                         ""
                     );
+
+                    setError("");
                   }}
                 >
                   Cancel
@@ -656,9 +829,11 @@ function Profile() {
 
         <div className="profile-stat-card">
           <span>GENERATIONS</span>
+
           <strong>
             {remaining}
           </strong>
+
           <small>
             Remaining Today
           </small>
@@ -666,9 +841,11 @@ function Profile() {
 
         <div className="profile-stat-card">
           <span>SAVED</span>
+
           <strong>
             {savedSensitivities.length}
           </strong>
+
           <small>
             Saved Sensitivities
           </small>
@@ -738,6 +915,7 @@ function Profile() {
                   <div className="saved-card-header">
 
                     <div>
+
                       <span>
                         {item.device}
                       </span>
@@ -745,6 +923,7 @@ function Profile() {
                       <h3>
                         {item.model}
                       </h3>
+
                     </div>
 
                     <span className="saved-style">
@@ -760,9 +939,8 @@ function Profile() {
                     ).map(
                       ([name, value]) => (
 
-                        <div
-                          key={name}
-                        >
+                        <div key={name}>
+
                           <span>
                             {name}
                           </span>
@@ -770,6 +948,7 @@ function Profile() {
                           <strong>
                             {value}
                           </strong>
+
                         </div>
 
                       )

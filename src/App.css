@@ -2660,3 +2660,76 @@ button {
     padding: 90px 25px;
   }
 }
+/* =========================================
+   BOLOX USERNAME + BIO
+========================================= */
+
+.profile-editor textarea {
+  width: 100%;
+  min-height: 95px;
+
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+
+  border: 1px solid #292929;
+  border-radius: 7px;
+
+  background: #101010;
+  color: white;
+
+  outline: none;
+
+  resize: vertical;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+.profile-editor textarea:focus {
+  border-color: #ed1528;
+}
+
+.profile-bio {
+  max-width: 280px;
+
+  margin: 10px auto;
+
+  color: #999 !important;
+
+  font-size: 11px !important;
+
+  line-height: 1.6;
+
+  word-break: break-word;
+}
+
+.view-public-profile-btn {
+  display: block;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-top: 18px;
+
+  padding: 11px 14px;
+
+  border: 1px solid #292929;
+  border-radius: 7px;
+
+  background: #111;
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.view-public-profile-btn:hover {
+  border-color: #ed1528;
+  color: #ed1528;
+}
