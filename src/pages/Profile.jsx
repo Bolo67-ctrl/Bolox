@@ -147,7 +147,9 @@ function Profile() {
           previewPhoto
         );
 
-        setLocalPhoto(previewPhoto);
+        window.dispatchEvent(
+  new Event("bolox-profile-updated")
+);
       }
 
       await auth.currentUser.reload();

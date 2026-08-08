@@ -29,16 +29,57 @@ import {
 function Navbar() {
   const [user, setUser] = useState(null);
   const [authError, setAuthError] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
       (currentUser) => {
         setUser(currentUser);
+
+        if (currentUser) {
+          const savedPhoto = localStorage.getItem(
+            `bolox_profile_photo_${currentUser.uid}`
+          );
+
+          setProfilePhoto(
+            savedPhoto || currentUser.photoURL || ""
+          );
+        } else {
+          setProfilePhoto("");
+        }
       }
     );
 
     return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      if (!auth.currentUser) return;
+
+      const savedPhoto = localStorage.getItem(
+        `bolox_profile_photo_${auth.currentUser.uid}`
+      );
+
+      setProfilePhoto(
+        savedPhoto ||
+        auth.currentUser.photoURL ||
+        ""
+      );
+    };
+
+    window.addEventListener(
+      "bolox-profile-updated",
+      handleStorage
+    );
+
+    return () => {
+      window.removeEventListener(
+        "bolox-profile-updated",
+        handleStorage
+      );
+    };
   }, []);
 
   const handleLogin = async () => {
@@ -60,7 +101,6 @@ function Navbar() {
       await logoutUser();
     } catch (error) {
       console.error(error);
-
       setAuthError("Could not log out.");
     }
   };
@@ -115,12 +155,16 @@ function Navbar() {
                 to="/profile"
                 className="user-profile-link"
               >
-                {user.photoURL && (
+                {profilePhoto ? (
                   <img
-                    src={user.photoURL}
-                    alt=""
+                    src={profilePhoto}
+                    alt="Profile"
                     className="user-avatar"
                   />
+                ) : (
+                  <div className="user-avatar-fallback">
+                    B
+                  </div>
                 )}
 
                 <div className="user-info">
