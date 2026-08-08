@@ -6,13 +6,66 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+
+        const maxSize = 320;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height && width > maxSize) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressed = canvas.toDataURL(
+          "image/jpeg",
+          0.75
+        );
+
+        resolve(compressed);
+      };
+
+      img.onerror = () =>
+        reject(new Error("Could not process image."));
+
+      img.src = reader.result;
+    };
+
+    reader.onerror = () =>
+      reject(new Error("Could not read image."));
+
+    reader.readAsDataURL(file);
+  });
+}
+
 function Profile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newPhotoURL, setNewPhotoURL] = useState("");
+
+  const [localPhoto, setLocalPhoto] = useState("");
+  const [previewPhoto, setPreviewPhoto] = useState("");
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -26,13 +79,51 @@ function Profile() {
 
         if (currentUser) {
           setNewName(currentUser.displayName || "");
-          setNewPhotoURL(currentUser.photoURL || "");
+
+          const savedPhoto = localStorage.getItem(
+            `bolox_profile_photo_${currentUser.uid}`
+          );
+
+          if (savedPhoto) {
+            setLocalPhoto(savedPhoto);
+            setPreviewPhoto(savedPhoto);
+          } else {
+            setPreviewPhoto(currentUser.photoURL || "");
+          }
         }
       }
     );
 
     return unsubscribe;
   }, []);
+
+  const handlePhotoSelect = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setError("");
+    setMessage("");
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      setError("Please choose an image smaller than 8 MB.");
+      return;
+    }
+
+    try {
+      const compressed = await compressImage(file);
+
+      setPreviewPhoto(compressed);
+    } catch (err) {
+      console.error(err);
+      setError("Could not process this image.");
+    }
+  };
 
   const handleSaveProfile = async () => {
     if (!auth.currentUser) return;
@@ -48,8 +139,16 @@ function Profile() {
     try {
       await updateProfile(auth.currentUser, {
         displayName: newName.trim(),
-        photoURL: newPhotoURL.trim() || null,
       });
+
+      if (previewPhoto) {
+        localStorage.setItem(
+          `bolox_profile_photo_${auth.currentUser.uid}`,
+          previewPhoto
+        );
+
+        setLocalPhoto(previewPhoto);
+      }
 
       await auth.currentUser.reload();
 
@@ -64,6 +163,19 @@ function Profile() {
         err.message || "Could not update your profile."
       );
     }
+  };
+
+  const handleRemovePhoto = () => {
+    if (!user) return;
+
+    localStorage.removeItem(
+      `bolox_profile_photo_${user.uid}`
+    );
+
+    setLocalPhoto("");
+    setPreviewPhoto(user.photoURL || "");
+    setMessage("Custom BOLOX profile photo removed.");
+    setError("");
   };
 
   if (loading) {
@@ -105,8 +217,11 @@ function Profile() {
     );
   }
 
-  const currentPhoto =
-    newPhotoURL.trim() || user.photoURL;
+  const displayedPhoto =
+    previewPhoto ||
+    localPhoto ||
+    user.photoURL ||
+    "";
 
   return (
     <main className="profile-page">
@@ -127,22 +242,18 @@ function Profile() {
 
           <p>
             Manage your BOLOX identity,
-            sensitivities, purchases and
-            account status.
+            sensitivities, purchases and account status.
           </p>
 
         </div>
 
         <div className="profile-card">
 
-          {currentPhoto ? (
+          {displayedPhoto ? (
             <img
-              src={currentPhoto}
+              src={displayedPhoto}
               alt="Profile"
               className="profile-avatar"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
             />
           ) : (
             <div className="profile-avatar-fallback">
@@ -169,6 +280,16 @@ function Profile() {
                   setEditing(true);
                   setMessage("");
                   setError("");
+
+                  setNewName(
+                    user.displayName || ""
+                  );
+
+                  setPreviewPhoto(
+                    localPhoto ||
+                    user.photoURL ||
+                    ""
+                  );
                 }}
               >
                 Edit Profile
@@ -192,24 +313,39 @@ function Profile() {
                 placeholder="Enter your BOLOX name"
               />
 
-              <label htmlFor="profile-photo">
-                Profile Image URL
+              <label>
+                Profile Picture
+              </label>
+
+              <label
+                htmlFor="profile-photo-upload"
+                className="photo-upload-btn"
+              >
+                Choose Photo
               </label>
 
               <input
-                id="profile-photo"
-                type="url"
-                value={newPhotoURL}
-                onChange={(e) =>
-                  setNewPhotoURL(e.target.value)
-                }
-                placeholder="https://..."
+                id="profile-photo-upload"
+                className="photo-upload-input"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoSelect}
               />
 
               <small className="profile-editor-note">
-                Paste a direct image URL for your
-                profile picture.
+                Choose a photo from your phone or computer.
+                BOLOX will compress it and save it on this device.
               </small>
+
+              {localPhoto && (
+                <button
+                  type="button"
+                  className="remove-photo-btn"
+                  onClick={handleRemovePhoto}
+                >
+                  Remove Custom Photo
+                </button>
+              )}
 
               <div className="profile-editor-actions">
 
@@ -226,12 +362,17 @@ function Profile() {
                   className="cancel-profile-btn"
                   onClick={() => {
                     setEditing(false);
+
                     setNewName(
                       user.displayName || ""
                     );
-                    setNewPhotoURL(
-                      user.photoURL || ""
+
+                    setPreviewPhoto(
+                      localPhoto ||
+                      user.photoURL ||
+                      ""
                     );
+
                     setError("");
                   }}
                 >
@@ -300,8 +441,8 @@ function Profile() {
             <h2>My Sensitivities</h2>
 
             <p>
-              Your saved Free Fire sensitivity
-              setups will appear here.
+              Your saved Free Fire sensitivity setups
+              will appear here.
             </p>
 
           </div>
