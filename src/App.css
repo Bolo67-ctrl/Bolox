@@ -1483,3 +1483,163 @@ button {
   color: white;
   border-color: #555;
 }
+/* =========================================
+   SAVED SENSITIVITIES
+========================================= */
+
+.save-sensitivity-btn {
+  padding: 13px 20px;
+  border: 1px solid #ed1528;
+  border-radius: 7px;
+  background: transparent;
+  color: white;
+  font-weight: 700;
+}
+
+.save-sensitivity-btn:hover {
+  background: #ed1528;
+}
+
+.save-sensitivity-btn:disabled {
+  background: #17361f;
+  border-color: #245c32;
+  color: #6be38c;
+  cursor: default;
+}
+
+.saved-sensitivity-section {
+  padding: 20px 7% 100px;
+}
+
+.saved-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.saved-section-header h2 {
+  margin: 10px 0 0;
+  font-size: 40px;
+}
+
+.saved-empty {
+  padding: 45px;
+  border: 1px solid #1f1f1f;
+  border-radius: 14px;
+  background: #090909;
+}
+
+.saved-empty h3 {
+  margin-top: 0;
+}
+
+.saved-empty p {
+  color: #666;
+  margin-bottom: 0;
+}
+
+.saved-sensitivity-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.saved-sensitivity-card {
+  padding: 28px;
+  border: 1px solid #202020;
+  border-radius: 14px;
+  background: #090909;
+}
+
+.saved-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #1e1e1e;
+  padding-bottom: 18px;
+}
+
+.saved-card-header span {
+  color: #666;
+  font-size: 10px;
+}
+
+.saved-card-header h3 {
+  margin: 5px 0 0;
+  font-size: 20px;
+}
+
+.saved-style {
+  color: #ed1528 !important;
+  font-weight: 800;
+}
+
+.saved-values {
+  margin-top: 15px;
+}
+
+.saved-values > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+}
+
+.saved-values span {
+  color: #777;
+  font-size: 11px;
+}
+
+.saved-values strong {
+  font-size: 13px;
+}
+
+.saved-card-bottom {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid #1e1e1e;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.saved-card-bottom small {
+  color: #555;
+}
+
+.saved-card-bottom button {
+  padding: 8px 12px;
+  border: 1px solid #442025;
+  border-radius: 6px;
+  background: transparent;
+  color: #ff5d69;
+  font-size: 10px;
+}
+
+.saved-card-bottom button:hover {
+  background: #ed1528;
+  border-color: #ed1528;
+  color: white;
+}
+
+@media (max-width: 850px) {
+  .saved-sensitivity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .saved-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .saved-sensitivity-section {
+    padding: 20px 25px 80px;
+  }
+
+  .results-actions {
+    flex-direction: column;
+  }
+}

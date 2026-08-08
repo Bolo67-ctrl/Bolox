@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import {
   onAuthStateChanged,
   updateProfile,
 } from "firebase/auth";
+
 import { auth } from "../firebase";
 
 function compressImage(file) {
@@ -14,158 +16,340 @@ function compressImage(file) {
       const img = new Image();
 
       img.onload = () => {
-        const canvas = document.createElement("canvas");
+        const canvas =
+          document.createElement("canvas");
 
         const maxSize = 320;
 
         let width = img.width;
         let height = img.height;
 
-        if (width > height && width > maxSize) {
-          height = Math.round((height * maxSize) / width);
+        if (
+          width > height &&
+          width > maxSize
+        ) {
+          height = Math.round(
+            (height * maxSize) / width
+          );
+
           width = maxSize;
         } else if (height > maxSize) {
-          width = Math.round((width * maxSize) / height);
+          width = Math.round(
+            (width * maxSize) / height
+          );
+
           height = maxSize;
         }
 
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext("2d");
+        const ctx =
+          canvas.getContext("2d");
 
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const compressed = canvas.toDataURL(
-          "image/jpeg",
-          0.75
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          width,
+          height
         );
 
-        resolve(compressed);
+        resolve(
+          canvas.toDataURL(
+            "image/jpeg",
+            0.75
+          )
+        );
       };
 
       img.onerror = () =>
-        reject(new Error("Could not process image."));
+        reject(
+          new Error(
+            "Could not process image."
+          )
+        );
 
       img.src = reader.result;
     };
 
     reader.onerror = () =>
-      reject(new Error("Could not read image."));
+      reject(
+        new Error("Could not read image.")
+      );
 
     reader.readAsDataURL(file);
   });
 }
 
+function savedKey(uid) {
+  return `bolox_saved_sensitivities_${uid}`;
+}
+
+function usageKey(uid) {
+  return `bolox_generations_${uid}`;
+}
+
+function readSavedSensitivities(uid) {
+  try {
+    return JSON.parse(
+      localStorage.getItem(
+        savedKey(uid)
+      ) || "[]"
+    );
+  } catch {
+    return [];
+  }
+}
+
+function getDailyUsage(uid) {
+  try {
+    const saved =
+      localStorage.getItem(
+        usageKey(uid)
+      );
+
+    if (!saved) return 0;
+
+    const data = JSON.parse(saved);
+
+    if (
+      data.date !==
+      new Date().toDateString()
+    ) {
+      return 0;
+    }
+
+    return data.count || 0;
+  } catch {
+    return 0;
+  }
+}
+
 function Profile() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] =
+    useState(null);
 
-  const [editing, setEditing] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [loading, setLoading] =
+    useState(true);
 
-  const [localPhoto, setLocalPhoto] = useState("");
-  const [previewPhoto, setPreviewPhoto] = useState("");
+  const [editing, setEditing] =
+    useState(false);
 
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [newName, setNewName] =
+    useState("");
+
+  const [localPhoto, setLocalPhoto] =
+    useState("");
+
+  const [previewPhoto, setPreviewPhoto] =
+    useState("");
+
+  const [savedSensitivities, setSavedSensitivities] =
+    useState([]);
+
+  const [generationsUsed, setGenerationsUsed] =
+    useState(0);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+  const loadAccountData = (
+    currentUser
+  ) => {
+    if (!currentUser) return;
+
+    setSavedSensitivities(
+      readSavedSensitivities(
+        currentUser.uid
+      )
+    );
+
+    setGenerationsUsed(
+      getDailyUsage(
+        currentUser.uid
+      )
+    );
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setLoading(false);
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+          setUser(currentUser);
+          setLoading(false);
 
-        if (currentUser) {
-          setNewName(currentUser.displayName || "");
+          if (currentUser) {
+            setNewName(
+              currentUser.displayName || ""
+            );
 
-          const savedPhoto = localStorage.getItem(
-            `bolox_profile_photo_${currentUser.uid}`
-          );
+            const savedPhoto =
+              localStorage.getItem(
+                `bolox_profile_photo_${currentUser.uid}`
+              );
 
-          if (savedPhoto) {
-            setLocalPhoto(savedPhoto);
-            setPreviewPhoto(savedPhoto);
-          } else {
-            setPreviewPhoto(currentUser.photoURL || "");
+            if (savedPhoto) {
+              setLocalPhoto(savedPhoto);
+              setPreviewPhoto(savedPhoto);
+            } else {
+              setPreviewPhoto(
+                currentUser.photoURL || ""
+              );
+            }
+
+            loadAccountData(
+              currentUser
+            );
           }
         }
-      }
-    );
+      );
 
     return unsubscribe;
   }, []);
 
-  const handlePhotoSelect = async (event) => {
-    const file = event.target.files?.[0];
+  useEffect(() => {
+    const refreshSaved = () => {
+      if (auth.currentUser) {
+        loadAccountData(
+          auth.currentUser
+        );
+      }
+    };
 
-    if (!file) return;
+    window.addEventListener(
+      "bolox-sensitivities-updated",
+      refreshSaved
+    );
 
-    setError("");
-    setMessage("");
+    window.addEventListener(
+      "bolox-generations-updated",
+      refreshSaved
+    );
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image file.");
-      return;
-    }
+    return () => {
+      window.removeEventListener(
+        "bolox-sensitivities-updated",
+        refreshSaved
+      );
 
-    if (file.size > 8 * 1024 * 1024) {
-      setError("Please choose an image smaller than 8 MB.");
-      return;
-    }
+      window.removeEventListener(
+        "bolox-generations-updated",
+        refreshSaved
+      );
+    };
+  }, []);
 
-    try {
-      const compressed = await compressImage(file);
+  const handlePhotoSelect =
+    async (event) => {
+      const file =
+        event.target.files?.[0];
 
-      setPreviewPhoto(compressed);
-    } catch (err) {
-      console.error(err);
-      setError("Could not process this image.");
-    }
-  };
+      if (!file) return;
 
-  const handleSaveProfile = async () => {
-    if (!auth.currentUser) return;
+      setError("");
+      setMessage("");
 
-    setMessage("");
-    setError("");
-
-    if (!newName.trim()) {
-      setError("Your BOLOX name cannot be empty.");
-      return;
-    }
-
-    try {
-      await updateProfile(auth.currentUser, {
-        displayName: newName.trim(),
-      });
-
-      if (previewPhoto) {
-        localStorage.setItem(
-          `bolox_profile_photo_${auth.currentUser.uid}`,
-          previewPhoto
+      if (
+        !file.type.startsWith(
+          "image/"
+        )
+      ) {
+        setError(
+          "Please select an image file."
         );
 
-        window.dispatchEvent(
-  new Event("bolox-profile-updated")
-);
+        return;
       }
 
-      await auth.currentUser.reload();
+      if (
+        file.size >
+        8 * 1024 * 1024
+      ) {
+        setError(
+          "Please choose an image smaller than 8 MB."
+        );
 
-      setUser({ ...auth.currentUser });
+        return;
+      }
 
-      setEditing(false);
-      setMessage("Profile updated successfully.");
-    } catch (err) {
-      console.error(err);
+      try {
+        const compressed =
+          await compressImage(file);
 
-      setError(
-        err.message || "Could not update your profile."
-      );
-    }
-  };
+        setPreviewPhoto(
+          compressed
+        );
+      } catch {
+        setError(
+          "Could not process this image."
+        );
+      }
+    };
+
+  const handleSaveProfile =
+    async () => {
+      if (!auth.currentUser) return;
+
+      setMessage("");
+      setError("");
+
+      if (!newName.trim()) {
+        setError(
+          "Your BOLOX name cannot be empty."
+        );
+
+        return;
+      }
+
+      try {
+        await updateProfile(
+          auth.currentUser,
+          {
+            displayName:
+              newName.trim(),
+          }
+        );
+
+        if (previewPhoto) {
+          localStorage.setItem(
+            `bolox_profile_photo_${auth.currentUser.uid}`,
+            previewPhoto
+          );
+
+          setLocalPhoto(
+            previewPhoto
+          );
+
+          window.dispatchEvent(
+            new Event(
+              "bolox-profile-updated"
+            )
+          );
+        }
+
+        await auth.currentUser.reload();
+
+        setUser({
+          ...auth.currentUser,
+        });
+
+        setEditing(false);
+
+        setMessage(
+          "Profile updated successfully."
+        );
+      } catch (err) {
+        setError(
+          err.message ||
+            "Could not update your profile."
+        );
+      }
+    };
 
   const handleRemovePhoto = () => {
     if (!user) return;
@@ -175,10 +359,49 @@ function Profile() {
     );
 
     setLocalPhoto("");
-    setPreviewPhoto(user.photoURL || "");
-    setMessage("Custom BOLOX profile photo removed.");
+
+    setPreviewPhoto(
+      user.photoURL || ""
+    );
+
+    window.dispatchEvent(
+      new Event(
+        "bolox-profile-updated"
+      )
+    );
+
+    setMessage(
+      "Custom BOLOX profile photo removed."
+    );
+
     setError("");
   };
+
+  const handleDeleteSensitivity =
+    (id) => {
+      if (!user) return;
+
+      const updated =
+        savedSensitivities.filter(
+          (item) =>
+            item.id !== id
+        );
+
+      setSavedSensitivities(
+        updated
+      );
+
+      localStorage.setItem(
+        savedKey(user.uid),
+        JSON.stringify(updated)
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "bolox-sensitivities-updated"
+        )
+      );
+    };
 
   if (loading) {
     return (
@@ -193,6 +416,7 @@ function Profile() {
   if (!user) {
     return (
       <main className="profile-page">
+
         <div className="profile-login-required">
 
           <span className="red-label">
@@ -206,15 +430,20 @@ function Profile() {
           </h1>
 
           <p>
-            Sign in with Google to access your BOLOX
-            profile and saved content.
+            Sign in with Google to
+            access your BOLOX profile
+            and saved content.
           </p>
 
-          <Link to="/" className="profile-home-btn">
+          <Link
+            to="/"
+            className="profile-home-btn"
+          >
             ← Back Home
           </Link>
 
         </div>
+
       </main>
     );
   }
@@ -224,6 +453,12 @@ function Profile() {
     localPhoto ||
     user.photoURL ||
     "";
+
+  const remaining =
+    Math.max(
+      0,
+      5 - generationsUsed
+    );
 
   return (
     <main className="profile-page">
@@ -244,7 +479,8 @@ function Profile() {
 
           <p>
             Manage your BOLOX identity,
-            sensitivities, purchases and account status.
+            sensitivities, purchases
+            and account status.
           </p>
 
         </div>
@@ -265,11 +501,15 @@ function Profile() {
 
           {!editing ? (
             <>
+
               <h2>
-                {user.displayName || "BOLOX Player"}
+                {user.displayName ||
+                  "BOLOX Player"}
               </h2>
 
-              <p>{user.email}</p>
+              <p>
+                {user.email}
+              </p>
 
               <span className="profile-plan">
                 FREE MEMBER
@@ -289,15 +529,17 @@ function Profile() {
 
                   setPreviewPhoto(
                     localPhoto ||
-                    user.photoURL ||
-                    ""
+                      user.photoURL ||
+                      ""
                   );
                 }}
               >
                 Edit Profile
               </button>
+
             </>
           ) : (
+
             <div className="profile-editor">
 
               <label htmlFor="profile-name">
@@ -310,9 +552,10 @@ function Profile() {
                 value={newName}
                 maxLength={24}
                 onChange={(e) =>
-                  setNewName(e.target.value)
+                  setNewName(
+                    e.target.value
+                  )
                 }
-                placeholder="Enter your BOLOX name"
               />
 
               <label>
@@ -331,19 +574,23 @@ function Profile() {
                 className="photo-upload-input"
                 type="file"
                 accept="image/*"
-                onChange={handlePhotoSelect}
+                onChange={
+                  handlePhotoSelect
+                }
               />
 
               <small className="profile-editor-note">
-                Choose a photo from your phone or computer.
-                BOLOX will compress it and save it on this device.
+                Choose a photo from your
+                phone or computer.
               </small>
 
               {localPhoto && (
                 <button
                   type="button"
                   className="remove-photo-btn"
-                  onClick={handleRemovePhoto}
+                  onClick={
+                    handleRemovePhoto
+                  }
                 >
                   Remove Custom Photo
                 </button>
@@ -354,7 +601,9 @@ function Profile() {
                 <button
                   type="button"
                   className="save-profile-btn"
-                  onClick={handleSaveProfile}
+                  onClick={
+                    handleSaveProfile
+                  }
                 >
                   Save Changes
                 </button>
@@ -365,17 +614,11 @@ function Profile() {
                   onClick={() => {
                     setEditing(false);
 
-                    setNewName(
-                      user.displayName || ""
-                    );
-
                     setPreviewPhoto(
                       localPhoto ||
-                      user.photoURL ||
-                      ""
+                        user.photoURL ||
+                        ""
                     );
-
-                    setError("");
                   }}
                 >
                   Cancel
@@ -384,6 +627,7 @@ function Profile() {
               </div>
 
             </div>
+
           )}
 
           {message && (
@@ -411,15 +655,23 @@ function Profile() {
         </div>
 
         <div className="profile-stat-card">
-          <span>SENSITIVITY</span>
-          <strong>5</strong>
-          <small>Daily Free Generations</small>
+          <span>GENERATIONS</span>
+          <strong>
+            {remaining}
+          </strong>
+          <small>
+            Remaining Today
+          </small>
         </div>
 
         <div className="profile-stat-card">
           <span>SAVED</span>
-          <strong>0</strong>
-          <small>Saved Sensitivities</small>
+          <strong>
+            {savedSensitivities.length}
+          </strong>
+          <small>
+            Saved Sensitivities
+          </small>
         </div>
 
         <div className="profile-stat-card">
@@ -430,9 +682,9 @@ function Profile() {
 
       </section>
 
-      <section className="profile-sections">
+      <section className="saved-sensitivity-section">
 
-        <div className="profile-section-card">
+        <div className="saved-section-header">
 
           <div>
 
@@ -440,12 +692,9 @@ function Profile() {
               SAVED SETTINGS
             </span>
 
-            <h2>My Sensitivities</h2>
-
-            <p>
-              Your saved Free Fire sensitivity setups
-              will appear here.
-            </p>
+            <h2>
+              My Sensitivities
+            </h2>
 
           </div>
 
@@ -453,37 +702,110 @@ function Profile() {
             to="/store/sensitivity"
             className="profile-action"
           >
-            Generate Sensitivity →
+            Generate New →
           </Link>
 
         </div>
 
-        <div className="profile-section-card">
+        {savedSensitivities.length ===
+        0 ? (
 
-          <div>
+          <div className="saved-empty">
 
-            <span className="red-label">
-              PREMIUM
-            </span>
-
-            <h2>Upgrade BOLOX</h2>
+            <h3>
+              No saved sensitivities yet.
+            </h3>
 
             <p>
-              Unlock unlimited generations,
-              premium configs and exclusive
-              BOLOX features.
+              Generate a setup and press
+              Save to Profile.
             </p>
 
           </div>
 
-          <Link
-            to="/premium"
-            className="profile-action"
-          >
-            View Premium →
-          </Link>
+        ) : (
 
-        </div>
+          <div className="saved-sensitivity-grid">
+
+            {savedSensitivities.map(
+              (item) => (
+
+                <div
+                  className="saved-sensitivity-card"
+                  key={item.id}
+                >
+
+                  <div className="saved-card-header">
+
+                    <div>
+                      <span>
+                        {item.device}
+                      </span>
+
+                      <h3>
+                        {item.model}
+                      </h3>
+                    </div>
+
+                    <span className="saved-style">
+                      {item.style}
+                    </span>
+
+                  </div>
+
+                  <div className="saved-values">
+
+                    {Object.entries(
+                      item.settings
+                    ).map(
+                      ([name, value]) => (
+
+                        <div
+                          key={name}
+                        >
+                          <span>
+                            {name}
+                          </span>
+
+                          <strong>
+                            {value}
+                          </strong>
+                        </div>
+
+                      )
+                    )}
+
+                  </div>
+
+                  <div className="saved-card-bottom">
+
+                    <small>
+                      {new Date(
+                        item.createdAt
+                      ).toLocaleDateString()}
+                    </small>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDeleteSensitivity(
+                          item.id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        )}
 
       </section>
 

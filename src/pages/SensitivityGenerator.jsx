@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
 
 const devices = [
   "iPhone",
@@ -127,25 +129,31 @@ const playStyles = [
   "One-Tap",
 ];
 
-function getDailyUsage() {
-  const saved = localStorage.getItem("bolox_generations");
+function usageKey(uid) {
+  return `bolox_generations_${uid || "guest"}`;
+}
 
-  if (!saved) {
-    return 0;
-  }
+function savedKey(uid) {
+  return `bolox_saved_sensitivities_${uid}`;
+}
+
+function getDailyUsage(uid) {
+  const saved = localStorage.getItem(usageKey(uid));
+
+  if (!saved) return 0;
 
   try {
     const data = JSON.parse(saved);
     const today = new Date().toDateString();
 
     if (data.date !== today) {
-      localStorage.removeItem("bolox_generations");
+      localStorage.removeItem(usageKey(uid));
       return 0;
     }
 
     return data.count || 0;
   } catch {
-    localStorage.removeItem("bolox_generations");
+    localStorage.removeItem(usageKey(uid));
     return 0;
   }
 }
@@ -259,19 +267,52 @@ function generateSettings(style, device, model) {
 }
 
 function SensitivityGenerator() {
+  const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+
   const [device, setDevice] = useState("");
   const [model, setModel] = useState("");
   const [style, setStyle] = useState("");
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [generations, setGenerations] = useState(getDailyUsage);
 
-  const remaining = Math.max(0, 5 - generations);
+  const [result, setResult] = useState(null);
+
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const [generations, setGenerations] =
+    useState(0);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+
+        const count = getDailyUsage(
+          currentUser?.uid
+        );
+
+        setGenerations(count);
+        setAuthReady(true);
+      }
+    );
+
+    return unsubscribe;
+  }, []);
+
+  const remaining = Math.max(
+    0,
+    5 - generations
+  );
 
   const handleGenerate = () => {
     setError("");
+    setMessage("");
     setCopied(false);
+    setSaved(false);
 
     if (!device || !model || !style) {
       setError(
@@ -293,23 +334,31 @@ function SensitivityGenerator() {
       model
     );
 
-    setResult({
+    const generatedResult = {
+      id: Date.now(),
       device,
       model,
       style,
       settings,
-    });
+      createdAt: new Date().toISOString(),
+    };
+
+    setResult(generatedResult);
 
     const newCount = generations + 1;
 
     setGenerations(newCount);
 
     localStorage.setItem(
-      "bolox_generations",
+      usageKey(user?.uid),
       JSON.stringify({
         date: new Date().toDateString(),
         count: newCount,
       })
+    );
+
+    window.dispatchEvent(
+      new Event("bolox-generations-updated")
     );
   };
 
@@ -323,7 +372,8 @@ function SensitivityGenerator() {
       `Play Style: ${result.style}`,
       "",
       ...Object.entries(result.settings).map(
-        ([name, value]) => `${name}: ${value}`
+        ([name, value]) =>
+          `${name}: ${value}`
       ),
     ].join("\n");
 
@@ -335,17 +385,81 @@ function SensitivityGenerator() {
     }
   };
 
+  const handleSave = () => {
+    setError("");
+    setMessage("");
+
+    if (!user) {
+      setError(
+        "Sign in with Google to save this sensitivity to your profile."
+      );
+      return;
+    }
+
+    if (!result) return;
+
+    try {
+      const key = savedKey(user.uid);
+
+      const existing = JSON.parse(
+        localStorage.getItem(key) || "[]"
+      );
+
+      const updated = [
+        result,
+        ...existing,
+      ].slice(0, 20);
+
+      localStorage.setItem(
+        key,
+        JSON.stringify(updated)
+      );
+
+      setSaved(true);
+
+      setMessage(
+        "Sensitivity saved to your BOLOX profile."
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "bolox-sensitivities-updated"
+        )
+      );
+    } catch {
+      setError(
+        "Could not save this sensitivity."
+      );
+    }
+  };
+
   const handleGenerateAgain = () => {
     setResult(null);
     setCopied(false);
+    setSaved(false);
     setError("");
+    setMessage("");
   };
+
+  if (!authReady) {
+    return (
+      <main className="generator-page">
+        <div className="profile-loading">
+          Loading generator...
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="generator-page">
+
       <section className="generator-page-header">
 
-        <Link to="/store" className="back-link">
+        <Link
+          to="/store"
+          className="back-link"
+        >
           ← Back to Store
         </Link>
 
@@ -360,15 +474,21 @@ function SensitivityGenerator() {
         </h1>
 
         <p>
-          Choose your device, phone model and play style
-          to generate a BOLOX Free Fire sensitivity setup.
+          Choose your device, phone model
+          and play style to generate a BOLOX
+          Free Fire sensitivity setup.
         </p>
 
         <div className="generation-counter">
-          <strong>{remaining}</strong>
+
+          <strong>
+            {remaining}
+          </strong>
+
           <span>
             FREE GENERATIONS LEFT TODAY
           </span>
+
         </div>
 
       </section>
@@ -385,8 +505,10 @@ function SensitivityGenerator() {
 
               <div>
                 <h2>Select your device</h2>
+
                 <p>
-                  Choose the brand you use to play Free Fire.
+                  Choose the brand you use
+                  to play Free Fire.
                 </p>
               </div>
 
@@ -458,10 +580,13 @@ function SensitivityGenerator() {
               <span>02</span>
 
               <div>
-                <h2>Select your play style</h2>
+                <h2>
+                  Select your play style
+                </h2>
+
                 <p>
-                  Choose the option that best matches
-                  how you play.
+                  Choose the option that best
+                  matches how you play.
                 </p>
               </div>
 
@@ -595,13 +720,21 @@ function SensitivityGenerator() {
 
                   </div>
 
-                  <strong>{value}</strong>
+                  <strong>
+                    {value}
+                  </strong>
 
                 </div>
 
               ))}
 
             </div>
+
+            {message && (
+              <div className="profile-success">
+                {message}
+              </div>
+            )}
 
             {error && (
               <div className="generator-error">
@@ -629,6 +762,17 @@ function SensitivityGenerator() {
                   : "Copy Settings"}
               </button>
 
+              <button
+                type="button"
+                className="save-sensitivity-btn"
+                onClick={handleSave}
+                disabled={saved}
+              >
+                {saved
+                  ? "Saved ✓"
+                  : "Save to Profile"}
+              </button>
+
             </div>
 
             <p className="remaining-text">
@@ -641,6 +785,7 @@ function SensitivityGenerator() {
         )}
 
       </section>
+
     </main>
   );
 }
