@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-const products = [{
-  id: 7,
-  category: "free",
-  icon: "🧪",
-  title: "BOLOX Test File",
-  description:
-    "Test download used to verify BOLOX file delivery.",
-  tags: ["TEST", "DOWNLOAD"],
-  type: "download",
-  file: "/downloads/cache_res.CfnFf59sr1SbsqQ6JqTKsEusjKs~3D",
-  button: "Download Test File",
-},
+const products = [
   {
     id: 1,
+    category: "premium",
+    icon: "🎯",
+    title: "Aim Neck 80%",
+    description:
+      "BOLO product made for iPhone devices running iOS 17 through iOS 26.0.",
+    tags: ["IPHONE", "iOS 17–26.0", "BOLO"],
+    type: "page",
+link: "/store/aim-neck",
+price: "$20",
+button: "View Product",
+  },
+
+  {
+    id: 2,
     category: "free",
     icon: "🎯",
     title: "Free Fire Sensitivity Generator",
@@ -27,12 +30,12 @@ const products = [{
   },
 
   {
-    id: 2,
+    id: 3,
     category: "free",
     icon: "📦",
-    title: "BOLOX Sensitivity Pack",
+    title: "BOLO Sensitivity Pack",
     description:
-      "Download a BOLOX sensitivity preset pack for reference and customization.",
+      "Download a BOLO sensitivity preset pack for reference and customization.",
     tags: ["FREE", "DOWNLOAD"],
     type: "download",
     file: "/downloads/sensitivity-pack.json",
@@ -40,12 +43,12 @@ const products = [{
   },
 
   {
-    id: 3,
+    id: 4,
     category: "hud",
     icon: "🎮",
     title: "Free Fire HUD Layout",
     description:
-      "Download a BOLOX HUD layout image that you can use as a reference when arranging your controls.",
+      "Download a BOLO HUD layout image that you can use as a reference when arranging your controls.",
     tags: ["HUD", "FREE"],
     type: "download",
     file: "/downloads/hud-layout.png",
@@ -53,10 +56,10 @@ const products = [{
   },
 
   {
-    id: 4,
+    id: 5,
     category: "guide",
     icon: "📘",
-    title: "BOLOX Sensitivity Guide",
+    title: "BOLO Sensitivity Guide",
     description:
       "A downloadable guide explaining sensitivity categories and how to tune them for your play style.",
     tags: ["GUIDE", "PDF"],
@@ -66,7 +69,7 @@ const products = [{
   },
 
   {
-    id: 5,
+    id: 6,
     category: "optimization",
     icon: "📡",
     title: "BOLO AIM",
@@ -79,15 +82,16 @@ const products = [{
   },
 
   {
-    id: 6,
-    category: "premium",
-    icon: "⚡",
-    title: "BOLOX Premium Resources",
+    id: 7,
+    category: "free",
+    icon: "🧪",
+    title: "BOLO Test File",
     description:
-      "Premium BOLOX resources and advanced customization packs.",
-    tags: ["PREMIUM", "PROTECTED"],
-    type: "premium",
-    button: "View Premium",
+      "Test download used to verify BOLO file delivery.",
+    tags: ["TEST", "DOWNLOAD"],
+    type: "download",
+    file: "/downloads/cache_res.CfnFf59sr1SbsqQ6JqTKsEusjKs~3D",
+    button: "Download Test File",
   },
 ];
 
@@ -107,9 +111,7 @@ function Store() {
   return (
     <main className="store-page">
 
-      {/* =====================================
-          HERO
-      ===================================== */}
+      {/* HERO */}
 
       <section className="store-hero">
 
@@ -128,9 +130,9 @@ function Store() {
           </h1>
 
           <p>
-            Explore BOLOX sensitivity tools,
-            HUD resources, guides, downloads
-            and optimization tools.
+            Explore BOLO products,
+            sensitivity tools, HUD resources,
+            guides and downloads.
           </p>
 
         </div>
@@ -153,9 +155,7 @@ function Store() {
 
       </section>
 
-      {/* =====================================
-          STORE CONTENT
-      ===================================== */}
+      {/* STORE */}
 
       <section className="store-content">
 
@@ -189,6 +189,20 @@ function Store() {
             }
           >
             Free Tools
+          </button>
+
+          <button
+            type="button"
+            className={
+              activeCategory === "premium"
+                ? "filter-active"
+                : ""
+            }
+            onClick={() =>
+              setActiveCategory("premium")
+            }
+          >
+            Premium
           </button>
 
           <button
@@ -236,22 +250,6 @@ function Store() {
             Optimization
           </button>
 
-          <button
-            type="button"
-            className={
-              activeCategory === "premium"
-                ? "filter-active"
-                : ""
-            }
-            onClick={() =>
-              setActiveCategory(
-                "premium"
-              )
-            }
-          >
-            Premium
-          </button>
-
         </div>
 
         {/* PRODUCTS */}
@@ -286,6 +284,12 @@ function Store() {
                     {product.title}
                   </h2>
 
+                  {product.price && (
+                    <div className="store-product-price">
+                      {product.price}
+                    </div>
+                  )}
+
                   <p>
                     {product.description}
                   </p>
@@ -306,8 +310,6 @@ function Store() {
 
                   </div>
 
-                  {/* PAGE LINK */}
-
                   {product.type ===
                   "page" ? (
 
@@ -322,8 +324,6 @@ function Store() {
                   ) : product.type ===
                     "download" ? (
 
-                    /* FILE DOWNLOAD */
-
                     <a
                       href={product.file}
                       className="store-action"
@@ -337,19 +337,19 @@ function Store() {
                       <span>↓</span>
                     </a>
 
-                  ) : (
+                  ) : product.type ===
+                    "paid" ? (
 
-                    /* PREMIUM */
-
-                    <Link
-                      to="/premium"
+                    <button
+                      type="button"
                       className="store-action"
+                      disabled
                     >
                       {product.button}
                       <span>→</span>
-                    </Link>
+                    </button>
 
-                  )}
+                  ) : null}
 
                 </div>
 
@@ -362,9 +362,7 @@ function Store() {
 
       </section>
 
-      {/* =====================================
-          BOLO AIM
-      ===================================== */}
+      {/* BOLO AIM */}
 
       <section className="bolo-aim-section">
 
@@ -390,17 +388,9 @@ function Store() {
 
           <div className="bolo-aim-tags">
 
-            <span>
-              iOS
-            </span>
-
-            <span>
-              DNS
-            </span>
-
-            <span>
-              FREE
-            </span>
+            <span>iOS</span>
+            <span>DNS</span>
+            <span>FREE</span>
 
           </div>
 
@@ -421,9 +411,7 @@ function Store() {
 
       </section>
 
-      {/* =====================================
-          GENERATOR FEATURE
-      ===================================== */}
+      {/* GENERATOR */}
 
       <section className="generator-preview">
 
@@ -450,30 +438,21 @@ function Store() {
           <div className="generator-info">
 
             <div>
-              <strong>
-                5
-              </strong>
-
+              <strong>5</strong>
               <span>
                 FREE GENERATIONS
               </span>
             </div>
 
             <div>
-              <strong>
-                FREE
-              </strong>
-
+              <strong>FREE</strong>
               <span>
                 TO USE
               </span>
             </div>
 
             <div>
-              <strong>
-                FF
-              </strong>
-
+              <strong>FF</strong>
               <span>
                 ONLY
               </span>
@@ -497,7 +476,7 @@ function Store() {
             <div className="settings-header">
 
               <span>
-                BOLOX SENSITIVITY
+                BOLO SENSITIVITY
               </span>
 
               <span>
@@ -507,53 +486,28 @@ function Store() {
             </div>
 
             <div className="setting-row">
-              <span>
-                General
-              </span>
-
-              <strong>
-                187
-              </strong>
+              <span>General</span>
+              <strong>187</strong>
             </div>
 
             <div className="setting-row">
-              <span>
-                Red Dot
-              </span>
-
-              <strong>
-                174
-              </strong>
+              <span>Red Dot</span>
+              <strong>174</strong>
             </div>
 
             <div className="setting-row">
-              <span>
-                2X Scope
-              </span>
-
-              <strong>
-                161
-              </strong>
+              <span>2X Scope</span>
+              <strong>161</strong>
             </div>
 
             <div className="setting-row">
-              <span>
-                4X Scope
-              </span>
-
-              <strong>
-                148
-              </strong>
+              <span>4X Scope</span>
+              <strong>148</strong>
             </div>
 
             <div className="setting-row">
-              <span>
-                Sniper Scope
-              </span>
-
-              <strong>
-                92
-              </strong>
+              <span>Sniper Scope</span>
+              <strong>92</strong>
             </div>
 
           </div>
@@ -562,32 +516,27 @@ function Store() {
 
       </section>
 
-      {/* =====================================
-          PREMIUM
-      ===================================== */}
+      {/* PREMIUM */}
 
       <section className="store-premium">
 
         <div>
 
           <span className="red-label">
-            BOLOX PREMIUM
+            BOLO PREMIUM
           </span>
 
           <h2>
             Premium
             <br />
-
             <span>
-              resources.
+              products.
             </span>
           </h2>
 
           <p>
-            Premium downloads will use
-            protected delivery so customers
-            cannot simply guess a public file
-            URL.
+            Premium BOLO products with
+            protected payment and delivery.
           </p>
 
         </div>
@@ -596,22 +545,22 @@ function Store() {
 
           <div>
             <span>01</span>
-            Premium resources
+            Aim Neck 80%
           </div>
 
           <div>
             <span>02</span>
-            Protected downloads
+            Protected purchase
           </div>
 
           <div>
             <span>03</span>
-            Account purchases
+            Account purchase history
           </div>
 
           <div>
             <span>04</span>
-            Future updates
+            Protected product delivery
           </div>
 
         </div>

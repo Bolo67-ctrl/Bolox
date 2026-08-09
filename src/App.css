@@ -3574,3 +3574,1439 @@ button {
       calc(100vh - 180px);
   }
 }
+.store-product-price {
+  margin: 8px 0 12px;
+
+  color: #ed1528;
+
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.store-action:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+/* =========================================
+   BOLO PRODUCT PAGE
+========================================= */
+
+.product-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 80% 10%,
+      rgba(237, 21, 40, 0.1),
+      transparent 30%
+    ),
+    #050505;
+
+  color: white;
+}
+
+.product-hero {
+  padding: 70px 7% 90px;
+
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.product-hero-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.4fr 0.8fr;
+
+  gap: 60px;
+
+  align-items: center;
+
+  margin-top: 55px;
+}
+
+.product-main-info h1 {
+  margin: 12px 0 20px;
+
+  font-size: clamp(
+    65px,
+    9vw,
+    120px
+  );
+
+  line-height: 0.86;
+
+  letter-spacing: -6px;
+}
+
+.product-main-info h1 span {
+  color: #ed1528;
+}
+
+.product-main-info > p {
+  max-width: 520px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 25px;
+}
+
+.product-tags span {
+  padding: 8px 11px;
+
+  border: 1px solid #292929;
+  border-radius: 30px;
+
+  background: #0d0d0d;
+
+  color: #aaa;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.product-buy-card {
+  padding: 35px;
+
+  border: 1px solid #292929;
+  border-radius: 16px;
+
+  background: #090909;
+}
+
+.product-price-label {
+  color: #666;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.product-page-price {
+  display: block;
+
+  margin: 8px 0;
+
+  color: #ed1528;
+
+  font-size: 55px;
+}
+
+.product-buy-card p {
+  color: #777;
+
+  font-size: 11px;
+}
+
+.product-buy-button {
+  width: 100%;
+
+  margin-top: 20px;
+
+  padding: 14px;
+
+  border: 1px solid #ed1528;
+  border-radius: 8px;
+
+  background: #ed1528;
+  color: white;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.product-buy-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.product-buy-card small {
+  display: block;
+
+  margin-top: 12px;
+
+  color: #555;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+.product-details-section {
+  padding: 70px 7%;
+}
+
+.product-section-heading {
+  margin-bottom: 30px;
+}
+
+.product-section-heading h2 {
+  margin: 8px 0 0;
+
+  font-size: 40px;
+}
+
+.product-detail-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 15px;
+}
+
+.product-detail-card {
+  padding: 28px;
+
+  border: 1px solid #202020;
+  border-radius: 14px;
+
+  background: #090909;
+}
+
+.product-detail-card span {
+  color: #666;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.product-detail-card strong {
+  display: block;
+
+  margin-top: 8px;
+
+  font-size: 24px;
+}
+
+.product-detail-card p {
+  color: #666;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+.product-warning-section {
+  margin: 0 7% 90px;
+
+  padding: 35px;
+
+  border: 1px solid #202020;
+  border-radius: 14px;
+
+  background: #090909;
+}
+
+.product-warning-section h2 {
+  margin: 8px 0 12px;
+
+  font-size: 30px;
+}
+
+.product-warning-section p {
+  max-width: 600px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .product-hero {
+    padding: 50px 25px 70px;
+  }
+
+  .product-hero-grid {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .product-main-info h1 {
+    letter-spacing: -4px;
+  }
+
+  .product-details-section {
+    padding: 55px 25px;
+  }
+
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-warning-section {
+    margin: 0 25px 70px;
+  }
+}
+/* =========================================
+   ZELLE CHECKOUT
+========================================= */
+
+.zelle-checkout {
+  margin-top: 20px;
+}
+
+.zelle-checkout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #202020;
+}
+
+.zelle-checkout-header span {
+  color: #666;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.zelle-checkout-header strong {
+  color: white;
+
+  font-size: 18px;
+}
+
+.zelle-price-box {
+  margin-top: 15px;
+
+  padding: 18px;
+
+  border: 1px solid #292929;
+  border-radius: 10px;
+
+  background: #101010;
+}
+
+.zelle-price-box span {
+  display: block;
+
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.zelle-price-box strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #ed1528;
+
+  font-size: 30px;
+}
+
+.zelle-recipient {
+  margin-top: 15px;
+}
+
+.zelle-recipient > span {
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.zelle-recipient > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 7px;
+
+  padding: 12px;
+
+  border: 1px solid #252525;
+  border-radius: 8px;
+
+  background: #0d0d0d;
+}
+
+.zelle-recipient strong {
+  overflow-wrap: anywhere;
+
+  font-size: 10px;
+}
+
+.zelle-recipient button {
+  padding: 7px 10px;
+
+  border: 1px solid #333;
+  border-radius: 6px;
+
+  background: #151515;
+  color: white;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.zelle-steps {
+  margin-top: 20px;
+}
+
+.zelle-steps > div {
+  display: flex;
+
+  gap: 12px;
+
+  padding: 11px 0;
+
+  border-bottom: 1px solid #171717;
+}
+
+.zelle-steps span {
+  color: #ed1528;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.zelle-steps p {
+  margin: 0;
+
+  color: #777;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.zelle-paid-button {
+  width: 100%;
+
+  margin-top: 20px;
+
+  padding: 13px;
+
+  border: 1px solid #ed1528;
+  border-radius: 8px;
+
+  background: #ed1528;
+  color: white;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.zelle-cancel-button {
+  width: 100%;
+
+  margin-top: 8px;
+
+  padding: 11px;
+
+  border: 1px solid #292929;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #888;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.zelle-checkout small {
+  display: block;
+
+  margin-top: 13px;
+
+  color: #555;
+
+  font-size: 8px;
+
+  line-height: 1.6;
+}
+/* =========================================
+   PAYMENT PROOF
+========================================= */
+
+.payment-proof-upload {
+  margin-top: 22px;
+
+  padding: 16px;
+
+  border: 1px solid #292929;
+  border-radius: 10px;
+
+  background: #0d0d0d;
+}
+
+.payment-proof-title {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.payment-proof-input {
+  display: none;
+}
+
+.payment-proof-button {
+  display: block;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 12px;
+
+  border: 1px dashed #444;
+  border-radius: 8px;
+
+  background: #121212;
+
+  color: white;
+
+  text-align: center;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.payment-proof-button:hover {
+  border-color: #ed1528;
+
+  color: #ed1528;
+}
+
+.payment-proof-selected {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  margin-top: 12px;
+}
+
+.payment-proof-selected strong {
+  color: #fff;
+
+  font-size: 10px;
+}
+
+.payment-proof-selected small {
+  color: #666;
+
+  font-size: 8px;
+}
+
+.payment-proof-preview {
+  margin-top: 14px;
+
+  overflow: hidden;
+
+  border: 1px solid #252525;
+  border-radius: 8px;
+}
+
+.payment-proof-preview img {
+  display: block;
+
+  width: 100%;
+  max-height: 300px;
+
+  object-fit: contain;
+
+  background: #050505;
+}
+
+.zelle-paid-button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+/* =========================================
+   BOLO ORDER CODE
+========================================= */
+
+.bolo-order-code {
+  margin-top: 16px;
+  padding: 18px;
+
+  border: 1px solid #ed1528;
+  border-radius: 10px;
+
+  background:
+    rgba(237, 21, 40, 0.06);
+
+  text-align: center;
+}
+
+.bolo-order-code > span {
+  display: block;
+
+  color: #777;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.bolo-order-code > strong {
+  display: block;
+
+  margin: 8px 0 12px;
+
+  color: white;
+
+  font-size: 24px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.bolo-order-code button {
+  padding: 8px 12px;
+
+  border: 1px solid #333;
+  border-radius: 7px;
+
+  background: #111;
+  color: white;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* ORDER SUMMARY */
+
+.order-summary {
+  margin-top: 20px;
+
+  padding: 15px;
+
+  border: 1px solid #242424;
+  border-radius: 10px;
+
+  background: #0d0d0d;
+}
+
+.order-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 8px 0;
+
+  border-bottom: 1px solid #181818;
+}
+
+.order-summary > div:last-child {
+  border-bottom: none;
+}
+
+.order-summary span {
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.order-summary strong {
+  color: white;
+
+  font-size: 10px;
+}
+
+/* ORDER SUCCESS */
+
+.order-success {
+  margin-top: 20px;
+
+  padding: 20px;
+
+  border: 1px solid #292929;
+  border-radius: 12px;
+
+  background: #0d0d0d;
+}
+
+.order-success h3 {
+  margin: 10px 0;
+
+  font-size: 20px;
+}
+
+.order-success p {
+  color: #777;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+.order-success-code {
+  margin: 18px 0;
+
+  padding: 15px;
+
+  border: 1px solid #ed1528;
+  border-radius: 8px;
+
+  background:
+    rgba(237, 21, 40, 0.06);
+
+  text-align: center;
+}
+
+.order-success-code span {
+  display: block;
+
+  color: #777;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.order-success-code strong {
+  display: block;
+
+  margin-top: 6px;
+
+  color: white;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+/* =========================================
+   ADMIN ORDERS PAGE
+========================================= */
+
+.admin-orders-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(237, 21, 40, 0.08),
+      transparent 30%
+    ),
+    #050505;
+
+  color: white;
+}
+
+.admin-orders-header {
+  padding: 70px 7% 45px;
+
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.admin-orders-header h1 {
+  margin: 12px 0 18px;
+
+  font-size: clamp(
+    58px,
+    8vw,
+    100px
+  );
+
+  line-height: 0.9;
+
+  letter-spacing: -5px;
+}
+
+.admin-orders-header h1 span {
+  color: #ed1528;
+}
+
+.admin-orders-header p {
+  max-width: 620px;
+
+  margin: 0;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+.admin-orders-message {
+  padding: 20px 7% 0;
+}
+
+.admin-orders-content {
+  padding: 45px 7%;
+}
+
+.admin-order-history {
+  padding-top: 20px;
+  padding-bottom: 90px;
+}
+
+/* SECTION TITLE */
+
+.admin-orders-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 25px;
+}
+
+.admin-orders-title h2 {
+  margin: 8px 0 0;
+
+  font-size: 34px;
+}
+
+.admin-orders-title > strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 46px;
+  height: 46px;
+
+  border: 1px solid #292929;
+  border-radius: 50%;
+
+  background: #0d0d0d;
+
+  color: #ed1528;
+
+  font-size: 16px;
+}
+
+/* GRID */
+
+.admin-orders-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+/* CARD */
+
+.admin-order-card {
+  padding: 24px;
+
+  border: 1px solid #202020;
+  border-radius: 14px;
+
+  background: #090909;
+}
+
+.admin-order-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #202020;
+}
+
+.admin-order-top span {
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.admin-order-top h3 {
+  margin: 6px 0 0;
+
+  font-size: 22px;
+
+  letter-spacing: 1px;
+}
+
+/* STATUS BADGES */
+
+.admin-order-status {
+  padding: 7px 10px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.admin-order-status.pending {
+  background:
+    rgba(255, 179, 0, 0.12);
+
+  color: #ffb300;
+
+  border: 1px solid
+    rgba(255, 179, 0, 0.3);
+}
+
+.admin-order-status.approved {
+  background:
+    rgba(0, 200, 110, 0.12);
+
+  color: #00c86e;
+
+  border: 1px solid
+    rgba(0, 200, 110, 0.3);
+}
+
+.admin-order-status.rejected {
+  background:
+    rgba(237, 21, 40, 0.12);
+
+  color: #ed1528;
+
+  border: 1px solid
+    rgba(237, 21, 40, 0.3);
+}
+
+/* DETAILS */
+
+.admin-order-details {
+  margin-top: 14px;
+}
+
+.admin-order-details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #171717;
+}
+
+.admin-order-details > div:last-child {
+  border-bottom: none;
+}
+
+.admin-order-details span {
+  color: #666;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.admin-order-details strong {
+  max-width: 65%;
+
+  color: white;
+
+  text-align: right;
+
+  font-size: 11px;
+
+  overflow-wrap: anywhere;
+}
+
+/* ACTIONS */
+
+.admin-order-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.admin-approve-btn,
+.admin-reject-btn {
+  padding: 12px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.admin-approve-btn {
+  border: 1px solid #ed1528;
+
+  background: #ed1528;
+  color: white;
+}
+
+.admin-approve-btn:hover {
+  opacity: 0.9;
+}
+
+.admin-reject-btn {
+  border: 1px solid #333;
+
+  background: #111;
+  color: #999;
+}
+
+.admin-reject-btn:hover {
+  border-color: #ed1528;
+
+  color: white;
+}
+
+.admin-approve-btn:disabled,
+.admin-reject-btn:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* EMPTY STATE */
+
+.admin-orders-empty {
+  padding: 90px 7%;
+}
+
+.admin-orders-empty h1 {
+  margin: 12px 0 18px;
+
+  font-size: clamp(
+    58px,
+    8vw,
+    100px
+  );
+
+  line-height: 0.9;
+
+  letter-spacing: -5px;
+}
+
+.admin-orders-empty h1 span {
+  color: #ed1528;
+}
+
+.admin-orders-empty p {
+  max-width: 520px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .admin-orders-header {
+    padding: 50px 25px 35px;
+  }
+
+  .admin-orders-content {
+    padding: 35px 25px;
+  }
+
+  .admin-orders-message {
+    padding: 18px 25px 0;
+  }
+
+  .admin-orders-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-orders-title {
+    align-items: flex-start;
+  }
+
+  .admin-order-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-orders-empty {
+    padding: 70px 25px;
+  }
+}
+/* =========================================
+   BOLO ADMIN DASHBOARD
+========================================= */
+
+.admin-dashboard-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(237, 21, 40, 0.1),
+      transparent 32%
+    ),
+    #050505;
+
+  color: #fff;
+}
+
+/* =========================================
+   HERO
+========================================= */
+
+.admin-dashboard-hero {
+  padding: 70px 7% 50px;
+
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.admin-dashboard-hero .red-label {
+  display: block;
+
+  margin-bottom: 15px;
+}
+
+.admin-dashboard-hero h1 {
+  margin: 0;
+
+  font-size: clamp(
+    60px,
+    8vw,
+    105px
+  );
+
+  font-weight: 900;
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+}
+
+.admin-dashboard-hero h1 span {
+  color: #ed1528;
+}
+
+.admin-dashboard-hero p {
+  max-width: 620px;
+
+  margin: 25px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+/* =========================================
+   DASHBOARD CONTENT
+========================================= */
+
+.admin-dashboard-content {
+  padding: 45px 7% 90px;
+}
+
+.admin-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+
+  max-width: 1200px;
+
+  margin: 0 auto;
+}
+
+/* =========================================
+   DASHBOARD CARDS
+========================================= */
+
+.admin-dashboard-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 270px;
+
+  padding: 28px;
+
+  overflow: hidden;
+
+  border: 1px solid #202020;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0d0d0d,
+      #080808
+    );
+
+  color: white;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+a.admin-dashboard-card {
+  cursor: pointer;
+}
+
+a.admin-dashboard-card:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(237, 21, 40, 0.65);
+
+  background:
+    linear-gradient(
+      145deg,
+      #111,
+      #090909
+    );
+}
+
+/* RED GLOW */
+
+.admin-dashboard-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 170px;
+  height: 170px;
+
+  right: -90px;
+  top: -90px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(237, 21, 40, 0.1);
+
+  filter: blur(20px);
+
+  pointer-events: none;
+}
+
+/* ICON */
+
+.admin-dashboard-icon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 48px;
+  height: 48px;
+
+  margin-bottom: 28px;
+
+  border: 1px solid #292929;
+
+  border-radius: 10px;
+
+  background: #111;
+
+  font-size: 21px;
+}
+
+/* SMALL LABEL */
+
+.admin-dashboard-card > span {
+  margin-bottom: 8px;
+
+  color: #ed1528;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.4px;
+}
+
+/* TITLE */
+
+.admin-dashboard-card h2 {
+  margin: 0 0 12px;
+
+  color: #fff;
+
+  font-size: 25px;
+
+  font-weight: 800;
+}
+
+/* DESCRIPTION */
+
+.admin-dashboard-card p {
+  max-width: 430px;
+
+  margin: 0 0 25px;
+
+  color: #777;
+
+  font-size: 11px;
+
+  line-height: 1.7;
+}
+
+/* BOTTOM ACTION */
+
+.admin-dashboard-card > strong {
+  margin-top: auto;
+
+  color: #fff;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.4px;
+}
+
+a.admin-dashboard-card:hover
+  > strong {
+  color: #ed1528;
+}
+
+/* =========================================
+   ACCESS DENIED
+========================================= */
+
+.admin-access-denied {
+  min-height: 70vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding: 70px 7%;
+}
+
+.admin-access-denied h1 {
+  margin: 15px 0 20px;
+
+  font-size: clamp(
+    60px,
+    8vw,
+    100px
+  );
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+}
+
+.admin-access-denied h1 span {
+  color: #ed1528;
+}
+
+.admin-access-denied p {
+  margin: 0 0 30px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-dashboard-card {
+    min-height: 240px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .admin-dashboard-hero {
+    padding:
+      50px 22px
+      35px;
+  }
+
+  .admin-dashboard-hero h1 {
+    font-size: 54px;
+
+    letter-spacing: -3px;
+  }
+
+  .admin-dashboard-content {
+    padding:
+      30px 22px
+      70px;
+  }
+
+  .admin-dashboard-card {
+    min-height: 220px;
+
+    padding: 22px;
+  }
+
+  .admin-dashboard-card h2 {
+    font-size: 22px;
+  }
+
+  .admin-access-denied {
+    padding: 60px 22px;
+  }
+}

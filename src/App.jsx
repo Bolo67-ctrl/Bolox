@@ -30,6 +30,10 @@ import SensitivityGenerator from "./pages/SensitivityGenerator";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import PublicProfile from "./pages/PublicProfile";
+import AimNeck from "./pages/AimNeck";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./pages/AdminOrders";
+import MyPurchases from "./pages/MyPurchases";
 
 import {
   auth,
@@ -270,9 +274,9 @@ function Navbar() {
 
       if (
         notification.type ===
-        "like" ||
+          "like" ||
         notification.type ===
-        "comment"
+          "comment"
       ) {
         return "/community";
       }
@@ -281,7 +285,7 @@ function Navbar() {
     };
 
   /* =========================================
-     LOGIN / LOGOUT
+     LOGIN
   ========================================= */
 
   const handleLogin = async () => {
@@ -297,6 +301,10 @@ function Navbar() {
       );
     }
   };
+
+  /* =========================================
+     LOGOUT
+  ========================================= */
 
   const handleLogout = async () => {
     try {
@@ -356,9 +364,15 @@ function Navbar() {
           </Link>
 
           {user && (
-            <Link to="/profile">
-              Profile
-            </Link>
+            <>
+              <Link to="/profile">
+                Profile
+              </Link>
+
+              <Link to="/purchases">
+                Purchases
+              </Link>
+            </>
           )}
 
         </nav>
@@ -389,9 +403,7 @@ function Navbar() {
 
             <div className="user-nav">
 
-              {/* =========================
-                  NOTIFICATION BELL
-              ========================= */}
+              {/* NOTIFICATIONS */}
 
               <div className="notification-wrapper">
 
@@ -411,15 +423,15 @@ function Navbar() {
 
                   {unreadCount > 0 && (
                     <span className="notification-badge">
+
                       {unreadCount > 99
                         ? "99+"
                         : unreadCount}
+
                     </span>
                   )}
 
                 </button>
-
-                {/* DROPDOWN */}
 
                 {notificationsOpen && (
                   <div className="notification-dropdown">
@@ -427,6 +439,7 @@ function Navbar() {
                     <div className="notification-header">
 
                       <div>
+
                         <strong>
                           Notifications
                         </strong>
@@ -434,6 +447,7 @@ function Navbar() {
                         <span>
                           {unreadCount} unread
                         </span>
+
                       </div>
 
                       {unreadCount > 0 && (
@@ -520,15 +534,19 @@ function Navbar() {
                                 <div className="notification-content">
 
                                   <p>
+
                                     <strong>
                                       {notification.actorName ||
                                         "BOLOX Player"}
                                     </strong>{" "}
+
                                     {notification.message ||
                                       "sent you a notification."}
+
                                   </p>
 
                                   <small>
+
                                     {notification.type ===
                                     "follow"
                                       ? "New follower"
@@ -539,6 +557,7 @@ function Navbar() {
                                             "comment"
                                           ? "New comment"
                                           : "BOLOX"}
+
                                   </small>
 
                                 </div>
@@ -594,8 +613,6 @@ function Navbar() {
                 </div>
 
               </Link>
-
-              {/* LOGOUT */}
 
               <button
                 className="logout-btn"
@@ -684,9 +701,9 @@ function Footer() {
         </p>
 
         <p className="footer-disclaimer">
-          BOLOX is an independent gaming platform
-          and is not affiliated with or endorsed by
-          Garena or Free Fire.
+          BOLOX is an independent gaming
+          platform and is not affiliated with
+          or endorsed by Garena or Free Fire.
         </p>
 
       </div>
@@ -739,9 +756,9 @@ function Home() {
           </h1>
 
           <p>
-            Premium configs, sensitivity tools
-            and gaming resources built for
-            competitive Free Fire players.
+            Premium configs, sensitivity
+            tools and gaming resources built
+            for competitive Free Fire players.
           </p>
 
           <div className="hero-buttons">
@@ -848,10 +865,14 @@ function App() {
 
       <Routes>
 
+        {/* HOME */}
+
         <Route
           path="/"
           element={<Home />}
         />
+
+        {/* STORE */}
 
         <Route
           path="/store"
@@ -862,6 +883,8 @@ function App() {
           }
         />
 
+        {/* SENSITIVITY */}
+
         <Route
           path="/store/sensitivity"
           element={
@@ -870,6 +893,19 @@ function App() {
             </PageLayout>
           }
         />
+
+        {/* AIM NECK */}
+
+        <Route
+          path="/store/aim-neck"
+          element={
+            <PageLayout>
+              <AimNeck />
+            </PageLayout>
+          }
+        />
+
+        {/* PROFILE */}
 
         <Route
           path="/profile"
@@ -880,6 +916,19 @@ function App() {
           }
         />
 
+        {/* PURCHASES */}
+
+        <Route
+          path="/purchases"
+          element={
+            <PageLayout>
+              <MyPurchases />
+            </PageLayout>
+          }
+        />
+
+        {/* COMMUNITY */}
+
         <Route
           path="/community"
           element={
@@ -889,6 +938,8 @@ function App() {
           }
         />
 
+        {/* PUBLIC PROFILE */}
+
         <Route
           path="/player/:userId"
           element={
@@ -897,6 +948,32 @@ function App() {
             </PageLayout>
           }
         />
+
+        {/* ===============================
+            ADMIN DASHBOARD
+        =============================== */}
+
+        <Route
+          path="/admin"
+          element={
+            <PageLayout>
+              <AdminDashboard />
+            </PageLayout>
+          }
+        />
+
+        {/* ADMIN ORDERS */}
+
+        <Route
+          path="/admin/orders"
+          element={
+            <PageLayout>
+              <AdminOrders />
+            </PageLayout>
+          }
+        />
+
+        {/* PREMIUM */}
 
         <Route
           path="/premium"
