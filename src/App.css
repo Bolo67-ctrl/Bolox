@@ -5010,3 +5010,459 @@ a.admin-dashboard-card:hover
     padding: 60px 22px;
   }
 }
+/* =========================================
+   BOLO MY PURCHASES
+========================================= */
+
+.purchases-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(237, 21, 40, 0.1),
+      transparent 32%
+    ),
+    #050505;
+
+  color: #fff;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.purchases-header {
+  padding: 70px 7% 50px;
+
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.purchases-header .red-label {
+  display: block;
+
+  margin-bottom: 15px;
+}
+
+.purchases-header h1 {
+  margin: 0;
+
+  font-size: clamp(
+    60px,
+    8vw,
+    105px
+  );
+
+  font-weight: 900;
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+}
+
+.purchases-header h1 span {
+  color: #ed1528;
+}
+
+.purchases-header p {
+  max-width: 620px;
+
+  margin: 25px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+/* =========================================
+   PURCHASE CONTENT
+========================================= */
+
+.purchases-content {
+  padding: 45px 7% 90px;
+}
+
+.purchase-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+
+  max-width: 1200px;
+
+  margin: 0 auto;
+}
+
+/* =========================================
+   PURCHASE CARD
+========================================= */
+
+.purchase-card {
+  padding: 26px;
+
+  border: 1px solid #202020;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0d0d0d,
+      #080808
+    );
+}
+
+.purchase-card-top {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #202020;
+}
+
+.purchase-card-top > div > span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #666;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+.purchase-card-top h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: 25px;
+}
+
+/* =========================================
+   STATUS
+========================================= */
+
+.purchase-status {
+  flex-shrink: 0;
+
+  padding: 7px 11px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.purchase-status.pending {
+  border: 1px solid
+    rgba(255, 179, 0, 0.3);
+
+  background:
+    rgba(255, 179, 0, 0.1);
+
+  color: #ffb300;
+}
+
+.purchase-status.approved {
+  border: 1px solid
+    rgba(0, 200, 110, 0.3);
+
+  background:
+    rgba(0, 200, 110, 0.1);
+
+  color: #00c86e;
+}
+
+.purchase-status.rejected {
+  border: 1px solid
+    rgba(237, 21, 40, 0.3);
+
+  background:
+    rgba(237, 21, 40, 0.1);
+
+  color: #ed1528;
+}
+
+/* =========================================
+   ORDER DETAILS
+========================================= */
+
+.purchase-details {
+  padding: 15px 0;
+}
+
+.purchase-details > div {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 11px 0;
+
+  border-bottom: 1px solid #171717;
+}
+
+.purchase-details > div:last-child {
+  border-bottom: none;
+}
+
+.purchase-details span {
+  color: #666;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.purchase-details strong {
+  color: #fff;
+
+  font-size: 11px;
+
+  text-align: right;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   ACCESS BOX
+========================================= */
+
+.purchase-access {
+  margin-top: 10px;
+
+  padding: 20px;
+
+  border-radius: 10px;
+
+  background: #0b0b0b;
+}
+
+.purchase-access > span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.purchase-access h3 {
+  margin: 0 0 10px;
+
+  color: #fff;
+
+  font-size: 18px;
+}
+
+.purchase-access p {
+  margin: 0 0 12px;
+
+  color: #777;
+
+  font-size: 10px;
+
+  line-height: 1.7;
+}
+
+.purchase-access small {
+  display: block;
+
+  margin-top: 12px;
+
+  color: #555;
+
+  font-size: 8px;
+
+  line-height: 1.6;
+}
+
+/* PENDING */
+
+.purchase-access.pending {
+  border: 1px solid
+    rgba(255, 179, 0, 0.2);
+}
+
+.purchase-access.pending > span {
+  color: #ffb300;
+}
+
+/* APPROVED */
+
+.purchase-access.approved {
+  border: 1px solid
+    rgba(0, 200, 110, 0.25);
+}
+
+.purchase-access.approved > span {
+  color: #00c86e;
+}
+
+/* REJECTED */
+
+.purchase-access.rejected {
+  border: 1px solid
+    rgba(237, 21, 40, 0.25);
+}
+
+.purchase-access.rejected > span {
+  color: #ed1528;
+}
+
+/* =========================================
+   ACCESS BUTTON
+========================================= */
+
+.purchase-access-btn {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin-top: 5px;
+
+  padding: 11px 16px;
+
+  border: 1px solid #ed1528;
+
+  border-radius: 7px;
+
+  background: #ed1528;
+
+  color: #fff;
+
+  text-decoration: none;
+
+  font-size: 9px;
+
+  font-weight: 900;
+}
+
+.purchase-access-btn:hover {
+  opacity: 0.9;
+}
+
+.purchase-access-btn.secondary {
+  border-color: #333;
+
+  background: #111;
+
+  color: #aaa;
+}
+
+/* =========================================
+   SIGN-IN PAGE
+========================================= */
+
+.purchases-login {
+  min-height: 70vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding: 70px 7%;
+}
+
+.purchases-login h1 {
+  margin: 15px 0 20px;
+
+  font-size: clamp(
+    60px,
+    8vw,
+    100px
+  );
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+}
+
+.purchases-login h1 span {
+  color: #ed1528;
+}
+
+.purchases-login p {
+  max-width: 520px;
+
+  margin: 0 0 30px;
+
+  color: #777;
+
+  line-height: 1.7;
+}
+
+/* =========================================
+   TABLET / MOBILE
+========================================= */
+
+@media (max-width: 900px) {
+
+  .purchase-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .purchases-header {
+    padding:
+      50px 22px
+      35px;
+  }
+
+  .purchases-header h1 {
+    font-size: 54px;
+
+    letter-spacing: -3px;
+  }
+
+  .purchases-content {
+    padding:
+      30px 22px
+      70px;
+  }
+
+  .purchase-card {
+    padding: 20px;
+  }
+
+  .purchase-card-top {
+    flex-direction: column;
+  }
+
+  .purchases-login {
+    padding: 60px 22px;
+  }
+}
