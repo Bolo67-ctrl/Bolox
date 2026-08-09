@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
+
+import {
+  onAuthStateChanged,
+} from "firebase/auth";
+
 import {
   collection,
   onSnapshot,
@@ -8,25 +12,33 @@ import {
   query,
 } from "firebase/firestore";
 
-import { auth, db } from "../firebase";
-import { supabase } from "../supabase";
+import {
+  auth,
+  db,
+} from "../firebase";
 
 const ADMIN_UID =
   "YtzsZiecGMVXD5I4PEDVYj1c0uf1";
 
 function AdminFiles() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] =
+    useState(null);
+
   const [authReady, setAuthReady] =
     useState(false);
 
   const [products, setProducts] =
     useState([]);
 
-  const [selectedProduct, setSelectedProduct] =
-    useState("");
+  const [
+    selectedProduct,
+    setSelectedProduct,
+  ] = useState("");
 
-  const [selectedFile, setSelectedFile] =
-    useState(null);
+  const [
+    selectedFile,
+    setSelectedFile,
+  ] = useState(null);
 
   const [uploading, setUploading] =
     useState(false);
@@ -36,6 +48,10 @@ function AdminFiles() {
 
   const [error, setError] =
     useState("");
+
+  /* =========================================
+     AUTH
+  ========================================= */
 
   useEffect(() => {
     const unsubscribe =
@@ -53,31 +69,51 @@ function AdminFiles() {
   const isAdmin =
     user?.uid === ADMIN_UID;
 
+  /* =========================================
+     LOAD PRODUCTS
+  ========================================= */
+
   useEffect(() => {
     if (!isAdmin) {
       setProducts([]);
       return;
     }
 
-    const productsQuery = query(
-      collection(db, "products"),
-      orderBy("createdAt", "desc")
-    );
+    const productsQuery =
+      query(
+        collection(
+          db,
+          "products"
+        ),
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+      );
 
     const unsubscribe =
       onSnapshot(
         productsQuery,
+
         (snapshot) => {
           const loadedProducts =
-            snapshot.docs.map((item) => ({
-              id: item.id,
-              ...item.data(),
-            }));
+            snapshot.docs.map(
+              (item) => ({
+                id: item.id,
+                ...item.data(),
+              })
+            );
 
-          setProducts(loadedProducts);
+          setProducts(
+            loadedProducts
+          );
         },
+
         (err) => {
-          console.error(err);
+          console.error(
+            "Product load error:",
+            err
+          );
 
           setError(
             "Could not load products."
@@ -88,109 +124,194 @@ function AdminFiles() {
     return unsubscribe;
   }, [isAdmin]);
 
-  const handleFileSelect = (event) => {
-    const file =
-      event.target.files?.[0];
+  /* =========================================
+     FILE SELECT
+  ========================================= */
 
-    setSelectedFile(
-      file || null
-    );
+  const handleFileSelect =
+    (event) => {
+      const file =
+        event.target.files?.[0];
 
-    setMessage("");
-    setError("");
-  };
-
-  const handleUpload = async () => {
-    if (!isAdmin) {
-      setError(
-        "Admin access required."
+      setSelectedFile(
+        file || null
       );
 
-      return;
-    }
+      setMessage("");
+      setError("");
+    };
 
-    if (!selectedProduct) {
-      setError(
-        "Choose a product first."
-      );
+  /* =========================================
+     SECURE FILE UPLOAD
+  ========================================= */
 
-      return;
-    }
-
-    if (!selectedFile) {
-      setError(
-        "Choose a file first."
-      );
-
-      return;
-    }
-
-    setUploading(true);
-    setMessage("");
-    setError("");
-
-    try {
-  const safeProductId =
-  String(selectedProduct)
-    .trim()
-    .replace(
-      /[^a-zA-Z0-9_-]/g,
-      "_"
-    );
-
-const safeFileName =
-  selectedFile.name
-    .trim()
-    .replace(
-      /[^a-zA-Z0-9._-]/g,
-      "_"
-    );
-
-const filePath =
-  `${safeProductId}/${Date.now()}-${safeFileName}`;
-
-      const {
-        error: uploadError,
-      } = await supabase.storage
-        .from("product-files")
-        .upload(
-          filePath,
-          selectedFile,
-          {
-            upsert: false,
-          }
+  const handleUpload =
+    async () => {
+      if (!isAdmin) {
+        setError(
+          "Admin access required."
         );
 
-      if (uploadError) {
-        throw uploadError;
+        return;
       }
 
-      setMessage(
-        "File uploaded successfully."
-      );
+      if (!selectedProduct) {
+        setError(
+          "Choose a product first."
+        );
 
-      setSelectedFile(null);
-    } catch (err) {
-      console.error(err);
+        return;
+      }
 
-      setError(
-        err.message ||
-          "Could not upload file."
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
+      if (!selectedFile) {
+        setError(
+          "Choose a file first."
+        );
+
+        return;
+      }
+
+      /*
+        Keep this below the current
+        backend upload limit.
+      */
+
+      if (
+        selectedFile.size >
+        4 * 1024 * 1024
+      ) {
+        setError(
+          "For now, choose a file smaller than 4 MB."
+        );
+
+        return;
+      }
+
+      setUploading(true);
+
+      setMessage("");
+      setError("");
+
+      try {
+        /* -------------------------------------
+           GET FIREBASE LOGIN TOKEN
+        ------------------------------------- */
+
+        const idToken =
+          await user.getIdToken(
+            true
+          );
+
+        /* -------------------------------------
+           BUILD FORM DATA
+        ------------------------------------- */
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "productId",
+          selectedProduct
+        );
+
+        formData.append(
+          "file",
+          selectedFile
+        );
+
+        /* -------------------------------------
+           SEND TO VERCEL BACKEND
+        ------------------------------------- */
+
+        const response =
+          await fetch(
+            "/api/upload-file",
+            {
+              method: "POST",
+
+              headers: {
+                Authorization:
+                  `Bearer ${idToken}`,
+              },
+
+              body: formData,
+            }
+          );
+
+        let result = {};
+
+        try {
+          result =
+            await response.json();
+        } catch {
+          result = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+              `Upload failed (${response.status}).`
+          );
+        }
+
+        /* -------------------------------------
+           SUCCESS
+        ------------------------------------- */
+
+        setMessage(
+          "Private file uploaded successfully."
+        );
+
+        setSelectedFile(
+          null
+        );
+
+        /*
+          Reset the file input visually.
+        */
+
+        const input =
+          document.getElementById(
+            "admin-product-file"
+          );
+
+        if (input) {
+          input.value = "";
+        }
+      } catch (err) {
+        console.error(
+          "Upload error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Could not upload file."
+        );
+      } finally {
+        setUploading(false);
+      }
+    };
+
+  /* =========================================
+     LOADING
+  ========================================= */
 
   if (!authReady) {
     return (
       <main className="admin-files-page">
+
         <div className="profile-loading">
           Loading file manager...
         </div>
+
       </main>
     );
   }
+
+  /* =========================================
+     ACCESS DENIED
+  ========================================= */
 
   if (!isAdmin) {
     return (
@@ -205,12 +326,16 @@ const filePath =
           <h1>
             ACCESS
             <br />
-            <span>DENIED.</span>
+
+            <span>
+              DENIED.
+            </span>
           </h1>
 
           <p>
-            Only the BOLO administrator can
-            manage private product files.
+            Only the BOLO administrator
+            can manage private product
+            files.
           </p>
 
           <Link
@@ -229,6 +354,10 @@ const filePath =
   return (
     <main className="admin-files-page">
 
+      {/* =====================================
+          HEADER
+      ===================================== */}
+
       <section className="admin-files-header">
 
         <Link
@@ -245,15 +374,22 @@ const filePath =
         <h1>
           MANAGE
           <br />
-          <span>FILES.</span>
+
+          <span>
+            FILES.
+          </span>
         </h1>
 
         <p>
-          Upload private files for your
-          BOLO products.
+          Upload private files and
+          connect them to BOLO products.
         </p>
 
       </section>
+
+      {/* =====================================
+          CONTENT
+      ===================================== */}
 
       <section className="admin-files-content">
 
@@ -271,17 +407,25 @@ const filePath =
 
         <div className="admin-files-card">
 
+          {/* PRODUCT */}
+
           <label>
             Product
 
             <select
-              value={selectedProduct}
-              onChange={(event) =>
+              value={
+                selectedProduct
+              }
+              onChange={(event) => {
                 setSelectedProduct(
                   event.target.value
-                )
-              }
+                );
+
+                setMessage("");
+                setError("");
+              }}
             >
+
               <option value="">
                 Select Product
               </option>
@@ -289,10 +433,15 @@ const filePath =
               {products.map(
                 (product) => (
                   <option
-                    key={product.id}
-                    value={product.id}
+                    key={
+                      product.id
+                    }
+                    value={
+                      product.id
+                    }
                   >
-                    {product.title}
+                    {product.title ||
+                      "Untitled Product"}
                   </option>
                 )
               )}
@@ -300,10 +449,13 @@ const filePath =
             </select>
           </label>
 
+          {/* FILE */}
+
           <label>
             Product File
 
             <input
+              id="admin-product-file"
               type="file"
               onChange={
                 handleFileSelect
@@ -311,11 +463,15 @@ const filePath =
             />
           </label>
 
+          {/* SELECTED FILE */}
+
           {selectedFile && (
             <div className="admin-file-selected">
 
               <strong>
-                {selectedFile.name}
+                {
+                  selectedFile.name
+                }
               </strong>
 
               <small>
@@ -330,15 +486,19 @@ const filePath =
             </div>
           )}
 
+          {/* UPLOAD */}
+
           <button
             type="button"
+            className="admin-file-upload-btn"
             onClick={
               handleUpload
             }
             disabled={
-              uploading
+              uploading ||
+              !selectedProduct ||
+              !selectedFile
             }
-            className="admin-file-upload-btn"
           >
             {uploading
               ? "Uploading..."
