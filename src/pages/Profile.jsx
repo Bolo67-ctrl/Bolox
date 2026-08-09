@@ -785,10 +785,6 @@ function Profile() {
 
         <div>
 
-          <span className="red-label">
-            BOLOX PROFILE
-          </span>
-
           <h1>
             YOUR
             <br />
