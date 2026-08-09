@@ -177,10 +177,6 @@ function MyPurchases() {
 
       <section className="purchases-header">
 
-        <span className="red-label">
-          BOLO ACCOUNT
-        </span>
-
         <h1>
           MY
           <br />
