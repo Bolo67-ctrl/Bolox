@@ -130,14 +130,24 @@ function AdminFiles() {
     setError("");
 
     try {
-      const safeFileName =
-        selectedFile.name.replace(
-          /[^a-zA-Z0-9._-]/g,
-          "_"
-        );
+  const safeProductId =
+  String(selectedProduct)
+    .trim()
+    .replace(
+      /[^a-zA-Z0-9_-]/g,
+      "_"
+    );
 
-      const filePath =
-        `${selectedProduct}/${Date.now()}-${safeFileName}`;
+const safeFileName =
+  selectedFile.name
+    .trim()
+    .replace(
+      /[^a-zA-Z0-9._-]/g,
+      "_"
+    );
+
+const filePath =
+  `${safeProductId}/${Date.now()}-${safeFileName}`;
 
       const {
         error: uploadError,
