@@ -42,10 +42,6 @@ function Settings() {
 
         <section className="settings-login">
 
-          <span className="red-label">
-            BOLO SETTINGS
-          </span>
-
           <h1>
             SIGN IN
             <br />
@@ -77,12 +73,7 @@ function Settings() {
     <main className="settings-page">
 
       <section className="settings-header">
-
-        <span className="red-label">
-          BOLO ACCOUNT
-        </span>
-
-        <h1>
+      <h1>
           SETTINGS
           <br />
           <span>CENTER.</span>
