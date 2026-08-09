@@ -6,23 +6,27 @@ import { auth } from "../firebase";
 
 /*
   IMPORTANT:
-  Replace this with the SAME Firebase UID
-  you used in your Firestore isAdmin() rule.
+  Keep the SAME Firebase UID
+  you already use for your admin account.
 */
 const ADMIN_UID = "YtzsZiecGMVXD5I4PEDVYj1c0uf1";
 
 function AdminDashboard() {
-  const [user, setUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
+  const [user, setUser] =
+    useState(null);
+
+  const [authReady, setAuthReady] =
+    useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setAuthReady(true);
-      }
-    );
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+          setUser(currentUser);
+          setAuthReady(true);
+        }
+      );
 
     return unsubscribe;
   }, []);
@@ -32,20 +36,26 @@ function AdminDashboard() {
   if (!authReady) {
     return (
       <main className="admin-dashboard-page">
+
         <div className="profile-loading">
           Loading admin dashboard...
         </div>
+
       </main>
     );
   }
 
-  /* BLOCK EVERYONE EXCEPT ADMIN */
+  /* ACCESS DENIED */
 
-  if (!user || user.uid !== ADMIN_UID) {
+  if (
+    !user ||
+    user.uid !== ADMIN_UID
+  ) {
     return (
       <main className="admin-dashboard-page">
 
         <section className="admin-access-denied">
+
           <span className="red-label">
             BOLO ADMIN
           </span>
@@ -53,12 +63,15 @@ function AdminDashboard() {
           <h1>
             ACCESS
             <br />
-            <span>DENIED.</span>
+
+            <span>
+              DENIED.
+            </span>
           </h1>
 
           <p>
-            This area is restricted to the
-            BOLO administrator.
+            This area is restricted to
+            the BOLO administrator.
           </p>
 
           <Link
@@ -67,6 +80,7 @@ function AdminDashboard() {
           >
             ← Back Home
           </Link>
+
         </section>
 
       </main>
@@ -78,6 +92,8 @@ function AdminDashboard() {
   return (
     <main className="admin-dashboard-page">
 
+      {/* HEADER */}
+
       <section className="admin-dashboard-hero">
 
         <span className="red-label">
@@ -87,74 +103,95 @@ function AdminDashboard() {
         <h1>
           ADMIN
           <br />
-          <span>DASHBOARD.</span>
+
+          <span>
+            DASHBOARD.
+          </span>
         </h1>
 
         <p>
-          Manage BOLO products, customer
-          orders and product delivery from
-          one place.
+          Manage BOLO products,
+          customer orders and product
+          delivery from one place.
         </p>
 
       </section>
+
+      {/* DASHBOARD */}
 
       <section className="admin-dashboard-content">
 
         <div className="admin-dashboard-grid">
 
-          {/* ORDERS */}
+          {/* ===============================
+              ORDERS
+          =============================== */}
 
           <Link
             to="/admin/orders"
             className="admin-dashboard-card"
           >
+
             <div className="admin-dashboard-icon">
               📦
             </div>
 
-            <span>ORDERS</span>
+            <span>
+              ORDERS
+            </span>
 
             <h2>
               Manage Orders
             </h2>
 
             <p>
-              Review pending purchases and
-              approve or reject customer
-              payments.
+              Review pending purchases
+              and approve or reject
+              customer payments.
             </p>
 
             <strong>
               Open Orders →
             </strong>
+
           </Link>
 
-          {/* PRODUCTS */}
+          {/* ===============================
+              PRODUCTS
+          =============================== */}
 
-          <div className="admin-dashboard-card">
+          <Link
+            to="/admin/products"
+            className="admin-dashboard-card"
+          >
 
             <div className="admin-dashboard-icon">
               🎯
             </div>
 
-            <span>PRODUCTS</span>
+            <span>
+              PRODUCTS
+            </span>
 
             <h2>
               Manage Products
             </h2>
 
             <p>
-              Create BOLO products, set
-              prices and manage product
-              information.
+              Create BOLO products,
+              set prices and manage
+              product information.
             </p>
 
             <strong>
-              Coming next →
+              Open Products →
             </strong>
-          </div>
 
-          {/* FILES */}
+          </Link>
+
+          {/* ===============================
+              FILES
+          =============================== */}
 
           <div className="admin-dashboard-card">
 
@@ -162,23 +199,28 @@ function AdminDashboard() {
               📁
             </div>
 
-            <span>PRODUCT FILES</span>
+            <span>
+              PRODUCT FILES
+            </span>
 
             <h2>
               Manage Files
             </h2>
 
             <p>
-              Attach private files to your
-              paid BOLO products.
+              Attach private files to
+              your paid BOLO products.
             </p>
 
             <strong>
               Coming next →
             </strong>
+
           </div>
 
-          {/* CUSTOMERS */}
+          {/* ===============================
+              CUSTOMERS
+          =============================== */}
 
           <div className="admin-dashboard-card">
 
@@ -186,7 +228,9 @@ function AdminDashboard() {
               👤
             </div>
 
-            <span>CUSTOMERS</span>
+            <span>
+              CUSTOMERS
+            </span>
 
             <h2>
               Customer Access
@@ -201,6 +245,7 @@ function AdminDashboard() {
             <strong>
               Coming next →
             </strong>
+
           </div>
 
         </div>

@@ -25,15 +25,26 @@ import {
 
 import "./App.css";
 
+/* =========================================
+   PAGES
+========================================= */
+
 import Store from "./pages/Store";
 import SensitivityGenerator from "./pages/SensitivityGenerator";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import PublicProfile from "./pages/PublicProfile";
 import AimNeck from "./pages/AimNeck";
+import MyPurchases from "./pages/MyPurchases";
+import Settings from "./pages/Settings";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
-import MyPurchases from "./pages/MyPurchases";
+import AdminProducts from "./pages/AdminProducts";
+
+/* =========================================
+   FIREBASE
+========================================= */
 
 import {
   auth,
@@ -66,7 +77,9 @@ function Navbar() {
     setNotificationsOpen,
   ] = useState(false);
 
-  /* AUTH */
+  /* =========================================
+     AUTH
+  ========================================= */
 
   useEffect(() => {
     const unsubscribe =
@@ -97,25 +110,28 @@ function Navbar() {
     return unsubscribe;
   }, []);
 
-  /* PROFILE PHOTO UPDATE */
+  /* =========================================
+     PROFILE PHOTO UPDATE
+  ========================================= */
 
   useEffect(() => {
-    const handleProfileUpdate = () => {
-      if (!auth.currentUser) {
-        return;
-      }
+    const handleProfileUpdate =
+      () => {
+        if (!auth.currentUser) {
+          return;
+        }
 
-      const savedPhoto =
-        localStorage.getItem(
-          `bolox_profile_photo_${auth.currentUser.uid}`
+        const savedPhoto =
+          localStorage.getItem(
+            `bolox_profile_photo_${auth.currentUser.uid}`
+          );
+
+        setProfilePhoto(
+          savedPhoto ||
+            auth.currentUser.photoURL ||
+            ""
         );
-
-      setProfilePhoto(
-        savedPhoto ||
-          auth.currentUser.photoURL ||
-          ""
-      );
-    };
+      };
 
     window.addEventListener(
       "bolox-profile-updated",
@@ -139,24 +155,25 @@ function Navbar() {
       return;
     }
 
-    const notificationsQuery = query(
-      collection(
-        db,
-        "users",
-        user.uid,
-        "notifications"
-      ),
-      orderBy(
-        "createdAt",
-        "desc"
-      )
-    );
+    const notificationsQuery =
+      query(
+        collection(
+          db,
+          "users",
+          user.uid,
+          "notifications"
+        ),
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+      );
 
     const unsubscribe =
       onSnapshot(
         notificationsQuery,
         (snapshot) => {
-          const loadedNotifications =
+          const loaded =
             snapshot.docs.map(
               (item) => ({
                 id: item.id,
@@ -165,7 +182,7 @@ function Navbar() {
             );
 
           setNotifications(
-            loadedNotifications
+            loaded
           );
         },
         (error) => {
@@ -199,13 +216,14 @@ function Navbar() {
       }
 
       try {
-        const notificationRef = doc(
-          db,
-          "users",
-          user.uid,
-          "notifications",
-          notification.id
-        );
+        const notificationRef =
+          doc(
+            db,
+            "users",
+            user.uid,
+            "notifications",
+            notification.id
+          );
 
         await updateDoc(
           notificationRef,
@@ -224,7 +242,9 @@ function Navbar() {
 
   const markAllNotificationsRead =
     async () => {
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       const unread =
         notifications.filter(
@@ -310,7 +330,9 @@ function Navbar() {
     try {
       setAuthError("");
 
-      setNotificationsOpen(false);
+      setNotificationsOpen(
+        false
+      );
 
       await logoutUser();
     } catch (error) {
@@ -343,7 +365,9 @@ function Navbar() {
           </span>
         </Link>
 
-        {/* NAVIGATION */}
+        {/* =====================================
+            NAVIGATION
+        ===================================== */}
 
         <nav>
 
@@ -372,38 +396,48 @@ function Navbar() {
               <Link to="/purchases">
                 Purchases
               </Link>
+
+              <Link to="/settings">
+                Settings
+              </Link>
             </>
           )}
 
         </nav>
 
-        {/* RIGHT SIDE */}
+        {/* =====================================
+            RIGHT SIDE
+        ===================================== */}
 
         <div className="nav-actions">
 
           {!user ? (
             <>
-
               <button
                 className="login-btn"
-                onClick={handleLogin}
+                onClick={
+                  handleLogin
+                }
               >
                 Login with Google
               </button>
 
               <button
                 className="signup-btn"
-                onClick={handleLogin}
+                onClick={
+                  handleLogin
+                }
               >
                 Get Started
               </button>
-
             </>
           ) : (
 
             <div className="user-nav">
 
-              {/* NOTIFICATIONS */}
+              {/* =================================
+                  NOTIFICATIONS
+              ================================= */}
 
               <div className="notification-wrapper">
 
@@ -412,7 +446,8 @@ function Navbar() {
                   className="notification-bell"
                   onClick={() =>
                     setNotificationsOpen(
-                      (open) => !open
+                      (open) =>
+                        !open
                     )
                   }
                   aria-label="Notifications"
@@ -421,10 +456,12 @@ function Navbar() {
                     🔔
                   </span>
 
-                  {unreadCount > 0 && (
+                  {unreadCount >
+                    0 && (
                     <span className="notification-badge">
 
-                      {unreadCount > 99
+                      {unreadCount >
+                      99
                         ? "99+"
                         : unreadCount}
 
@@ -450,7 +487,8 @@ function Navbar() {
 
                       </div>
 
-                      {unreadCount > 0 && (
+                      {unreadCount >
+                        0 && (
                         <button
                           type="button"
                           onClick={
@@ -479,9 +517,9 @@ function Navbar() {
                           </strong>
 
                           <p>
-                            New followers, likes
-                            and comments will
-                            appear here.
+                            New followers,
+                            likes and comments
+                            will appear here.
                           </p>
 
                         </div>
@@ -489,9 +527,14 @@ function Navbar() {
                       ) : (
 
                         notifications
-                          .slice(0, 15)
+                          .slice(
+                            0,
+                            15
+                          )
                           .map(
-                            (notification) => (
+                            (
+                              notification
+                            ) => (
 
                               <Link
                                 key={
@@ -580,7 +623,9 @@ function Navbar() {
 
               </div>
 
-              {/* PROFILE */}
+              {/* =================================
+                  PROFILE
+              ================================= */}
 
               <Link
                 to="/profile"
@@ -589,7 +634,9 @@ function Navbar() {
 
                 {profilePhoto ? (
                   <img
-                    src={profilePhoto}
+                    src={
+                      profilePhoto
+                    }
                     alt="Profile"
                     className="user-avatar"
                   />
@@ -614,9 +661,13 @@ function Navbar() {
 
               </Link>
 
+              {/* LOGOUT */}
+
               <button
                 className="logout-btn"
-                onClick={handleLogout}
+                onClick={
+                  handleLogout
+                }
               >
                 Log Out
               </button>
@@ -702,8 +753,9 @@ function Footer() {
 
         <p className="footer-disclaimer">
           BOLOX is an independent gaming
-          platform and is not affiliated with
-          or endorsed by Garena or Free Fire.
+          platform and is not affiliated
+          with or endorsed by Garena or
+          Free Fire.
         </p>
 
       </div>
@@ -716,7 +768,9 @@ function Footer() {
    PAGE LAYOUT
 ========================================= */
 
-function PageLayout({ children }) {
+function PageLayout({
+  children,
+}) {
   return (
     <div className="bolox">
 
@@ -756,9 +810,11 @@ function Home() {
           </h1>
 
           <p>
-            Premium configs, sensitivity
-            tools and gaming resources built
-            for competitive Free Fire players.
+            Premium configs,
+            sensitivity tools and
+            gaming resources built
+            for competitive Free Fire
+            players.
           </p>
 
           <div className="hero-buttons">
@@ -846,7 +902,8 @@ function Premium() {
         </h1>
 
         <p>
-          Premium features are coming soon.
+          Premium features are
+          coming soon.
         </p>
 
       </main>
@@ -927,6 +984,17 @@ function App() {
           }
         />
 
+        {/* SETTINGS */}
+
+        <Route
+          path="/settings"
+          element={
+            <PageLayout>
+              <Settings />
+            </PageLayout>
+          }
+        />
+
         {/* COMMUNITY */}
 
         <Route
@@ -949,9 +1017,9 @@ function App() {
           }
         />
 
-        {/* ===============================
+        {/* =================================
             ADMIN DASHBOARD
-        =============================== */}
+        ================================= */}
 
         <Route
           path="/admin"
@@ -962,7 +1030,22 @@ function App() {
           }
         />
 
-        {/* ADMIN ORDERS */}
+        {/* =================================
+            ADMIN PRODUCTS
+        ================================= */}
+
+        <Route
+          path="/admin/products"
+          element={
+            <PageLayout>
+              <AdminProducts />
+            </PageLayout>
+          }
+        />
+
+        {/* =================================
+            ADMIN ORDERS
+        ================================= */}
 
         <Route
           path="/admin/orders"
@@ -977,7 +1060,9 @@ function App() {
 
         <Route
           path="/premium"
-          element={<Premium />}
+          element={
+            <Premium />
+          }
         />
 
       </Routes>
