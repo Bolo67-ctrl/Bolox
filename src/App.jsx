@@ -41,6 +41,7 @@ import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
+import AdminFiles from "./pages/AdminFiles";
 
 /* =========================================
    FIREBASE
@@ -185,6 +186,7 @@ function Navbar() {
             loaded
           );
         },
+
         (error) => {
           console.error(
             "Notification error:",
@@ -365,9 +367,7 @@ function Navbar() {
           </span>
         </Link>
 
-        {/* =====================================
-            NAVIGATION
-        ===================================== */}
+        {/* NAVIGATION */}
 
         <nav>
 
@@ -405,9 +405,7 @@ function Navbar() {
 
         </nav>
 
-        {/* =====================================
-            RIGHT SIDE
-        ===================================== */}
+        {/* RIGHT SIDE */}
 
         <div className="nav-actions">
 
@@ -435,9 +433,7 @@ function Navbar() {
 
             <div className="user-nav">
 
-              {/* =================================
-                  NOTIFICATIONS
-              ================================= */}
+              {/* NOTIFICATIONS */}
 
               <div className="notification-wrapper">
 
@@ -623,9 +619,7 @@ function Navbar() {
 
               </div>
 
-              {/* =================================
-                  PROFILE
-              ================================= */}
+              {/* PROFILE */}
 
               <Link
                 to="/profile"
@@ -1039,6 +1033,19 @@ function App() {
           element={
             <PageLayout>
               <AdminProducts />
+            </PageLayout>
+          }
+        />
+
+        {/* =================================
+            ADMIN FILES
+        ================================= */}
+
+        <Route
+          path="/admin/files"
+          element={
+            <PageLayout>
+              <AdminFiles />
             </PageLayout>
           }
         />
