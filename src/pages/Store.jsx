@@ -1,103 +1,453 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+} from "react";
 
-const products = [
+import {
+  Link,
+} from "react-router-dom";
+
+import {
+  collection,
+  onSnapshot,
+} from "firebase/firestore";
+
+import {
+  db,
+} from "../firebase";
+
+/* =========================================
+   BUILT-IN BOLO PRODUCTS
+========================================= */
+
+const builtInProducts = [
   {
-    id: 1,
+    id: "aim-neck",
     category: "premium",
     icon: "🎯",
     title: "Aim Neck 80%",
     description:
       "BOLO product made for iPhone devices running iOS 17 through iOS 26.0.",
-    tags: ["IPHONE", "iOS 17–26.0", "BOLO"],
+    tags: [
+      "IPHONE",
+      "iOS 17–26.0",
+      "BOLO",
+    ],
     type: "page",
-link: "/store/aim-neck",
-price: "$20",
-button: "View Product",
+    link: "/store/aim-neck",
+    price: "$20",
+    button: "View Product",
   },
 
   {
-    id: 2,
+    id: "sensitivity-generator",
     category: "free",
     icon: "🎯",
-    title: "Free Fire Sensitivity Generator",
+    title:
+      "Free Fire Sensitivity Generator",
     description:
       "Generate personalized Free Fire sensitivity settings based on your device and play style.",
-    tags: ["FREE", "5 / DAY"],
+    tags: [
+      "FREE",
+      "5 / DAY",
+    ],
     type: "page",
     link: "/store/sensitivity",
-    button: "Generate Sensitivity",
+    button:
+      "Generate Sensitivity",
   },
 
   {
-    id: 3,
+    id: "sensitivity-pack",
     category: "free",
     icon: "📦",
-    title: "BOLO Sensitivity Pack",
+    title:
+      "BOLO Sensitivity Pack",
     description:
       "Download a BOLO sensitivity preset pack for reference and customization.",
-    tags: ["FREE", "DOWNLOAD"],
+    tags: [
+      "FREE",
+      "DOWNLOAD",
+    ],
     type: "download",
-    file: "/downloads/sensitivity-pack.json",
-    button: "Download Pack",
+    file:
+      "/downloads/sensitivity-pack.json",
+    button:
+      "Download Pack",
   },
 
   {
-    id: 4,
+    id: "hud-layout",
     category: "hud",
     icon: "🎮",
-    title: "Free Fire HUD Layout",
+    title:
+      "Free Fire HUD Layout",
     description:
       "Download a BOLO HUD layout image that you can use as a reference when arranging your controls.",
-    tags: ["HUD", "FREE"],
+    tags: [
+      "HUD",
+      "FREE",
+    ],
     type: "download",
-    file: "/downloads/hud-layout.png",
-    button: "Download HUD",
+    file:
+      "/downloads/hud-layout.png",
+    button:
+      "Download HUD",
   },
 
   {
-    id: 5,
+    id: "sensitivity-guide",
     category: "guide",
     icon: "📘",
-    title: "BOLO Sensitivity Guide",
+    title:
+      "BOLO Sensitivity Guide",
     description:
       "A downloadable guide explaining sensitivity categories and how to tune them for your play style.",
-    tags: ["GUIDE", "PDF"],
+    tags: [
+      "GUIDE",
+      "PDF",
+    ],
     type: "download",
-    file: "/downloads/sensitivity-guide.pdf",
-    button: "Download Guide",
+    file:
+      "/downloads/sensitivity-guide.pdf",
+    button:
+      "Download Guide",
   },
 
   {
-    id: 6,
+    id: "bolo-aim",
     category: "optimization",
     icon: "📡",
     title: "BOLO AIM",
     description:
       "Install the BOLO AIM DNS profile for iPhone, designed for a reliable gaming network connection.",
-    tags: ["IPHONE", "DNS", "FREE"],
+    tags: [
+      "IPHONE",
+      "DNS",
+      "FREE",
+    ],
     type: "download",
-    file: "/bolo-aim.mobileconfig",
-    button: "Install BOLO AIM",
+    file:
+      "/bolo-aim.mobileconfig",
+    button:
+      "Install BOLO AIM",
   },
 
   {
-    id: 7,
+    id: "test-file",
     category: "free",
     icon: "🧪",
     title: "BOLO Test File",
     description:
       "Test download used to verify BOLO file delivery.",
-    tags: ["TEST", "DOWNLOAD"],
+    tags: [
+      "TEST",
+      "DOWNLOAD",
+    ],
     type: "download",
-    file: "/downloads/cache_res.CfnFf59sr1SbsqQ6JqTKsEusjKs~3D",
-    button: "Download Test File",
+    file:
+      "/downloads/cache_res.CfnFf59sr1SbsqQ6JqTKsEusjKs~3D",
+    button:
+      "Download Test File",
   },
 ];
 
+/* =========================================
+   HELPERS
+========================================= */
+
+function normalizeTitle(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function formatPrice(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return "";
+  }
+
+  const price =
+    String(value).trim();
+
+  if (
+    price.startsWith("$")
+  ) {
+    return price;
+  }
+
+  return `$${price}`;
+}
+
+function createTags(product) {
+  if (
+    Array.isArray(
+      product.tags
+    ) &&
+    product.tags.length > 0
+  ) {
+    return product.tags;
+  }
+
+  const tags = [];
+
+  if (product.device) {
+    tags.push(
+      String(
+        product.device
+      ).toUpperCase()
+    );
+  }
+
+  if (
+    product.compatibility
+  ) {
+    tags.push(
+      product.compatibility
+    );
+  }
+
+  if (
+    product.iosVersion
+  ) {
+    tags.push(
+      product.iosVersion
+    );
+  }
+
+  if (
+    product.category
+  ) {
+    tags.push(
+      String(
+        product.category
+      ).toUpperCase()
+    );
+  }
+
+  if (
+    tags.length === 0
+  ) {
+    tags.push(
+      "BOLO"
+    );
+  }
+
+  return tags;
+}
+
+/* =========================================
+   STORE
+========================================= */
+
 function Store() {
-  const [activeCategory, setActiveCategory] =
-    useState("all");
+  const [
+    activeCategory,
+    setActiveCategory,
+  ] = useState("all");
+
+  const [
+    dashboardProducts,
+    setDashboardProducts,
+  ] = useState([]);
+
+  const [
+    productsLoading,
+    setProductsLoading,
+  ] = useState(true);
+
+  /* =========================================
+     LOAD ADMIN PRODUCTS
+  ========================================= */
+
+  useEffect(() => {
+    const productsRef =
+      collection(
+        db,
+        "products"
+      );
+
+    const unsubscribe =
+      onSnapshot(
+        productsRef,
+
+        (snapshot) => {
+          const loaded =
+            snapshot.docs.map(
+              (item) => {
+                const data =
+                  item.data();
+
+                const title =
+                  data.title ||
+                  data.name ||
+                  "Untitled Product";
+
+                /*
+                  If this is Aim Neck,
+                  connect it to the
+                  existing Aim Neck page.
+                */
+
+                const isAimNeck =
+                  normalizeTitle(
+                    title
+                  ).includes(
+                    "aim neck"
+                  );
+
+                return {
+                  id:
+                    `firestore-${item.id}`,
+
+                  firestoreId:
+                    item.id,
+
+                  category:
+                    String(
+                      data.category ||
+                      "premium"
+                    ).toLowerCase(),
+
+                  icon:
+                    data.icon ||
+                    "🎯",
+
+                  title,
+
+                  description:
+                    data.description ||
+                    "BOLO premium product.",
+
+                  tags:
+                    createTags(
+                      data
+                    ),
+
+                  price:
+                    formatPrice(
+                      data.price
+                    ),
+
+                  type:
+                    isAimNeck
+                      ? "page"
+                      : "paid",
+
+                  link:
+                    isAimNeck
+                      ? "/store/aim-neck"
+                      : "",
+
+                  button:
+                    isAimNeck
+                      ? "View Product"
+                      : "Premium Product",
+                };
+              }
+            );
+
+          setDashboardProducts(
+            loaded
+          );
+
+          setProductsLoading(
+            false
+          );
+        },
+
+        (error) => {
+          console.error(
+            "Store product error:",
+            error
+          );
+
+          setProductsLoading(
+            false
+          );
+        }
+      );
+
+    return unsubscribe;
+  }, []);
+
+  /* =========================================
+     MERGE BUILT-IN + ADMIN PRODUCTS
+
+     If an Admin Product has the same
+     title as a built-in product,
+     the Admin Product replaces it.
+  ========================================= */
+
+  const products = [
+    ...builtInProducts,
+  ];
+
+  dashboardProducts.forEach(
+    (dashboardProduct) => {
+      const existingIndex =
+        products.findIndex(
+          (product) =>
+            normalizeTitle(
+              product.title
+            ) ===
+            normalizeTitle(
+              dashboardProduct.title
+            )
+        );
+
+      if (
+        existingIndex !== -1
+      ) {
+        const existing =
+          products[
+            existingIndex
+          ];
+
+        products[
+          existingIndex
+        ] = {
+          ...existing,
+          ...dashboardProduct,
+
+          /*
+            Preserve an existing page
+            route/download when the
+            admin product doesn't
+            provide one.
+          */
+
+          type:
+            dashboardProduct.type ||
+            existing.type,
+
+          link:
+            dashboardProduct.link ||
+            existing.link,
+
+          file:
+            dashboardProduct.file ||
+            existing.file,
+
+          button:
+            dashboardProduct.button ||
+            existing.button,
+        };
+      } else {
+        products.push(
+          dashboardProduct
+        );
+      }
+    }
+  );
+
+  /* =========================================
+     FILTER
+  ========================================= */
 
   const filteredProducts =
     activeCategory === "all"
@@ -111,7 +461,9 @@ function Store() {
   return (
     <main className="store-page">
 
-      {/* HERO */}
+      {/* =====================================
+          HERO
+      ===================================== */}
 
       <section className="store-hero">
 
@@ -124,6 +476,7 @@ function Store() {
           <h1>
             LEVEL UP
             <br />
+
             <span>
               YOUR GAME.
             </span>
@@ -131,8 +484,9 @@ function Store() {
 
           <p>
             Explore BOLO products,
-            sensitivity tools, HUD resources,
-            guides and downloads.
+            sensitivity tools, HUD
+            resources, guides and
+            downloads.
           </p>
 
         </div>
@@ -155,7 +509,9 @@ function Store() {
 
       </section>
 
-      {/* STORE */}
+      {/* =====================================
+          STORE
+      ===================================== */}
 
       <section className="store-content">
 
@@ -166,12 +522,15 @@ function Store() {
           <button
             type="button"
             className={
-              activeCategory === "all"
+              activeCategory ===
+              "all"
                 ? "filter-active"
                 : ""
             }
             onClick={() =>
-              setActiveCategory("all")
+              setActiveCategory(
+                "all"
+              )
             }
           >
             All
@@ -180,12 +539,15 @@ function Store() {
           <button
             type="button"
             className={
-              activeCategory === "free"
+              activeCategory ===
+              "free"
                 ? "filter-active"
                 : ""
             }
             onClick={() =>
-              setActiveCategory("free")
+              setActiveCategory(
+                "free"
+              )
             }
           >
             Free Tools
@@ -194,12 +556,15 @@ function Store() {
           <button
             type="button"
             className={
-              activeCategory === "premium"
+              activeCategory ===
+              "premium"
                 ? "filter-active"
                 : ""
             }
             onClick={() =>
-              setActiveCategory("premium")
+              setActiveCategory(
+                "premium"
+              )
             }
           >
             Premium
@@ -208,12 +573,15 @@ function Store() {
           <button
             type="button"
             className={
-              activeCategory === "hud"
+              activeCategory ===
+              "hud"
                 ? "filter-active"
                 : ""
             }
             onClick={() =>
-              setActiveCategory("hud")
+              setActiveCategory(
+                "hud"
+              )
             }
           >
             HUD
@@ -222,12 +590,15 @@ function Store() {
           <button
             type="button"
             className={
-              activeCategory === "guide"
+              activeCategory ===
+              "guide"
                 ? "filter-active"
                 : ""
             }
             onClick={() =>
-              setActiveCategory("guide")
+              setActiveCategory(
+                "guide"
+              )
             }
           >
             Guides
@@ -252,12 +623,23 @@ function Store() {
 
         </div>
 
+        {/* LOADING */}
+
+        {productsLoading && (
+          <div className="profile-loading">
+            Loading BOLO products...
+          </div>
+        )}
+
         {/* PRODUCTS */}
 
         <div className="store-products">
 
           {filteredProducts.map(
-            (product) => (
+            (
+              product,
+              index
+            ) => (
 
               <div
                 className="store-product"
@@ -272,8 +654,11 @@ function Store() {
 
                   <span className="store-product-number">
                     {String(
-                      product.id
-                    ).padStart(2, "0")}
+                      index + 1
+                    ).padStart(
+                      2,
+                      "0"
+                    )}
                   </span>
 
                 </div>
@@ -286,12 +671,16 @@ function Store() {
 
                   {product.price && (
                     <div className="store-product-price">
-                      {product.price}
+                      {
+                        product.price
+                      }
                     </div>
                   )}
 
                   <p>
-                    {product.description}
+                    {
+                      product.description
+                    }
                   </p>
 
                 </div>
@@ -301,8 +690,15 @@ function Store() {
                   <div className="store-tags">
 
                     {product.tags.map(
-                      (tag) => (
-                        <span key={tag}>
+                      (
+                        tag,
+                        tagIndex
+                      ) => (
+                        <span
+                          key={
+                            `${tag}-${tagIndex}`
+                          }
+                        >
                           {tag}
                         </span>
                       )
@@ -310,22 +706,35 @@ function Store() {
 
                   </div>
 
+                  {/* PAGE */}
+
                   {product.type ===
                   "page" ? (
 
                     <Link
-                      to={product.link}
+                      to={
+                        product.link
+                      }
                       className="store-action"
                     >
-                      {product.button}
-                      <span>→</span>
+                      {
+                        product.button
+                      }
+
+                      <span>
+                        →
+                      </span>
                     </Link>
 
                   ) : product.type ===
                     "download" ? (
 
+                    /* DOWNLOAD */
+
                     <a
-                      href={product.file}
+                      href={
+                        product.file
+                      }
                       className="store-action"
                       download={
                         !product.file.endsWith(
@@ -333,23 +742,35 @@ function Store() {
                         )
                       }
                     >
-                      {product.button}
-                      <span>↓</span>
+                      {
+                        product.button
+                      }
+
+                      <span>
+                        ↓
+                      </span>
                     </a>
 
-                  ) : product.type ===
-                    "paid" ? (
+                  ) : (
+
+                    /* ADMIN-CREATED PREMIUM PRODUCT */
 
                     <button
                       type="button"
                       className="store-action"
                       disabled
                     >
-                      {product.button}
-                      <span>→</span>
+                      {
+                        product.button ||
+                        "Premium Product"
+                      }
+
+                      <span>
+                        →
+                      </span>
                     </button>
 
-                  ) : null}
+                  )}
 
                 </div>
 
@@ -362,7 +783,9 @@ function Store() {
 
       </section>
 
-      {/* BOLO AIM */}
+      {/* =====================================
+          BOLO AIM
+      ===================================== */}
 
       <section className="bolo-aim-section">
 
@@ -377,20 +800,32 @@ function Store() {
           </div>
 
           <h2>
-            BOLO <span>AIM</span>
+            BOLO{" "}
+            <span>
+              AIM
+            </span>
           </h2>
 
           <p>
-            Install the BOLO AIM DNS profile
-            on your iPhone for a reliable
-            gaming network setup.
+            Install the BOLO AIM DNS
+            profile on your iPhone for
+            a reliable gaming network
+            setup.
           </p>
 
           <div className="bolo-aim-tags">
 
-            <span>iOS</span>
-            <span>DNS</span>
-            <span>FREE</span>
+            <span>
+              iOS
+            </span>
+
+            <span>
+              DNS
+            </span>
+
+            <span>
+              FREE
+            </span>
 
           </div>
 
@@ -402,16 +837,19 @@ function Store() {
           </a>
 
           <small>
-            BOLO AIM changes DNS settings.
-            It does not modify Free Fire
-            aim or game files.
+            BOLO AIM changes DNS
+            settings. It does not
+            modify Free Fire aim or
+            game files.
           </small>
 
         </div>
 
       </section>
 
-      {/* GENERATOR */}
+      {/* =====================================
+          GENERATOR
+      ===================================== */}
 
       <section className="generator-preview">
 
@@ -424,35 +862,46 @@ function Store() {
           <h2>
             Your sensitivity.
             <br />
+
             <span>
               Your way.
             </span>
           </h2>
 
           <p>
-            Choose your device and play
-            style to generate a personalized
-            sensitivity setup.
+            Choose your device and
+            play style to generate a
+            personalized sensitivity
+            setup.
           </p>
 
           <div className="generator-info">
 
             <div>
-              <strong>5</strong>
+              <strong>
+                5
+              </strong>
+
               <span>
                 FREE GENERATIONS
               </span>
             </div>
 
             <div>
-              <strong>FREE</strong>
+              <strong>
+                FREE
+              </strong>
+
               <span>
                 TO USE
               </span>
             </div>
 
             <div>
-              <strong>FF</strong>
+              <strong>
+                FF
+              </strong>
+
               <span>
                 ONLY
               </span>
@@ -486,28 +935,53 @@ function Store() {
             </div>
 
             <div className="setting-row">
-              <span>General</span>
-              <strong>187</strong>
+              <span>
+                General
+              </span>
+
+              <strong>
+                187
+              </strong>
             </div>
 
             <div className="setting-row">
-              <span>Red Dot</span>
-              <strong>174</strong>
+              <span>
+                Red Dot
+              </span>
+
+              <strong>
+                174
+              </strong>
             </div>
 
             <div className="setting-row">
-              <span>2X Scope</span>
-              <strong>161</strong>
+              <span>
+                2X Scope
+              </span>
+
+              <strong>
+                161
+              </strong>
             </div>
 
             <div className="setting-row">
-              <span>4X Scope</span>
-              <strong>148</strong>
+              <span>
+                4X Scope
+              </span>
+
+              <strong>
+                148
+              </strong>
             </div>
 
             <div className="setting-row">
-              <span>Sniper Scope</span>
-              <strong>92</strong>
+              <span>
+                Sniper Scope
+              </span>
+
+              <strong>
+                92
+              </strong>
             </div>
 
           </div>
@@ -516,7 +990,9 @@ function Store() {
 
       </section>
 
-      {/* PREMIUM */}
+      {/* =====================================
+          PREMIUM
+      ===================================== */}
 
       <section className="store-premium">
 
@@ -529,14 +1005,16 @@ function Store() {
           <h2>
             Premium
             <br />
+
             <span>
               products.
             </span>
           </h2>
 
           <p>
-            Premium BOLO products with
-            protected payment and delivery.
+            Premium BOLO products
+            with protected payment
+            and delivery.
           </p>
 
         </div>
@@ -544,22 +1022,30 @@ function Store() {
         <div className="premium-list">
 
           <div>
-            <span>01</span>
-            Aim Neck 80%
+            <span>
+              01
+            </span>
+            Admin-managed products
           </div>
 
           <div>
-            <span>02</span>
+            <span>
+              02
+            </span>
             Protected purchase
           </div>
 
           <div>
-            <span>03</span>
+            <span>
+              03
+            </span>
             Account purchase history
           </div>
 
           <div>
-            <span>04</span>
+            <span>
+              04
+            </span>
             Protected product delivery
           </div>
 
