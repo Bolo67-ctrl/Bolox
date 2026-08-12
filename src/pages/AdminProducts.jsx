@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  Link,
+} from "react-router-dom";
 
 import {
   addDoc,
@@ -50,7 +56,9 @@ function AdminProducts() {
   const [error, setError] =
     useState("");
 
-  /* PRODUCT FORM */
+  /* =========================================
+     PRODUCT FORM
+  ========================================= */
 
   const [title, setTitle] =
     useState("");
@@ -64,11 +72,27 @@ function AdminProducts() {
   const [device, setDevice] =
     useState("iPhone");
 
-  const [compatibility, setCompatibility] =
-    useState("");
+  const [
+    compatibility,
+    setCompatibility,
+  ] = useState("");
 
   const [category, setCategory] =
     useState("premium");
+
+  /* =========================================
+     PRODUCT IMAGE
+  ========================================= */
+
+  const [
+    productImage,
+    setProductImage,
+  ] = useState(null);
+
+  const [
+    imagePreview,
+    setImagePreview,
+  ] = useState("");
 
   /* =========================================
      AUTH
@@ -91,6 +115,20 @@ function AdminProducts() {
     user?.uid === ADMIN_UID;
 
   /* =========================================
+     CLEAN IMAGE PREVIEW
+  ========================================= */
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(
+          imagePreview
+        );
+      }
+    };
+  }, [imagePreview]);
+
+  /* =========================================
      LOAD PRODUCTS
   ========================================= */
 
@@ -103,20 +141,22 @@ function AdminProducts() {
 
     setLoading(true);
 
-    const productsQuery = query(
-      collection(
-        db,
-        "products"
-      ),
-      orderBy(
-        "createdAt",
-        "desc"
-      )
-    );
+    const productsQuery =
+      query(
+        collection(
+          db,
+          "products"
+        ),
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+      );
 
     const unsubscribe =
       onSnapshot(
         productsQuery,
+
         (snapshot) => {
           const loaded =
             snapshot.docs.map(
@@ -126,11 +166,17 @@ function AdminProducts() {
               })
             );
 
-          setProducts(loaded);
+          setProducts(
+            loaded
+          );
+
           setLoading(false);
         },
+
         (err) => {
-          console.error(err);
+          console.error(
+            err
+          );
 
           setError(
             "Could not load products."
@@ -144,6 +190,146 @@ function AdminProducts() {
   }, [isAdmin]);
 
   /* =========================================
+     IMAGE SELECT
+  ========================================= */
+
+  const handleImageSelect =
+    (event) => {
+      const file =
+        event.target.files?.[0];
+
+      if (!file) {
+        setProductImage(
+          null
+        );
+
+        setImagePreview(
+          ""
+        );
+
+        return;
+      }
+
+      if (
+        !file.type.startsWith(
+          "image/"
+        )
+      ) {
+        setError(
+          "Choose an image file."
+        );
+
+        event.target.value =
+          "";
+
+        return;
+      }
+
+      if (
+        file.size >
+        4 * 1024 * 1024
+      ) {
+        setError(
+          "Choose an image smaller than 4 MB."
+        );
+
+        event.target.value =
+          "";
+
+        return;
+      }
+
+      setError("");
+      setMessage("");
+
+      setProductImage(
+        file
+      );
+
+      if (imagePreview) {
+        URL.revokeObjectURL(
+          imagePreview
+        );
+      }
+
+      setImagePreview(
+        URL.createObjectURL(
+          file
+        )
+      );
+    };
+
+  /* =========================================
+     UPLOAD PRODUCT IMAGE
+  ========================================= */
+
+  const uploadProductImage =
+    async () => {
+      if (!productImage) {
+        return {
+          imageUrl: "",
+          imagePath: "",
+        };
+      }
+
+      const idToken =
+        await user.getIdToken(
+          true
+        );
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "file",
+        productImage
+      );
+
+      const response =
+        await fetch(
+          "/api/upload-product-image",
+          {
+            method:
+              "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${idToken}`,
+            },
+
+            body:
+              formData,
+          }
+        );
+
+      let result = {};
+
+      try {
+        result =
+          await response.json();
+      } catch {
+        result = {};
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+            `Image upload failed (${response.status}).`
+        );
+      }
+
+      return {
+        imageUrl:
+          result.imageUrl ||
+          "",
+
+        imagePath:
+          result.path ||
+          "",
+      };
+    };
+
+  /* =========================================
      CREATE PRODUCT
   ========================================= */
 
@@ -155,6 +341,7 @@ function AdminProducts() {
         setError(
           "Admin access required."
         );
+
         return;
       }
 
@@ -165,27 +352,55 @@ function AdminProducts() {
         setError(
           "Enter a product name and price."
         );
+
         return;
       }
 
       const numericPrice =
-        Number(price);
+        Number(
+          price
+        );
 
       if (
-        Number.isNaN(numericPrice) ||
+        Number.isNaN(
+          numericPrice
+        ) ||
         numericPrice < 0
       ) {
         setError(
           "Enter a valid price."
         );
+
         return;
       }
 
-      setSaving(true);
-      setError("");
-      setMessage("");
+      setSaving(
+        true
+      );
+
+      setError(
+        ""
+      );
+
+      setMessage(
+        ""
+      );
 
       try {
+        /* -------------------------------------
+           UPLOAD IMAGE FIRST
+        ------------------------------------- */
+
+        const {
+          imageUrl,
+          imagePath,
+        } =
+          await uploadProductImage();
+
+        /* -------------------------------------
+           SAVE PRODUCT
+        ------------------------------------- */
+
         await addDoc(
           collection(
             db,
@@ -209,6 +424,10 @@ function AdminProducts() {
 
             category,
 
+            imageUrl,
+
+            imagePath,
+
             active:
               true,
 
@@ -220,24 +439,74 @@ function AdminProducts() {
           }
         );
 
-        setTitle("");
-        setPrice("");
-        setDescription("");
-        setDevice("iPhone");
-        setCompatibility("");
-        setCategory("premium");
+        /* -------------------------------------
+           RESET FORM
+        ------------------------------------- */
+
+        setTitle(
+          ""
+        );
+
+        setPrice(
+          ""
+        );
+
+        setDescription(
+          ""
+        );
+
+        setDevice(
+          "iPhone"
+        );
+
+        setCompatibility(
+          ""
+        );
+
+        setCategory(
+          "premium"
+        );
+
+        setProductImage(
+          null
+        );
+
+        if (imagePreview) {
+          URL.revokeObjectURL(
+            imagePreview
+          );
+        }
+
+        setImagePreview(
+          ""
+        );
+
+        const imageInput =
+          document.getElementById(
+            "admin-product-image"
+          );
+
+        if (imageInput) {
+          imageInput.value =
+            "";
+        }
 
         setMessage(
           "Product created successfully."
         );
       } catch (err) {
-        console.error(err);
+        console.error(
+          err
+        );
 
         setError(
-          "Could not create product. We may need to update your Firestore rules."
+          err.message ||
+            "Could not create product."
         );
       } finally {
-        setSaving(false);
+        setSaving(
+          false
+        );
       }
     };
 
@@ -260,8 +529,13 @@ function AdminProducts() {
         return;
       }
 
-      setError("");
-      setMessage("");
+      setError(
+        ""
+      );
+
+      setMessage(
+        ""
+      );
 
       try {
         await deleteDoc(
@@ -276,7 +550,9 @@ function AdminProducts() {
           "Product deleted."
         );
       } catch (err) {
-        console.error(err);
+        console.error(
+          err
+        );
 
         setError(
           "Could not delete product."
@@ -324,8 +600,8 @@ function AdminProducts() {
           </h1>
 
           <p>
-            Only the BOLO administrator can
-            manage products.
+            Only the BOLO administrator
+            can manage products.
           </p>
 
           <Link
@@ -371,8 +647,9 @@ function AdminProducts() {
         </h1>
 
         <p>
-          Create and manage BOLO products
-          without editing the Store code.
+          Create and manage BOLO products,
+          prices and product images without
+          editing the Store code.
         </p>
 
       </section>
@@ -462,7 +739,9 @@ function AdminProducts() {
               Description
 
               <textarea
-                value={description}
+                value={
+                  description
+                }
                 onChange={(event) =>
                   setDescription(
                     event.target.value
@@ -497,7 +776,9 @@ function AdminProducts() {
 
               <input
                 type="text"
-                value={compatibility}
+                value={
+                  compatibility
+                }
                 onChange={(event) =>
                   setCompatibility(
                     event.target.value
@@ -541,6 +822,55 @@ function AdminProducts() {
                 </option>
               </select>
             </label>
+
+            {/* =================================
+                PRODUCT IMAGE
+            ================================= */}
+
+            <label>
+              Product Image
+
+              <input
+                id="admin-product-image"
+                type="file"
+                accept="image/*"
+                onChange={
+                  handleImageSelect
+                }
+              />
+            </label>
+
+            {productImage && (
+              <div className="admin-product-image-selected">
+
+                <strong>
+                  {productImage.name}
+                </strong>
+
+                <small>
+                  {(
+                    productImage.size /
+                    1024 /
+                    1024
+                  ).toFixed(2)}
+                  {" MB"}
+                </small>
+
+              </div>
+            )}
+
+            {imagePreview && (
+              <div className="admin-product-image-preview">
+
+                <img
+                  src={
+                    imagePreview
+                  }
+                  alt="Product preview"
+                />
+
+              </div>
+            )}
 
             <button
               type="submit"
@@ -586,7 +916,8 @@ function AdminProducts() {
                 Loading products...
               </div>
 
-            ) : products.length === 0 ? (
+            ) : products.length ===
+              0 ? (
 
               <div className="saved-empty">
 
@@ -610,8 +941,28 @@ function AdminProducts() {
 
                     <article
                       className="admin-product-card"
-                      key={product.id}
+                      key={
+                        product.id
+                      }
                     >
+
+                      {/* IMAGE */}
+
+                      {product.imageUrl && (
+                        <div className="admin-product-card-image">
+
+                          <img
+                            src={
+                              product.imageUrl
+                            }
+                            alt={
+                              product.title ||
+                              "BOLO product"
+                            }
+                          />
+
+                        </div>
+                      )}
 
                       <div className="admin-product-card-top">
 
@@ -625,7 +976,9 @@ function AdminProducts() {
                           </span>
 
                           <h3>
-                            {product.title}
+                            {
+                              product.title
+                            }
                           </h3>
 
                         </div>
@@ -633,7 +986,8 @@ function AdminProducts() {
                         <strong>
                           $
                           {Number(
-                            product.price || 0
+                            product.price ||
+                              0
                           ).toFixed(2)}
                         </strong>
 

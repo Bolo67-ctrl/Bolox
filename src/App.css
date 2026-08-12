@@ -6474,3 +6474,154 @@ a.admin-dashboard-card:hover
     gap: 7px;
   }
 }
+/* =========================================
+   ADMIN PRODUCT IMAGE
+========================================= */
+
+.admin-product-form input[type="file"] {
+  display: block;
+  width: 100%;
+
+  margin-top: 10px;
+  padding: 14px;
+
+  border: 1px dashed #383838;
+  border-radius: 9px;
+
+  background: #0c0c0c;
+  color: #888;
+
+  font-family: inherit;
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.admin-product-form input[type="file"]:hover {
+  border-color: #ed1528;
+}
+
+.admin-product-form
+  input[type="file"]::file-selector-button {
+  margin-right: 14px;
+  padding: 10px 14px;
+
+  border: 1px solid #333;
+  border-radius: 7px;
+
+  background: #161616;
+  color: white;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.admin-product-form
+  input[type="file"]::file-selector-button:hover {
+  border-color: #ed1528;
+}
+
+/* SELECTED IMAGE */
+
+.admin-product-image-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin: -5px 0 15px;
+  padding: 13px 14px;
+
+  border: 1px solid #242424;
+  border-radius: 8px;
+
+  background: #0b0b0b;
+}
+
+.admin-product-image-selected strong {
+  color: white;
+  font-size: 10px;
+
+  overflow-wrap: anywhere;
+}
+
+.admin-product-image-selected small {
+  flex-shrink: 0;
+
+  color: #666;
+  font-size: 8px;
+}
+
+/* PREVIEW BEFORE CREATE */
+
+.admin-product-image-preview {
+  width: 100%;
+
+  margin-bottom: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid #252525;
+  border-radius: 10px;
+
+  background: #080808;
+}
+
+.admin-product-image-preview img {
+  display: block;
+
+  width: 100%;
+  height: 220px;
+
+  object-fit: cover;
+}
+
+/* =========================================
+   IMAGE ON SAVED PRODUCT CARD
+========================================= */
+
+.admin-product-card-image {
+  width: 100%;
+  height: 180px;
+
+  margin-bottom: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid #222;
+  border-radius: 10px;
+
+  background: #080808;
+}
+
+.admin-product-card-image img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .admin-product-image-preview img {
+    height: 180px;
+  }
+
+  .admin-product-card-image {
+    height: 160px;
+  }
+
+  .admin-product-image-selected {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 6px;
+  }
+}
