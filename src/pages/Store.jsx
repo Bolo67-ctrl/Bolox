@@ -168,7 +168,11 @@ function Store() {
                     "aim neck"
                   );
 
-                return {
+                return {imageUrl:
+  data.imageUrl || "",
+
+imagePath:
+  data.imagePath || "",
                   id:
                     `firestore-${item.id}`,
 
@@ -474,7 +478,14 @@ const products = [
 
                 </div>
 
-                <div className="store-product-info">
+               {product.imageUrl && (
+  <div className="store-product-image">
+    <img
+      src={product.imageUrl}
+      alt={product.title || "BOLO product"}
+    />
+  </div>
+)} <div className="store-product-info">
 
                   <h2>
                     {product.title}
