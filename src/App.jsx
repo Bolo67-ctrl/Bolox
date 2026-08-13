@@ -37,6 +37,7 @@ import PublicProfile from "./pages/PublicProfile";
 import AimNeck from "./pages/AimNeck";
 import MyPurchases from "./pages/MyPurchases";
 import Settings from "./pages/Settings";
+import ProductDetails from "./pages/ProductDetails";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
@@ -65,8 +66,10 @@ function Navbar() {
   const [authError, setAuthError] =
     useState("");
 
-  const [profilePhoto, setProfilePhoto] =
-    useState("");
+  const [
+    profilePhoto,
+    setProfilePhoto,
+  ] = useState("");
 
   const [
     notifications,
@@ -87,7 +90,9 @@ function Navbar() {
       onAuthStateChanged(
         auth,
         (currentUser) => {
-          setUser(currentUser);
+          setUser(
+            currentUser
+          );
 
           if (currentUser) {
             const savedPhoto =
@@ -101,9 +106,17 @@ function Navbar() {
                 ""
             );
           } else {
-            setProfilePhoto("");
-            setNotifications([]);
-            setNotificationsOpen(false);
+            setProfilePhoto(
+              ""
+            );
+
+            setNotifications(
+              []
+            );
+
+            setNotificationsOpen(
+              false
+            );
           }
         }
       );
@@ -173,11 +186,14 @@ function Navbar() {
     const unsubscribe =
       onSnapshot(
         notificationsQuery,
+
         (snapshot) => {
           const loaded =
             snapshot.docs.map(
               (item) => ({
-                id: item.id,
+                id:
+                  item.id,
+
                 ...item.data(),
               })
             );
@@ -230,11 +246,14 @@ function Navbar() {
         await updateDoc(
           notificationRef,
           {
-            read: true,
+            read:
+              true,
           }
         );
       } catch (error) {
-        console.error(error);
+        console.error(
+          error
+        );
       }
     };
 
@@ -254,7 +273,9 @@ function Navbar() {
             !notification.read
         );
 
-      if (unread.length === 0) {
+      if (
+        unread.length === 0
+      ) {
         return;
       }
 
@@ -271,13 +292,16 @@ function Navbar() {
                   notification.id
                 ),
                 {
-                  read: true,
+                  read:
+                    true,
                 }
               )
           )
         );
       } catch (error) {
-        console.error(error);
+        console.error(
+          error
+        );
       }
     };
 
@@ -310,41 +334,51 @@ function Navbar() {
      LOGIN
   ========================================= */
 
-  const handleLogin = async () => {
-    try {
-      setAuthError("");
+  const handleLogin =
+    async () => {
+      try {
+        setAuthError(
+          ""
+        );
 
-      await loginWithGoogle();
-    } catch (error) {
-      console.error(error);
+        await loginWithGoogle();
+      } catch (error) {
+        console.error(
+          error
+        );
 
-      setAuthError(
-        `${error.code}: ${error.message}`
-      );
-    }
-  };
+        setAuthError(
+          `${error.code}: ${error.message}`
+        );
+      }
+    };
 
   /* =========================================
      LOGOUT
   ========================================= */
 
-  const handleLogout = async () => {
-    try {
-      setAuthError("");
+  const handleLogout =
+    async () => {
+      try {
+        setAuthError(
+          ""
+        );
 
-      setNotificationsOpen(
-        false
-      );
+        setNotificationsOpen(
+          false
+        );
 
-      await logoutUser();
-    } catch (error) {
-      console.error(error);
+        await logoutUser();
+      } catch (error) {
+        console.error(
+          error
+        );
 
-      setAuthError(
-        "Could not log out."
-      );
-    }
-  };
+        setAuthError(
+          "Could not log out."
+        );
+      }
+    };
 
   return (
     <>
@@ -655,8 +689,6 @@ function Navbar() {
 
               </Link>
 
-              {/* LOGOUT */}
-
               <button
                 className="logout-btn"
                 onClick={
@@ -920,7 +952,9 @@ function App() {
 
         <Route
           path="/"
-          element={<Home />}
+          element={
+            <Home />
+          }
         />
 
         {/* STORE */}
@@ -930,6 +964,19 @@ function App() {
           element={
             <PageLayout>
               <Store />
+            </PageLayout>
+          }
+        />
+
+        {/* =================================
+            DYNAMIC PRODUCT DETAILS
+        ================================= */}
+
+        <Route
+          path="/store/product/:productId"
+          element={
+            <PageLayout>
+              <ProductDetails />
             </PageLayout>
           }
         />
@@ -1011,9 +1058,7 @@ function App() {
           }
         />
 
-        {/* =================================
-            ADMIN DASHBOARD
-        ================================= */}
+        {/* ADMIN DASHBOARD */}
 
         <Route
           path="/admin"
@@ -1024,9 +1069,7 @@ function App() {
           }
         />
 
-        {/* =================================
-            ADMIN PRODUCTS
-        ================================= */}
+        {/* ADMIN PRODUCTS */}
 
         <Route
           path="/admin/products"
@@ -1037,9 +1080,7 @@ function App() {
           }
         />
 
-        {/* =================================
-            ADMIN FILES
-        ================================= */}
+        {/* ADMIN FILES */}
 
         <Route
           path="/admin/files"
@@ -1050,9 +1091,7 @@ function App() {
           }
         />
 
-        {/* =================================
-            ADMIN ORDERS
-        ================================= */}
+        {/* ADMIN ORDERS */}
 
         <Route
           path="/admin/orders"

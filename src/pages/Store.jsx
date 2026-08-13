@@ -17,18 +17,8 @@ import {
 } from "../firebase";
 
 /* =========================================
-   BUILT-IN BOLO PRODUCTS
-========================================= */
-
-/* =========================================
    HELPERS
 ========================================= */
-
-function normalizeTitle(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
-}
 
 function formatPrice(value) {
   if (
@@ -53,9 +43,7 @@ function formatPrice(value) {
 
 function createTags(product) {
   if (
-    Array.isArray(
-      product.tags
-    ) &&
+    Array.isArray(product.tags) &&
     product.tags.length > 0
   ) {
     return product.tags;
@@ -76,14 +64,6 @@ function createTags(product) {
   ) {
     tags.push(
       product.compatibility
-    );
-  }
-
-  if (
-    product.iosVersion
-  ) {
-    tags.push(
-      product.iosVersion
     );
   }
 
@@ -119,8 +99,8 @@ function Store() {
   ] = useState("all");
 
   const [
-    dashboardProducts,
-    setDashboardProducts,
+    products,
+    setProducts,
   ] = useState([]);
 
   const [
@@ -155,26 +135,9 @@ function Store() {
                   data.name ||
                   "Untitled Product";
 
-                /*
-                  If this is Aim Neck,
-                  connect it to the
-                  existing Aim Neck page.
-                */
-
-                const isAimNeck =
-                  normalizeTitle(
-                    title
-                  ).includes(
-                    "aim neck"
-                  );
-
-                return {imageUrl:
-  data.imageUrl || "",
-
-imagePath:
-  data.imagePath || "",
+                return {
                   id:
-                    `firestore-${item.id}`,
+                    item.id,
 
                   firestoreId:
                     item.id,
@@ -195,6 +158,14 @@ imagePath:
                     data.description ||
                     "BOLO premium product.",
 
+                  imageUrl:
+                    data.imageUrl ||
+                    "",
+
+                  imagePath:
+                    data.imagePath ||
+                    "",
+
                   tags:
                     createTags(
                       data
@@ -206,24 +177,18 @@ imagePath:
                     ),
 
                   type:
-                    isAimNeck
-                      ? "page"
-                      : "paid",
+                    "page",
 
                   link:
-                    isAimNeck
-                      ? "/store/aim-neck"
-                      : "",
+                    `/store/product/${item.id}`,
 
                   button:
-                    isAimNeck
-                      ? "View Product"
-                      : "Premium Product",
+                    "View Product",
                 };
               }
             );
 
-          setDashboardProducts(
+          setProducts(
             loaded
           );
 
@@ -246,19 +211,6 @@ imagePath:
 
     return unsubscribe;
   }, []);
-
-  /* =========================================
-     MERGE BUILT-IN + ADMIN PRODUCTS
-
-     If an Admin Product has the same
-     title as a built-in product,
-     the Admin Product replaces it.
-  ========================================= */
-
-const products = [
-  ...dashboardProducts,
-];
-
 
   /* =========================================
      FILTER
@@ -458,13 +410,17 @@ const products = [
 
               <div
                 className="store-product"
-                key={product.id}
+                key={
+                  product.id
+                }
               >
 
                 <div className="store-product-top">
 
                   <div className="store-product-icon">
-                    {product.icon}
+                    {
+                      product.icon
+                    }
                   </div>
 
                   <span className="store-product-number">
@@ -478,17 +434,32 @@ const products = [
 
                 </div>
 
-               {product.imageUrl && (
-  <div className="store-product-image">
-    <img
-      src={product.imageUrl}
-      alt={product.title || "BOLO product"}
-    />
-  </div>
-)} <div className="store-product-info">
+                {/* PRODUCT IMAGE */}
+
+                {product.imageUrl && (
+                  <div className="store-product-image">
+
+                    <img
+                      src={
+                        product.imageUrl
+                      }
+                      alt={
+                        product.title ||
+                        "BOLO product"
+                      }
+                    />
+
+                  </div>
+                )}
+
+                {/* PRODUCT INFO */}
+
+                <div className="store-product-info">
 
                   <h2>
-                    {product.title}
+                    {
+                      product.title
+                    }
                   </h2>
 
                   {product.price && (
@@ -506,6 +477,8 @@ const products = [
                   </p>
 
                 </div>
+
+                {/* BOTTOM */}
 
                 <div className="store-product-bottom">
 
@@ -528,71 +501,18 @@ const products = [
 
                   </div>
 
-                  {/* PAGE */}
+                  <Link
+                    to={
+                      product.link
+                    }
+                    className="store-action"
+                  >
+                    View Product
 
-                  {product.type ===
-                  "page" ? (
-
-                    <Link
-                      to={
-                        product.link
-                      }
-                      className="store-action"
-                    >
-                      {
-                        product.button
-                      }
-
-                      <span>
-                        →
-                      </span>
-                    </Link>
-
-                  ) : product.type ===
-                    "download" ? (
-
-                    /* DOWNLOAD */
-
-                    <a
-                      href={
-                        product.file
-                      }
-                      className="store-action"
-                      download={
-                        !product.file.endsWith(
-                          ".mobileconfig"
-                        )
-                      }
-                    >
-                      {
-                        product.button
-                      }
-
-                      <span>
-                        ↓
-                      </span>
-                    </a>
-
-                  ) : (
-
-                    /* ADMIN-CREATED PREMIUM PRODUCT */
-
-                    <button
-                      type="button"
-                      className="store-action"
-                      disabled
-                    >
-                      {
-                        product.button ||
-                        "Premium Product"
-                      }
-
-                      <span>
-                        →
-                      </span>
-                    </button>
-
-                  )}
+                    <span>
+                      →
+                    </span>
+                  </Link>
 
                 </div>
 
@@ -600,213 +520,6 @@ const products = [
 
             )
           )}
-
-        </div>
-
-      </section>
-
-      {/* =====================================
-          BOLO AIM
-      ===================================== */}
-
-      <section className="bolo-aim-section">
-
-        <div className="bolo-aim-card">
-
-          <span className="red-label">
-            IPHONE NETWORK TOOL
-          </span>
-
-          <div className="bolo-aim-icon">
-            📡
-          </div>
-
-          <h2>
-            BOLO{" "}
-            <span>
-              AIM
-            </span>
-          </h2>
-
-          <p>
-            Install the BOLO AIM DNS
-            profile on your iPhone for
-            a reliable gaming network
-            setup.
-          </p>
-
-          <div className="bolo-aim-tags">
-
-            <span>
-              iOS
-            </span>
-
-            <span>
-              DNS
-            </span>
-
-            <span>
-              FREE
-            </span>
-
-          </div>
-
-          <a
-            href="/bolo-aim.mobileconfig"
-            className="bolo-aim-button"
-          >
-            Install BOLO AIM ↓
-          </a>
-
-          <small>
-            BOLO AIM changes DNS
-            settings. It does not
-            modify Free Fire aim or
-            game files.
-          </small>
-
-        </div>
-
-      </section>
-
-      {/* =====================================
-          GENERATOR
-      ===================================== */}
-
-      <section className="generator-preview">
-
-        <div className="generator-content">
-
-          <span className="red-label">
-            FREE FIRE ONLY
-          </span>
-
-          <h2>
-            Your sensitivity.
-            <br />
-
-            <span>
-              Your way.
-            </span>
-          </h2>
-
-          <p>
-            Choose your device and
-            play style to generate a
-            personalized sensitivity
-            setup.
-          </p>
-
-          <div className="generator-info">
-
-            <div>
-              <strong>
-                5
-              </strong>
-
-              <span>
-                FREE GENERATIONS
-              </span>
-            </div>
-
-            <div>
-              <strong>
-                FREE
-              </strong>
-
-              <span>
-                TO USE
-              </span>
-            </div>
-
-            <div>
-              <strong>
-                FF
-              </strong>
-
-              <span>
-                ONLY
-              </span>
-            </div>
-
-          </div>
-
-          <Link
-            to="/store/sensitivity"
-            className="generator-button"
-          >
-            Start Generator →
-          </Link>
-
-        </div>
-
-        <div className="generator-visual">
-
-          <div className="settings-card">
-
-            <div className="settings-header">
-
-              <span>
-                BOLO SENSITIVITY
-              </span>
-
-              <span>
-                FREE FIRE
-              </span>
-
-            </div>
-
-            <div className="setting-row">
-              <span>
-                General
-              </span>
-
-              <strong>
-                187
-              </strong>
-            </div>
-
-            <div className="setting-row">
-              <span>
-                Red Dot
-              </span>
-
-              <strong>
-                174
-              </strong>
-            </div>
-
-            <div className="setting-row">
-              <span>
-                2X Scope
-              </span>
-
-              <strong>
-                161
-              </strong>
-            </div>
-
-            <div className="setting-row">
-              <span>
-                4X Scope
-              </span>
-
-              <strong>
-                148
-              </strong>
-            </div>
-
-            <div className="setting-row">
-              <span>
-                Sniper Scope
-              </span>
-
-              <strong>
-                92
-              </strong>
-            </div>
-
-          </div>
 
         </div>
 
