@@ -6657,3 +6657,101 @@ a.admin-dashboard-card:hover
     height: 190px;
   }
 }
+/* =========================================
+   MOBILE STORE PRODUCT CARD CLEANUP
+========================================= */
+
+@media (max-width: 600px) {
+  .store-product {
+    min-height: auto !important;
+    padding: 18px !important;
+
+    border-radius: 16px !important;
+  }
+
+  .store-product-top {
+    margin-bottom: 14px;
+  }
+
+  .store-product-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 10px;
+
+    font-size: 20px;
+  }
+
+  .store-product-number {
+    font-size: 10px;
+  }
+
+  .store-product-image {
+    height: auto;
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+  }
+
+  .store-product-image img {
+    width: 100%;
+    height: auto;
+
+    aspect-ratio: 16 / 10;
+
+    object-fit: cover;
+  }
+
+  .store-product-info {
+    margin-top: 0;
+  }
+
+  .store-product-info h2 {
+    margin-bottom: 8px !important;
+
+    font-size: 24px !important;
+    line-height: 1.15 !important;
+  }
+
+  .store-product-price {
+    margin: 6px 0 10px;
+
+    font-size: 25px;
+  }
+
+  .store-product-info p {
+    margin-bottom: 18px;
+
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .store-product-bottom {
+    margin-top: 0;
+
+    align-items: flex-start !important;
+    flex-direction: column !important;
+
+    gap: 16px;
+  }
+
+  .store-tags {
+    gap: 7px;
+  }
+
+  .store-tags span {
+    padding: 7px 9px;
+
+    font-size: 8px;
+  }
+
+  .store-action {
+    width: 100%;
+
+    justify-content: center !important;
+
+    padding: 13px 15px !important;
+
+    border-radius: 9px !important;
+  }
+}
